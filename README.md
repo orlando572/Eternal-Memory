@@ -17,7 +17,7 @@ Plataforma de comercio electrónico diseñada para la venta y gestión de produc
 
 ## ✨ Características principales
 
-- **Catálogo interactivo:** Navegación por categorías (féretros, urnas, flores y accesorios).
+- **Catálogo interactivo:** Navegación por categorías (féretros, urnas, flores, accesorios, etc).
 - **Carrito de compras persistente:** Mantenimiento de productos seleccionados localmente.
 - **Autenticación y perfiles:** Registro, inicio de sesión y gestión de clientes.
 - **Formularios de checkout:** Captura y validación de datos de entrega y personalización.
