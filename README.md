@@ -9,7 +9,6 @@ Plataforma de comercio electrónico diseñada para la venta y gestión de produc
 - **Biblioteca de interfaz:** [React](https://react.dev/)
 - **Lenguaje:** [TypeScript](https://www.typescriptlang.org/)
 - **Estilos:** [Tailwind CSS](https://tailwindcss.com/)
-- **Componentes de UI:** [shadcn/ui](https://ui.shadcn.com/)
 - **Base de datos:** [Supabase](https://supabase.com/)
 - **Pasarela de pagos:** [Stripe](https://stripe.com/)
 
