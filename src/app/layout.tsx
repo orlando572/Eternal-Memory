@@ -28,8 +28,8 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${fraunces.variable} ${inter.variable}`}>
       <body className="bg-ink text-bone font-body antialiased min-h-screen flex flex-col selection:bg-brass selection:text-ink">
-        {/* ================= HEADER GLOBAL ================= */}
-        <nav className="sticky top-0 z-50 bg-ink/90 backdrop-blur border-b border-brass/10">
+        {/* HEADER GLOBAL */}
+        <nav className="bg-ink/90 backdrop-blur border-b border-brass/10">
           <div className="max-w-7xl mx-auto px-6 md:px-10 h-16 flex items-center justify-between">
             <Link href="/" className="font-display text-xl tracking-tight hover:text-brass-300 transition-colors">
               Eternal Memory
@@ -55,12 +55,12 @@ export default function RootLayout({
           </div>
         </nav>
 
-        {/* ================= CONTENIDO DE CADA PÁGINA ================= */}
+        {/* CONTENIDO DE CADA PÁGINA */}
         <div className="flex-1 flex flex-col">
           {children}
         </div>
 
-        {/* ================= FOOTER GLOBAL ================= */}
+        {/* FOOTER GLOBAL */}
         <footer className="mt-auto border-t border-brass/10 py-12 bg-ink-800/40">
           <div className="max-w-7xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-bone-500">
             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8">

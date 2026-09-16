@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function HomePage() {
   return (
     <div className="flex flex-col bg-ink text-bone">
-      {/* ================= HERO SECTION ================= */}
+      {/* HERO SECTION */}
       <header className="relative border-b border-brass/10 overflow-hidden">
         {/* Glow cálido tenue */}
         <div
@@ -46,7 +46,7 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* ================= PILARES / PRINCIPIOS ================= */}
+      {/* PILARES / PRINCIPIOS */}
       <section className="py-24 border-b border-brass/10">
         <div className="max-w-7xl mx-auto px-6 md:px-10">
           <div className="grid md:grid-cols-3 gap-12">
@@ -86,7 +86,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ================= PROPUESTAS / CATEGORÍAS (PREVIEW DE NAVEGACIÓN) ================= */}
+      {/* PROPUESTAS / CATEGORÍAS (PREVIEW DE NAVEGACIÓN) */}
       <section className="py-24 border-b border-brass/10">
         <div className="max-w-7xl mx-auto px-6 md:px-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
@@ -175,7 +175,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ================= COMPROMISO / DISCRECIÓN ================= */}
+      {/* COMPROMISO / DISCRECIÓN */}
       <section className="py-24">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <span className="text-xs font-medium text-brass-400 tracking-wider">
