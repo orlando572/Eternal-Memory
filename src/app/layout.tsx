@@ -4,6 +4,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { Mail } from "lucide-react";
 import "./globals.css";
+import { CartProvider } from "@/features/cart/context/CartContext";
+import CartDrawer from "@/features/cart/components/CartDrawer";
+import CartTrigger from "@/features/cart/components/CartTrigger";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
@@ -38,140 +41,145 @@ export default function RootLayout({
   return (
     <html lang="es" className={`${fraunces.variable} ${inter.variable}`}>
       <body className="bg-ink text-bone font-body antialiased min-h-screen flex flex-col selection:bg-brass selection:text-ink">
-        {/* ================= HEADER / NAVEGACIÓN GLOBAL ================= */}
-        <nav className="bg-ink/90 backdrop-blur border-b border-brass/10">
-          <div className="w-full md:max-w-[85%] lg:max-w-[80%] mx-auto px-4 sm:px-6 md:px-10 h-16 sm:h-20 flex items-center justify-between gap-4">
-            <Link href="/" className="flex items-center shrink-0 hover:opacity-85 transition-opacity">
-              <Image
-                src="/logo.png"
-                alt="Eternal Memory"
-                width={180}
-                height={48}
-                priority
-                className="h-9 sm:h-12 w-auto object-contain"
-              />
-            </Link>
-
-            <div className="flex items-center gap-3 sm:gap-6 md:gap-8 text-xs sm:text-sm">
-              <Link href="/catalogo" className="text-bone-400 hover:text-bone transition-colors">
-                Catálogo
+        <CartProvider>
+          {/* HEADER / NAVEGACIÓN GLOBAL */}
+          <nav className="bg-ink/90 backdrop-blur border-b border-brass/10">
+            <div className="w-full md:max-w-[85%] lg:max-w-[80%] mx-auto px-4 sm:px-6 md:px-10 h-16 sm:h-20 flex items-center justify-between gap-4">
+              <Link href="/" className="flex items-center shrink-0 hover:opacity-85 transition-opacity">
+                <Image
+                  src="/logo.png"
+                  alt="Eternal Memory"
+                  width={180}
+                  height={48}
+                  priority
+                  className="h-9 sm:h-12 w-auto object-contain"
+                />
               </Link>
-              <Link href="/servicios" className="text-bone-400 hover:text-bone transition-colors hidden sm:inline">
-                Servicios
-              </Link>
-              <Link href="/contacto" className="text-bone-400 hover:text-bone transition-colors hidden sm:inline">
-                Contacto
-              </Link>
-              <Link
-                href="/login"
-                className="border border-brass/40 hover:border-brass text-bone text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded transition-colors shrink-0"
-              >
-                Iniciar sesión
-              </Link>
-            </div>
-          </div>
-        </nav>
 
-        {/* ================= CONTENIDO DE CADA PÁGINA ================= */}
-        <div className="flex-1 flex flex-col">{children}</div>
-
-        {/* ================= FOOTER COMPACTO (SIN SEPARADOR FINAL) ================= */}
-        <footer className="mt-auto border-t border-brass/10 pt-10 pb-8 bg-ink-800/40">
-          <div className="w-full md:max-w-[85%] lg:max-w-[80%] mx-auto px-4 sm:px-6 md:px-10">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
-
-              {/* Columna Izquierda: Logo + Redes + Derechos integrados */}
-              <div className="lg:col-span-5 space-y-3">
-                <Link href="/" className="inline-block hover:opacity-85 transition-opacity">
-                  <Image
-                    src="/logo.png"
-                    alt="Eternal Memory"
-                    width={240}
-                    height={64}
-                    className="h-12 sm:h-14 w-auto object-contain"
-                  />
+              <div className="flex items-center gap-3 sm:gap-6 md:gap-8 text-xs sm:text-sm">
+                <Link href="/catalogo" className="text-bone-400 hover:text-bone transition-colors">
+                  Catálogo
+                </Link>
+                <Link href="/servicios" className="text-bone-400 hover:text-bone transition-colors hidden sm:inline">
+                  Servicios
+                </Link>
+                <Link href="/contacto" className="text-bone-400 hover:text-bone transition-colors hidden sm:inline">
+                  Contacto
                 </Link>
 
-                <p className="text-xs text-bone-400 leading-relaxed max-w-sm">
-                  Espacio de memoria y homenaje para honrar a seres queridos con serenidad, respeto y transparencia.
-                </p>
+                {/* BOTÓN DEL CARRITO */}
+                <CartTrigger />
+
+                <Link
+                  href="/login"
+                  className="border border-brass/40 hover:border-brass text-bone text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded transition-colors shrink-0"
+                >
+                  Iniciar sesión
+                </Link>
               </div>
+            </div>
+          </nav>
 
-              {/* Bloque Derecho de Enlaces Compactos */}
-              <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6">
-                {/* Secciones */}
-                <div>
-                  <h4 className="text-xs uppercase tracking-wider text-brass font-semibold mb-2.5">
-                    Secciones
-                  </h4>
-                  <ul className="space-y-2 text-xs text-bone-400">
-                    <li>
-                      <Link href="/catalogo" className="hover:text-bone transition-colors">
-                        Catálogo
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/servicios" className="hover:text-bone transition-colors">
-                        Servicios
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/contacto" className="hover:text-bone transition-colors">
-                        Contacto
-                      </Link>
-                    </li>
-                  </ul>
+          {/* CONTENIDO DE CADA PÁGINA */}
+          <main className="flex-1 flex flex-col">{children}</main>
+
+          {/* PANEL DRAWER DEL CARRITO */}
+          <CartDrawer />
+
+          {/* FOOTER */}
+          <footer className="mt-auto border-t border-brass/10 pt-10 pb-8 bg-ink-800/40">
+            <div className="w-full md:max-w-[85%] lg:max-w-[80%] mx-auto px-4 sm:px-6 md:px-10">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-start">
+                {/* Columna Izquierda */}
+                <div className="lg:col-span-5 space-y-3">
+                  <Link href="/" className="inline-block hover:opacity-85 transition-opacity">
+                    <Image
+                      src="/logo.png"
+                      alt="Eternal Memory"
+                      width={240}
+                      height={64}
+                      className="h-12 sm:h-14 w-auto object-contain"
+                    />
+                  </Link>
+
+                  <p className="text-xs text-bone-400 leading-relaxed max-w-sm">
+                    Espacio de memoria y homenaje para honrar a seres queridos con serenidad, respeto y transparencia.
+                  </p>
                 </div>
 
-                {/* Legal */}
-                <div>
-                  <h4 className="text-xs uppercase tracking-wider text-brass font-semibold mb-2.5">
-                    Legal
-                  </h4>
-                  <ul className="space-y-2 text-xs text-bone-400">
-                    <li>
-                      <Link href="/terminos" className="hover:text-bone transition-colors">
-                        Términos
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/privacidad" className="hover:text-bone transition-colors">
-                        Privacidad
-                      </Link>
-                    </li>
-                    <li>
-                      <Link href="/contacto" className="hover:text-bone transition-colors">
-                        Ayuda
-                      </Link>
-                    </li>
-                  </ul>
-                </div>
+                {/* Enlaces y Contacto */}
+                <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-6">
+                  <div>
+                    <h4 className="text-xs uppercase tracking-wider text-brass font-semibold mb-2.5">
+                      Secciones
+                    </h4>
+                    <ul className="space-y-2 text-xs text-bone-400">
+                      <li>
+                        <Link href="/catalogo" className="hover:text-bone transition-colors">
+                          Catálogo
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/servicios" className="hover:text-bone transition-colors">
+                          Servicios
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/contacto" className="hover:text-bone transition-colors">
+                          Contacto
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
 
-                {/* Atención Inmediata */}
-                <div className="col-span-2 sm:col-span-1">
-                  <h4 className="text-xs uppercase tracking-wider text-brass font-semibold mb-2.5">
-                    Atención Inmediata
-                  </h4>
-                  <div className="space-y-2 text-xs text-bone-400">
-                    <a
-                      href="https://wa.me/51999999999?text=Hola,%20necesito%20orientación"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-brass hover:underline font-medium"
-                    >
-                      <WhatsAppIcon className="w-3.5 h-3.5 shrink-0" />
-                      <span>WhatsApp 24/7</span>
-                    </a>
-                    <p className="flex items-center gap-1.5">
-                      <Mail className="w-3.5 h-3.5 text-brass-300 shrink-0" />
-                      <span>contacto@eternalmemory.com</span>
-                    </p>
+                  <div>
+                    <h4 className="text-xs uppercase tracking-wider text-brass font-semibold mb-2.5">
+                      Legal
+                    </h4>
+                    <ul className="space-y-2 text-xs text-bone-400">
+                      <li>
+                        <Link href="/terminos" className="hover:text-bone transition-colors">
+                          Términos
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/privacidad" className="hover:text-bone transition-colors">
+                          Privacidad
+                        </Link>
+                      </li>
+                      <li>
+                        <Link href="/contacto" className="hover:text-bone transition-colors">
+                          Ayuda
+                        </Link>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="col-span-2 sm:col-span-1">
+                    <h4 className="text-xs uppercase tracking-wider text-brass font-semibold mb-2.5">
+                      Atención Inmediata
+                    </h4>
+                    <div className="space-y-2 text-xs text-bone-400">
+                      <a
+                        href="https://wa.me/51999999999?text=Hola,%20necesito%20orientación"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-brass hover:underline font-medium"
+                      >
+                        <WhatsAppIcon className="w-3.5 h-3.5 shrink-0" />
+                        <span>WhatsApp 24/7</span>
+                      </a>
+                      <p className="flex items-center gap-1.5">
+                        <Mail className="w-3.5 h-3.5 text-brass-300 shrink-0" />
+                        <span>contacto@eternalmemory.com</span>
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </footer>
+          </footer>
+        </CartProvider>
       </body>
     </html>
   );
