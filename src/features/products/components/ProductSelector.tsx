@@ -2,32 +2,25 @@
 
 import { useState } from 'react';
 import { Product } from '../data/productsData';
-
-interface CartItem extends Product {
-  selectedOption: string;
-  quantity: number;
-}
+import { useCart } from '@/features/cart/context/CartContext';
 
 interface ProductSelectorProps {
   product: Product;
-  onAddToCart?: (item: CartItem) => void;
 }
 
-export default function ProductSelector({ product, onAddToCart }: ProductSelectorProps) {
+export default function ProductSelector({ product }: ProductSelectorProps) {
   const [selectedOption, setSelectedOption] = useState<string>(
     product.opciones?.[0] || ''
   );
   const [quantity, setQuantity] = useState<number>(1);
+  const { addToCart } = useCart();
 
   const handleAddToCart = () => {
-    const itemToAdd: CartItem = {
+    addToCart({
       ...product,
       selectedOption,
       quantity,
-    };
-    if (onAddToCart) {
-      onAddToCart(itemToAdd);
-    }
+    });
   };
 
   return (
