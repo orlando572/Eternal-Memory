@@ -1,69 +1,5 @@
-const PRODUCTOS = [
-  {
-    id: "urna-serenidad-bronce",
-    categoria: "Urnas",
-    nombre: "Urna Serenidad en bronce",
-    precio: "S/ 480",
-    badge: "En stock",
-    badgeTipo: "moss",
-  },
-  {
-    id: "ataud-roble-clasico",
-    categoria: "Ataúdes",
-    nombre: "Ataúd Roble Clásico",
-    precio: "S/ 2,100",
-    badge: "Personalizable",
-    badgeTipo: "neutral",
-  },
-  {
-    id: "relicario-petalo-bronce",
-    categoria: "Relicarios",
-    nombre: "Relicario Pétalo Bronce",
-    precio: "S/ 190",
-    badge: "Últimas unidades",
-    badgeTipo: "ember",
-  },
-  {
-    id: "corona-botanica-romero",
-    categoria: "Arreglos florales",
-    nombre: "Corona Botánica Silvestre",
-    precio: "S/ 260",
-    badge: "Envío en 24h",
-    badgeTipo: "brass",
-  },
-  {
-    id: "urna-marmol-silencioso",
-    categoria: "Urnas",
-    nombre: "Urna Mármol Silencioso",
-    precio: "S/ 620",
-    badge: "En stock",
-    badgeTipo: "moss",
-  },
-  {
-    id: "ataud-cedro-imperial",
-    categoria: "Ataúdes",
-    nombre: "Ataúd Cedro Imperial",
-    precio: "S/ 2,850",
-    badge: "Personalizable",
-    badgeTipo: "neutral",
-  },
-  {
-    id: "centro-orquideas-lirios",
-    categoria: "Arreglos florales",
-    nombre: "Centro de Orquídeas y Lirios",
-    precio: "S/ 310",
-    badge: "Envío en 24h",
-    badgeTipo: "brass",
-  },
-  {
-    id: "urna-organica-tierra",
-    categoria: "Urnas",
-    nombre: "Urna Orgánica Tierra Viva",
-    precio: "S/ 390",
-    badge: "En stock",
-    badgeTipo: "moss",
-  },
-];
+import Link from "next/link";
+import { PRODUCTOS } from "@/features/products/data/productsData";
 
 export default function CatalogoView() {
   return (
@@ -107,7 +43,7 @@ export default function CatalogoView() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {PRODUCTOS.map((item) => (
-            <div key={item.id} className="group">
+            <Link key={item.id} href={`/catalogo/${item.id}`} className="group block">
               <div className="aspect-4/5 bg-ink-700 rounded-md border border-white/10 group-hover:border-brass/30 group-hover:shadow-glow transition-all flex flex-col items-center justify-center relative p-3">
                 <span className="text-bone-500 text-xs">imagen del producto</span>
 
@@ -140,7 +76,7 @@ export default function CatalogoView() {
                 <p className="font-medium text-sm text-bone">{item.nombre}</p>
                 <p className="text-brass-300 text-sm mt-1">{item.precio}</p>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </main>
