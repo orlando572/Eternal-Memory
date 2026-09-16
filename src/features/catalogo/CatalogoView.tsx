@@ -1,7 +1,26 @@
+'use client';
+
+import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { PRODUCTOS } from "@/features/products/data/productsData";
 
 export default function CatalogoView() {
+  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<
+    "todos" | "urnas" | "ataudes" | "relicarios" | "flores"
+  >("todos");
+
+  const productosFiltrados =
+    categoriaSeleccionada === "todos"
+      ? PRODUCTOS
+      : PRODUCTOS.filter((p) => {
+          if (categoriaSeleccionada === "urnas") return p.categoria === "Urnas";
+          if (categoriaSeleccionada === "ataudes") return p.categoria === "Ataúdes";
+          if (categoriaSeleccionada === "relicarios") return p.categoria === "Relicarios";
+          if (categoriaSeleccionada === "flores") return p.categoria === "Arreglos florales";
+          return true;
+        });
+
   return (
     <>
       {/* CABECERA */}
@@ -19,19 +38,54 @@ export default function CatalogoView() {
       <main className="max-w-7xl mx-auto px-6 md:px-10 py-10 flex-1 w-full">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-8 border-b border-white/10 mb-10">
           <div className="flex flex-wrap items-center gap-2">
-            <button className="text-xs font-medium bg-brass/15 text-brass-300 border border-brass/30 px-3.5 py-1.5 rounded transition-colors">
+            <button
+              onClick={() => setCategoriaSeleccionada("todos")}
+              className={`text-xs font-medium px-3.5 py-1.5 rounded transition-colors cursor-pointer ${
+                categoriaSeleccionada === "todos"
+                  ? "bg-brass/15 text-brass-300 border border-brass/30"
+                  : "text-bone-400 hover:text-bone hover:bg-white/5 border border-transparent"
+              }`}
+            >
               Todos
             </button>
-            <button className="text-xs font-medium text-bone-400 hover:text-bone hover:bg-white/5 border border-transparent px-3.5 py-1.5 rounded transition-colors">
+            <button
+              onClick={() => setCategoriaSeleccionada("urnas")}
+              className={`text-xs font-medium px-3.5 py-1.5 rounded transition-colors cursor-pointer ${
+                categoriaSeleccionada === "urnas"
+                  ? "bg-brass/15 text-brass-300 border border-brass/30"
+                  : "text-bone-400 hover:text-bone hover:bg-white/5 border border-transparent"
+              }`}
+            >
               Urnas
             </button>
-            <button className="text-xs font-medium text-bone-400 hover:text-bone hover:bg-white/5 border border-transparent px-3.5 py-1.5 rounded transition-colors">
+            <button
+              onClick={() => setCategoriaSeleccionada("ataudes")}
+              className={`text-xs font-medium px-3.5 py-1.5 rounded transition-colors cursor-pointer ${
+                categoriaSeleccionada === "ataudes"
+                  ? "bg-brass/15 text-brass-300 border border-brass/30"
+                  : "text-bone-400 hover:text-bone hover:bg-white/5 border border-transparent"
+              }`}
+            >
               Ataúdes
             </button>
-            <button className="text-xs font-medium text-bone-400 hover:text-bone hover:bg-white/5 border border-transparent px-3.5 py-1.5 rounded transition-colors">
+            <button
+              onClick={() => setCategoriaSeleccionada("relicarios")}
+              className={`text-xs font-medium px-3.5 py-1.5 rounded transition-colors cursor-pointer ${
+                categoriaSeleccionada === "relicarios"
+                  ? "bg-brass/15 text-brass-300 border border-brass/30"
+                  : "text-bone-400 hover:text-bone hover:bg-white/5 border border-transparent"
+              }`}
+            >
               Relicarios
             </button>
-            <button className="text-xs font-medium text-bone-400 hover:text-bone hover:bg-white/5 border border-transparent px-3.5 py-1.5 rounded transition-colors">
+            <button
+              onClick={() => setCategoriaSeleccionada("flores")}
+              className={`text-xs font-medium px-3.5 py-1.5 rounded transition-colors cursor-pointer ${
+                categoriaSeleccionada === "flores"
+                  ? "bg-brass/15 text-brass-300 border border-brass/30"
+                  : "text-bone-400 hover:text-bone hover:bg-white/5 border border-transparent"
+              }`}
+            >
               Arreglos florales
             </button>
           </div>
@@ -42,33 +96,20 @@ export default function CatalogoView() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {PRODUCTOS.map((item) => (
+          {productosFiltrados.map((item) => (
             <Link key={item.id} href={`/catalogo/${item.id}`} className="group block">
-              <div className="aspect-4/5 bg-ink-700 rounded-md border border-white/10 group-hover:border-brass/30 group-hover:shadow-glow transition-all flex flex-col items-center justify-center relative p-3">
-                <span className="text-bone-500 text-xs">imagen del producto</span>
-
-                <div className="absolute top-3 left-3">
-                  {item.badgeTipo === "moss" && (
-                    <span className="text-[11px] font-medium bg-moss/15 text-moss-400 border border-moss/30 px-2.5 py-1 rounded">
-                      {item.badge}
-                    </span>
-                  )}
-                  {item.badgeTipo === "ember" && (
-                    <span className="text-[11px] font-medium bg-ember/15 text-ember-400 border border-ember/30 px-2.5 py-1 rounded">
-                      {item.badge}
-                    </span>
-                  )}
-                  {item.badgeTipo === "brass" && (
-                    <span className="text-[11px] font-medium bg-brass/15 text-brass-300 border border-brass/30 px-2.5 py-1 rounded">
-                      {item.badge}
-                    </span>
-                  )}
-                  {item.badgeTipo === "neutral" && (
-                    <span className="text-[11px] font-medium bg-white/5 text-bone-400 border border-white/10 px-2.5 py-1 rounded">
-                      {item.badge}
-                    </span>
-                  )}
-                </div>
+              <div className="aspect-4/5 bg-ink-700 rounded-md border border-white/10 group-hover:border-brass/30 group-hover:shadow-glow transition-all flex flex-col items-center justify-center relative p-3 overflow-hidden">
+                {item.imagenes?.[0] ? (
+                  <Image
+                    src={item.imagenes[0]}
+                    alt={item.nombre}
+                    fill
+                    className="object-cover rounded"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 25vw"
+                  />
+                ) : (
+                  <span className="text-bone-500 text-xs">imagen del producto</span>
+                )}
               </div>
 
               <div className="pt-4">
