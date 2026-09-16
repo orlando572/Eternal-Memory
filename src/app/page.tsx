@@ -1,27 +1,47 @@
 import Link from "next/link";
+import Image from "next/image";
+import {
+  Truck,
+  PenTool,
+  ShieldCheck,
+  MessageCircle,
+  ArrowRight,
+  MessageSquareQuote,
+} from "lucide-react";
 
 export default function HomePage() {
   return (
     <div className="flex flex-col bg-ink text-bone">
-      {/* HERO SECTION */}
-      <header className="relative border-b border-brass/10 overflow-hidden">
-        {/* Glow cálido tenue */}
+      {/* ================= HERO / HEADER SECTION ================= */}
+      <header className="relative border-b border-brass/10 overflow-hidden min-h-140 flex items-center">
+        {/* Imagen de fondo optimizada */}
+        <div className="absolute inset-0 opacity-100">
+          <Image
+            src="https://images.unsplash.com/photo-1775298373010-9c7d214e6374?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt="Fondo conmemorativo"
+            fill
+            priority
+            className="object-cover"
+            sizes="100vw"
+          />
+        </div>
+
+        {/* Gradiente y glow cálido sobre la imagen */}
+        <div className="absolute inset-0 pointer-events-none bg-linear-to-t from-ink via-ink/80 to-transparent" />
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse 700px 400px at 20% 0%, rgba(169,129,76,0.14), transparent 60%)",
+              "radial-gradient(ellipse 700px 400px at 20% 20%, rgba(169,129,76,0.18), transparent 70%)",
           }}
         />
 
-        <div className="relative max-w-7xl mx-auto px-6 md:px-10 pt-20 pb-28">
+        <div className="relative max-w-7xl mx-auto px-6 md:px-10 pt-24 pb-28 w-full">
           <div className="max-w-3xl">
-            <span className="text-xs font-medium text-brass-400 tracking-wider">
-              ESPACIO DE MEMORIA Y HOMENAJE
-            </span>
-            <h1 className="font-display font-light text-5xl md:text-7xl leading-[1.08] mt-4 mb-7 text-bone">
+            <h1 className="font-display font-light text-5xl md:text-7xl leading-[1.08] mb-7 text-bone">
               Un espacio digital para honrar, con calma y dignidad.
             </h1>
+
             <p className="text-bone-400 text-lg md:text-xl leading-relaxed max-w-2xl mb-10 font-normal">
               Acompañamos a familias en momentos delicados. Diseñado para ofrecer
               serenidad, respeto y la tranquilidad de decidir sin prisas
@@ -31,63 +51,77 @@ export default function HomePage() {
             <div className="flex flex-wrap items-center gap-4">
               <Link
                 href="/catalogo"
-                className="bg-brass hover:bg-brass-400 text-ink font-medium text-sm px-7 py-3.5 rounded transition-colors inline-block text-center"
+                className="bg-brass hover:bg-brass-400 text-ink font-medium text-sm px-7 py-3.5 rounded transition-colors inline-flex items-center gap-2"
               >
                 Explorar homenajes
-              </Link>
-              <Link
-                href="/contacto"
-                className="bg-transparent border border-brass/40 hover:border-brass text-bone font-medium text-sm px-6 py-3.5 rounded transition-colors inline-block text-center"
-              >
-                Orientación y asistencia
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
         </div>
       </header>
 
-      {/* PILARES / PRINCIPIOS */}
-      <section className="py-24 border-b border-brass/10">
-        <div className="max-w-7xl mx-auto px-6 md:px-10">
-          <div className="grid md:grid-cols-3 gap-12">
-            <div className="space-y-3">
-              <span className="text-xs font-medium text-brass-300">01</span>
-              <h3 className="font-display text-2xl text-bone">
-                Dignidad silenciosa
-              </h3>
-              <p className="text-bone-400 text-sm leading-relaxed">
-                Sin apremios ni avisos intrusivos. Cada opción está pensada para
-                respetar la intimidad y el duelo de cada hogar.
-              </p>
-            </div>
+      {/* ================= PILARES / PRINCIPIOS ================= */}
+            <section id="beneficios" className="border-b border-brass/10 py-12 md:py-14 bg-ink-800/40">
+              <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 text-center sm:text-left">
 
-            <div className="space-y-3">
-              <span className="text-xs font-medium text-brass-300">02</span>
-              <h3 className="font-display text-2xl text-bone">
-                Acompañamiento pausado
-              </h3>
-              <p className="text-bone-400 text-sm leading-relaxed">
-                Información transparente, clara y comprensible. Podrás tomarte el
-                tiempo necesario para elegir lo que mejor rinda tributo.
-              </p>
-            </div>
+                {/* Pilar 1 */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-ink-700 border border-white/10 text-brass shadow-sm shrink-0">
+                    <Truck className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <h4 className="text-base sm:text-lg font-semibold text-bone">Entrega Inmediata</h4>
+                    <p className="text-sm text-bone-400 mt-1 leading-relaxed">
+                      Envíos directos y discretos a velatorios y salas en 24h.
+                    </p>
+                  </div>
+                </div>
 
-            <div className="space-y-3">
-              <span className="text-xs font-medium text-brass-300">03</span>
-              <h3 className="font-display text-2xl text-bone">
-                Cuidado en cada detalle
-              </h3>
-              <p className="text-bone-400 text-sm leading-relaxed">
-                Materiales nobles seleccionados con dedicación: acabados de
-                bronce, maderas tratadas y piezas con opción a grabado personal.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+                {/* Pilar 2 */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-ink-700 border border-white/10 text-brass shadow-sm shrink-0">
+                    <PenTool className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <h4 className="text-base sm:text-lg font-semibold text-bone">Grabado Incluido</h4>
+                    <p className="text-sm text-bone-400 mt-1 leading-relaxed">
+                      Personalización artesanal de placas y recordatorios conmemorativos.
+                    </p>
+                  </div>
+                </div>
 
-      {/* PROPUESTAS / CATEGORÍAS (PREVIEW DE NAVEGACIÓN) */}
-      <section className="py-24 border-b border-brass/10">
+                {/* Pilar 3 */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-ink-700 border border-white/10 text-brass shadow-sm shrink-0">
+                    <ShieldCheck className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <h4 className="text-base sm:text-lg font-semibold text-bone">Compra Transparente</h4>
+                    <p className="text-sm text-bone-400 mt-1 leading-relaxed">
+                      Precios claros, sin sobrecostos inesperados ni presiones comerciales.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Pilar 4 */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+                  <div className="p-3.5 sm:p-4 rounded-xl bg-ink-700 border border-white/10 text-brass shadow-sm shrink-0">
+                    <MessageCircle className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <h4 className="text-base sm:text-lg font-semibold text-bone">Soporte Continuo</h4>
+                    <p className="text-sm text-bone-400 mt-1 leading-relaxed">
+                      Acompañamiento cercano y compasivo disponible por WhatsApp 24/7.
+                    </p>
+                  </div>
+                </div>
+
+              </div>
+            </section>
+
+      {/* ================= CATEGORÍAS CON IMÁGENES ================= */}
+      <section className="py-12 border-b border-brass/10">
         <div className="max-w-7xl mx-auto px-6 md:px-10">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
             <div>
@@ -102,15 +136,21 @@ export default function HomePage() {
               href="/catalogo"
               className="mt-4 md:mt-0 text-sm text-brass-300 hover:text-brass transition-colors inline-flex items-center gap-1.5"
             >
-              Ir al catálogo completo <span>→</span>
+              Ir al catálogo completo <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Card 1 */}
-            <div className="bg-ink-700/60 border border-white/10 rounded-md p-6 hover:border-brass/30 hover:shadow-glow transition-all">
-              <div className="aspect-4/3 bg-ink-800 rounded border border-white/5 mb-6 flex items-center justify-center text-xs text-bone-500">
-                Detalle en bronce
+            {/* Card 1: Urnas */}
+            <div className="bg-ink-700/60 border border-white/10 rounded-md p-6 hover:border-brass/30 hover:shadow-glow transition-all flex flex-col">
+              <div className="aspect-4/3 rounded border border-white/5 mb-6 overflow-hidden relative">
+                <Image
+                  src="https://images.unsplash.com/photo-1721373487766-0faaebd393f0?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  alt="Urnas elaboradas en metal y piedra"
+                  fill
+                  className="object-cover grayscale-30 hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
               </div>
               <span className="text-xs text-bone-500">Urnas & Relicarios</span>
               <h3 className="font-display text-xl mt-1 mb-2">
@@ -122,16 +162,22 @@ export default function HomePage() {
               </p>
               <Link
                 href="/catalogo"
-                className="text-xs text-brass-300 hover:underline font-medium"
+                className="mt-auto text-xs text-brass-300 hover:underline font-medium inline-flex items-center gap-1"
               >
-                Explorar urnas →
+                Explorar urnas <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
-            {/* Card 2 */}
-            <div className="bg-ink-700/60 border border-white/10 rounded-md p-6 hover:border-brass/30 hover:shadow-glow transition-all">
-              <div className="aspect-4/3 bg-ink-800 rounded border border-white/5 mb-6 flex items-center justify-center text-xs text-bone-500">
-                Madera maciza
+            {/* Card 2: Ataúdes */}
+            <div className="bg-ink-700/60 border border-white/10 rounded-md p-6 hover:border-brass/30 hover:shadow-glow transition-all flex flex-col">
+              <div className="aspect-4/3 rounded border border-white/5 mb-6 overflow-hidden relative">
+                <Image
+                  src="https://images.unsplash.com/photo-1718801666911-acd64e4c0cd4?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGNvZmZpbnxlbnwwfHwwfHx8Mg%3D%3D"
+                  alt="Ataúdes tradicionales en madera"
+                  fill
+                  className="object-cover grayscale-30 hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
               </div>
               <span className="text-xs text-bone-500">
                 Ataúdes tradicionales
@@ -145,16 +191,22 @@ export default function HomePage() {
               </p>
               <Link
                 href="/catalogo"
-                className="text-xs text-brass-300 hover:underline font-medium"
+                className="mt-auto text-xs text-brass-300 hover:underline font-medium inline-flex items-center gap-1"
               >
-                Explorar opciones →
+                Explorar opciones <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
-            {/* Card 3 */}
-            <div className="bg-ink-700/60 border border-white/10 rounded-md p-6 hover:border-brass/30 hover:shadow-glow transition-all">
-              <div className="aspect-4/3 bg-ink-800 rounded border border-white/5 mb-6 flex items-center justify-center text-xs text-bone-500">
-                Homenajes botánicos
+            {/* Card 3: Botánica */}
+            <div className="bg-ink-700/60 border border-white/10 rounded-md p-6 hover:border-brass/30 hover:shadow-glow transition-all flex flex-col">
+              <div className="aspect-4/3 rounded border border-white/5 mb-6 overflow-hidden relative">
+                <Image
+                  src="https://images.unsplash.com/photo-1701893850250-13d3ee3709e1?q=80&w=736&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  alt="Composiciones florales y follaje"
+                  fill
+                  className="object-cover grayscale-30 hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
               </div>
               <span className="text-xs text-bone-500">Tributos florales</span>
               <h3 className="font-display text-xl mt-1 mb-2">
@@ -166,16 +218,16 @@ export default function HomePage() {
               </p>
               <Link
                 href="/catalogo"
-                className="text-xs text-brass-300 hover:underline font-medium"
+                className="mt-auto text-xs text-brass-300 hover:underline font-medium inline-flex items-center gap-1"
               >
-                Explorar tributos →
+                Explorar tributos <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* COMPROMISO / DISCRECIÓN */}
+      {/* ================= COMPROMISO / ORIENTACIÓN ================= */}
       <section className="py-24">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <span className="text-xs font-medium text-brass-400 tracking-wider">
@@ -192,8 +244,9 @@ export default function HomePage() {
           <div className="inline-flex gap-4">
             <Link
               href="/contacto"
-              className="bg-moss hover:bg-moss-400 text-bone font-medium text-sm px-8 py-3.5 rounded transition-colors"
+              className="bg-moss hover:bg-moss-400 text-bone font-medium text-sm px-8 py-3.5 rounded transition-colors inline-flex items-center gap-2"
             >
+              <MessageSquareQuote className="w-4 h-4" />
               Hablar con un asesor
             </Link>
           </div>
