@@ -1,126 +1,80 @@
-'use client';
+"use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { PRODUCTOS } from "@/features/products/data/productsData";
 
-export default function CatalogoView() {
-  const [categoriaSeleccionada, setCategoriaSeleccionada] = useState<
-    "todos" | "urnas" | "ataudes" | "relicarios" | "flores"
-  >("todos");
+type Category = "todos" | "urnas" | "ataudes" | "relicarios" | "flores";
 
-  const productosFiltrados =
-    categoriaSeleccionada === "todos"
-      ? PRODUCTOS
-      : PRODUCTOS.filter((p) => {
-          if (categoriaSeleccionada === "urnas") return p.categoria === "Urnas";
-          if (categoriaSeleccionada === "ataudes") return p.categoria === "Ataúdes";
-          if (categoriaSeleccionada === "relicarios") return p.categoria === "Relicarios";
-          if (categoriaSeleccionada === "flores") return p.categoria === "Arreglos florales";
-          return true;
-        });
+const categories: { id: Category; label: string; productCategory?: string }[] = [
+  { id: "todos", label: "Todos" },
+  { id: "urnas", label: "Urnas", productCategory: "Urnas" },
+  { id: "ataudes", label: "Ataúdes", productCategory: "Ataúdes" },
+  { id: "relicarios", label: "Relicarios", productCategory: "Relicarios" },
+  { id: "flores", label: "Arreglos florales", productCategory: "Arreglos florales" },
+];
+
+export default function CatalogoView({ initialCategory = "todos" }: { initialCategory?: Category }) {
+  const [category, setCategory] = useState<Category>(initialCategory);
+  const selected = categories.find((item) => item.id === category);
+  const products = selected?.productCategory
+    ? PRODUCTOS.filter((product) => product.categoria === selected.productCategory)
+    : PRODUCTOS;
 
   return (
-    <>
-      {/* CABECERA */}
-      <header className="border-b border-brass/10 py-12 md:py-16 bg-ink-800/30">
-        <div className="max-w-7xl mx-auto px-6 md:px-10">
-          <span className="text-xs font-medium text-brass-400 tracking-wider">SELECCIÓN</span>
-          <h1 className="font-display font-light text-4xl md:text-5xl mt-2 mb-4">Catálogo de productos</h1>
-          <p className="text-bone-400 text-sm md:text-base max-w-2xl leading-relaxed">
-            Explora los homenajes disponibles organizados con calma y sobriedad.
-          </p>
+    <main className="shop-page">
+      <header className="shop-heading">
+        <div className="shop-container">
+          <Link className="shop-back-link" href="/">Inicio <ArrowRight size={14} /></Link>
+          <h1>Un catálogo para elegir con calma</h1>
+          <p>Explora productos funerarios por categoría. Consulta materiales, opciones y precios a tu propio ritmo.</p>
         </div>
       </header>
 
-      {/* REJILLA */}
-      <main className="max-w-7xl mx-auto px-6 md:px-10 py-10 flex-1 w-full">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-8 border-b border-white/10 mb-10">
-          <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={() => setCategoriaSeleccionada("todos")}
-              className={`text-xs font-medium px-3.5 py-1.5 rounded transition-colors cursor-pointer ${
-                categoriaSeleccionada === "todos"
-                  ? "bg-brass/15 text-brass-300 border border-brass/30"
-                  : "text-bone-400 hover:text-bone hover:bg-white/5 border border-transparent"
-              }`}
-            >
-              Todos
-            </button>
-            <button
-              onClick={() => setCategoriaSeleccionada("urnas")}
-              className={`text-xs font-medium px-3.5 py-1.5 rounded transition-colors cursor-pointer ${
-                categoriaSeleccionada === "urnas"
-                  ? "bg-brass/15 text-brass-300 border border-brass/30"
-                  : "text-bone-400 hover:text-bone hover:bg-white/5 border border-transparent"
-              }`}
-            >
-              Urnas
-            </button>
-            <button
-              onClick={() => setCategoriaSeleccionada("ataudes")}
-              className={`text-xs font-medium px-3.5 py-1.5 rounded transition-colors cursor-pointer ${
-                categoriaSeleccionada === "ataudes"
-                  ? "bg-brass/15 text-brass-300 border border-brass/30"
-                  : "text-bone-400 hover:text-bone hover:bg-white/5 border border-transparent"
-              }`}
-            >
-              Ataúdes
-            </button>
-            <button
-              onClick={() => setCategoriaSeleccionada("relicarios")}
-              className={`text-xs font-medium px-3.5 py-1.5 rounded transition-colors cursor-pointer ${
-                categoriaSeleccionada === "relicarios"
-                  ? "bg-brass/15 text-brass-300 border border-brass/30"
-                  : "text-bone-400 hover:text-bone hover:bg-white/5 border border-transparent"
-              }`}
-            >
-              Relicarios
-            </button>
-            <button
-              onClick={() => setCategoriaSeleccionada("flores")}
-              className={`text-xs font-medium px-3.5 py-1.5 rounded transition-colors cursor-pointer ${
-                categoriaSeleccionada === "flores"
-                  ? "bg-brass/15 text-brass-300 border border-brass/30"
-                  : "text-bone-400 hover:text-bone hover:bg-white/5 border border-transparent"
-              }`}
-            >
-              Arreglos florales
-            </button>
+      <section className="shop-container catalog-section" aria-label="Productos">
+        <div className="catalog-toolbar">
+          <div className="catalog-tabs" role="group" aria-label="Filtrar por categoría">
+            {categories.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                aria-pressed={category === item.id}
+                className={category === item.id ? "catalog-tab active" : "catalog-tab"}
+                onClick={() => setCategory(item.id)}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
-
-          <div className="flex items-center gap-3 text-xs text-bone-500">
-            <span>Ordenar: Relevancia</span>
-          </div>
+          <p className="catalog-count">{products.length} {products.length === 1 ? "producto" : "productos"}</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {productosFiltrados.map((item) => (
-            <Link key={item.id} href={`/catalogo/${item.id}`} className="group block">
-              <div className="aspect-4/5 bg-ink-700 rounded-md border border-white/10 group-hover:border-brass/30 group-hover:shadow-glow transition-all flex flex-col items-center justify-center relative p-3 overflow-hidden">
-                {item.imagenes?.[0] ? (
-                  <Image
-                    src={item.imagenes[0]}
-                    alt={item.nombre}
-                    fill
-                    className="object-cover rounded"
-                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 25vw"
-                  />
-                ) : (
-                  <span className="text-bone-500 text-xs">imagen del producto</span>
-                )}
-              </div>
-
-              <div className="pt-4">
-                <p className="text-xs text-bone-500 mb-1">{item.categoria}</p>
-                <p className="font-medium text-sm text-bone">{item.nombre}</p>
-                <p className="text-brass-300 text-sm mt-1">{item.precio}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </main>
-    </>
+        <p className="shop-image-note">Las imágenes actuales son referenciales y pueden diferir del producto.</p>
+        {products.length > 0 ? (
+          <div className="catalog-grid">
+            {products.map((product) => (
+              <article className="catalog-card" key={product.id}>
+                <Link href={`/catalogo/${product.id}`} aria-label={`Ver ${product.nombre}`}>
+                  <div className="catalog-card-image">
+                    {product.imagenes?.[0] ? (
+                      <Image src={product.imagenes[0]} alt={`Imagen referencial de ${product.nombre}`} fill sizes="(max-width: 640px) 90vw, (max-width: 1000px) 45vw, 23vw" />
+                    ) : <span>Imagen no disponible</span>}
+                  </div>
+                  <div className="catalog-card-content">
+                    <p>{product.categoria}</p>
+                    <h2>{product.nombre}</h2>
+                    <div><strong>{product.precio}</strong><ArrowRight size={20} /></div>
+                  </div>
+                </Link>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="catalog-empty"><h2>No hay productos en esta categoría</h2><p>Prueba otra categoría para seguir explorando.</p></div>
+        )}
+      </section>
+    </main>
   );
 }
