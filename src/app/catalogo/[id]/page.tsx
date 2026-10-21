@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import ProductGallery from "@/features/products/components/ProductGallery";
 import ProductSelector from "@/features/products/components/ProductSelector";
 import { getProductById } from "@/features/products/data/productsData";
@@ -16,10 +18,13 @@ export default async function DetalleProductoPage({ params }: PageProps) {
   }
 
   return (
-    <main className="max-w-7xl mx-auto px-6 md:px-10 py-12 flex-1 w-full">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
-        <ProductGallery images={product.imagenes} />
+    <main className="shop-page detail-page">
+      <div className="shop-container">
+        <nav className="detail-breadcrumb" aria-label="Ruta de navegación"><Link href="/catalogo">Catálogo</Link><ChevronRight size={16} /><span>{product.nombre}</span></nav>
+      <div className="detail-layout">
+        <ProductGallery images={product.imagenes} name={product.nombre} />
         <ProductSelector product={product} />
+      </div>
       </div>
     </main>
   );

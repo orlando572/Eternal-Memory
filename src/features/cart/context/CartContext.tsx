@@ -31,16 +31,23 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Cargar carrito guardado desde localStorage
   useEffect(() => {
+    let active = true;
     try {
       const savedCart = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (savedCart) {
-        setCart(JSON.parse(savedCart));
+        const parsedCart = JSON.parse(savedCart) as CartItem[];
+        queueMicrotask(() => {
+          if (active) setCart(parsedCart);
+        });
       }
     } catch (e) {
       console.error('Error cargando el carrito desde localStorage', e);
     } finally {
-      setIsInitialized(true);
+      queueMicrotask(() => {
+        if (active) setIsInitialized(true);
+      });
     }
+    return () => { active = false; };
   }, []);
 
   // Guardar en localStorage cuando el carrito cambie

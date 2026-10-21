@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Capturas y archivos de revisión visual locales
+/.impeccable/review/
+
+# Herramientas y material local que no pertenece al proyecto
+/.agents/skills/
+/.codex/
+/.impeccable/
+/docs/
+/skills-lock*.json
