@@ -1,0 +1,59 @@
+name: Integración continua
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  quality-and-build:
+    name: quality-and-build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+      # Valores ficticios para compilar sin conectar con un proyecto real.
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-public-placeholder
+
+    steps:
+      - name: Descargar código e historial
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Validar referencias TSK de los commits del PR
+        run: npm run validate:commits
+        env:
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+
+      - name: Revisar código con ESLint
+        run: npm run lint
+
+      - name: Ejecutar pruebas unitarias de roles
+        run: npm run test:roles
+
+      - name: Ejecutar pruebas del validador de commits
+        run: npm run test:ci
+
+      - name: Generar tipos de las rutas de Next.js
+        run: npx --no-install next typegen
+
+      - name: Verificar TypeScript
+        run: npm run typecheck
+
+      - name: Compilar aplicación
+        run: npm run build

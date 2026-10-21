@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:roles": "node --test src/features/auth/roleNavigation.test.mjs",
+    "test:ci": "node --test scripts/ci/validate-task-commits.test.mjs",
+    "validate:commits": "node scripts/ci/validate-task-commits.mts",
     "test:cart": "playwright test",
     "test": "npm run test:roles && npm run test:cart",
     "typecheck": "tsc --noEmit"
@@ -19,7 +21,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^1.46.0",
-    "next": "16.3.5",
+    "next": "16.3.8",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "tailwind-merge": "^3.7.0"
@@ -31,7 +33,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.3.5",
+    "eslint-config-next": "16.3.8",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
