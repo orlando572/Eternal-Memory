@@ -14,6 +14,7 @@ export default async function ProfileHistoryPage() {
   }
 
   if (!access) redirect("/login");
+  if (access.role === "admin") redirect("/perfil");
   const profile = await getCurrentProfile().catch(() => null);
 
   return (

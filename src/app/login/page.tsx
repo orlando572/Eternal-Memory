@@ -1,4 +1,7 @@
 import { LoginForm } from "@/features/auth/components/LoginForm";
+import { getAdminReturnPath, getPostLoginPath } from "@/features/auth/lib/roleNavigation";
+import { getCurrentAccess } from "@/features/auth/services/accessService";
+import { redirect } from "next/navigation";
 
 type LoginPageProps = {
   searchParams: Promise<{ error?: string | string[]; next?: string | string[] }>;
@@ -6,20 +9,10 @@ type LoginPageProps = {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const { error, next } = await searchParams;
-  let returnTo = "/catalogo";
-
-  if (typeof next === "string" && next.startsWith("/")) {
-    try {
-      const destination = new URL(next, "https://eternal-memory.local");
-      if (
-        destination.origin === "https://eternal-memory.local" &&
-        (destination.pathname === "/admin/productos" || destination.pathname.startsWith("/admin/productos/"))
-      ) {
-        returnTo = `${destination.pathname}${destination.search}${destination.hash}`;
-      }
-    } catch {
-      // Invalid return URLs keep the public catalog as their destination.
-    }
+  const returnTo = getAdminReturnPath(next);
+  const access = await getCurrentAccess().catch(() => null);
+  if (access && error !== "auth_callback") {
+    redirect(getPostLoginPath(access.role, returnTo));
   }
 
   return <LoginForm callbackError={error === "auth_callback"} returnTo={returnTo} />;

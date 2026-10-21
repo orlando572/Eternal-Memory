@@ -46,9 +46,10 @@ img { display: block; }
 .site-nav-links a { color: inherit; text-decoration: none; font: 15px "Eternal Sans", sans-serif; }
 .site-nav-links a:hover, .site-footer a:hover { color: #e1af9e; }
 .site-account { position: relative; display: flex; align-items: center; gap: 22px; }
-.site-account-profile, .site-account-signout { display: inline-flex; align-items: center; gap: 7px; color: inherit; text-decoration: none; font: 15px "Eternal Sans", sans-serif; white-space: nowrap; }
+.site-account-profile, .site-account-signout, .site-account-admin { display: inline-flex; align-items: center; gap: 7px; color: inherit; text-decoration: none; font: 15px "Eternal Sans", sans-serif; white-space: nowrap; }
+.site-account-retry { padding: 5px 0; border: 0; background: transparent; color: inherit; font: 13px "Eternal Sans", sans-serif; }
 .site-account-signout { border: 0; background: transparent; padding: 5px 0; }
-.site-account-signout:hover, .site-account-profile:hover { color: #e1af9e; }
+.site-account-signout:hover, .site-account-profile:hover, .site-account-admin:hover, .site-account-retry:hover { color: #e1af9e; }
 .site-account-signout:disabled { opacity: .68; cursor: wait; }
 .site-account-loading { font: 13px "Eternal Sans", sans-serif; color: #e2d8d1; }
 .site-account-error { position: absolute; top: calc(100% + 8px); right: 0; z-index: 30; width: min(280px, 80vw); padding: 9px 12px; border-radius: 4px; background: #f8e6df; color: #7f3024; font: 12px/1.4 "Eternal Sans", sans-serif; }
@@ -106,7 +107,7 @@ img { display: block; }
   .site-nav-links { gap: 17px; }
   .site-nav-links a { font-size: 14px; }
   .site-account { gap: 14px; }
-  .site-account-profile, .site-account-signout { gap: 5px; font-size: 13px; }
+  .site-account-profile, .site-account-signout, .site-account-admin { gap: 5px; font-size: 13px; }
   .home-first-view { min-height: 0; }
   .home-hero { height: 1040px; overflow: hidden; }
   .home-stucco { width: 100%; height: 420px; }
@@ -132,8 +133,8 @@ img { display: block; }
   .site-nav-links { gap: 8px; }
   .site-nav-links a { font-size: 11px; }
   .site-account { gap: 7px; }
-  .site-account-profile, .site-account-signout { gap: 3px; font-size: 11px; }
-  .site-account-profile svg, .site-account-signout svg { width: 13px; height: 13px; }
+  .site-account-profile, .site-account-signout, .site-account-admin { gap: 3px; font-size: 11px; }
+  .site-account-profile svg, .site-account-signout svg, .site-account-admin svg { width: 13px; height: 13px; }
   .site-account-loading { font-size: 11px; }
   .site-cart-trigger { gap: 2px; padding: 2px; }
   .site-cart-trigger svg { width: 17px; height: 17px; }
@@ -362,6 +363,8 @@ img { display: block; }
   .auth-layout { grid-template-columns: minmax(0, 1fr) minmax(320px, 380px); gap: 32px; }
 }
 @media (max-width: 740px) {
+  .site-nav:has(.site-account-admin) { height: auto; min-height: 62px; flex-wrap: wrap; row-gap: 12px; padding-block: 12px; }
+  .site-nav:has(.site-account-admin) .site-nav-links { width: 100%; justify-content: space-between; }
   .shop-container { width: calc(100% - 40px); }
   .shop-heading { padding: 33px 0 41px; }
   .shop-heading h1, .auth-intro h1 { font-size: 39px; margin-top: 22px; }
@@ -403,7 +406,7 @@ img { display: block; }
   .site-brand { width: 112px; }
   .site-nav-links { gap: 5px; }
   .site-account { gap: 5px; }
-  .site-account-profile, .site-account-signout { font-size: 10px; }
+  .site-account-profile, .site-account-signout, .site-account-admin { font-size: 10px; }
   .catalog-card-image { height: 40vw; }
   .catalog-card-content h2 { font-size: 14px; }
   .cart-header, .cart-body, .cart-summary { padding-left: 20px; padding-right: 20px; }

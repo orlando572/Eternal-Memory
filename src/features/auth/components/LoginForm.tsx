@@ -7,10 +7,12 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthLayout } from "@/features/auth/components/AuthLayout";
 import { signInUser } from "@/services/authService";
+import { readCurrentAccess } from "@/features/auth/services/accountAccessClient";
+import { getPostLoginPath } from "@/features/auth/lib/roleNavigation";
 
 type LoginFormProps = {
   callbackError: boolean;
-  returnTo: string;
+  returnTo?: string;
 };
 
 export function LoginForm({ callbackError, returnTo }: LoginFormProps) {
@@ -28,7 +30,9 @@ export function LoginForm({ callbackError, returnTo }: LoginFormProps) {
     setError(null);
     try {
       await signInUser({ email, password });
-      router.replace(returnTo);
+      const access = await readCurrentAccess();
+      if (!access) throw new Error("La sesión no está disponible. Inicia sesión de nuevo.");
+      router.replace(getPostLoginPath(access.role, returnTo));
       router.refresh();
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "No se pudo iniciar sesión. Revisa tus datos e inténtalo de nuevo.");
