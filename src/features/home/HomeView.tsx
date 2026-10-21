@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
+import { Skeleton, CardSkeleton, LoadingRegion } from "@/features/loading/Loading";
+import { LoadingButton } from "@/features/loading/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { ProductImage } from "@/features/products/components/ProductImage";
 import { catalogHref, formatCatalogPrice } from "@/features/catalogo/lib/catalogPresentation";
@@ -56,6 +58,7 @@ export default function HomeView({ selections, loading = false, failed = false }
           <h1>{content.title}</h1>
           <p className="home-subtitle">{content.subtitle}</p>
           <div className="home-categories" role="group" aria-label="Categorías">
+            {loading && Array.from({ length: 4 }, (_, index) => <Skeleton className="home-category-skeleton" key={index} />)}
             {selections.map(({ category }) => {
               const selected = selection?.category.slug === category.slug;
               return (
@@ -68,7 +71,7 @@ export default function HomeView({ selections, loading = false, failed = false }
             })}
           </div>
         </div>
-        {featured ? (
+        {loading ? <div className="home-feature home-loading-feature"><LoadingRegion label="Cargando productos"><div className="home-loading-feature-layout"><Skeleton className="home-loading-feature-photo" /><div className="home-loading-feature-copy"><Skeleton className="loading-line" /><Skeleton className="loading-line" /><Skeleton className="loading-price" /></div></div></LoadingRegion></div> : featured ? (
           <Link className="home-feature" href={`/catalogo/${featured.slug}`} aria-label={`Ver ${featured.name}`}>
             <div className="home-feature-photo">
               <ProductImage src={featured.images[0]?.src} alt={featured.images[0]?.alt || featured.name} sizes="(max-width: 600px) 90vw, (max-width: 900px) 55vw, 30vw" />
@@ -82,9 +85,9 @@ export default function HomeView({ selections, loading = false, failed = false }
           </Link>
         ) : (
           <div className="home-feature home-state" role="status">
-            <h2>{loading ? "Cargando productos…" : unavailable ? "No pudimos cargar los productos" : selection ? "Aún no hay productos en esta categoría" : "Aún no hay categorías disponibles"}</h2>
-            <p>{loading ? "Estamos preparando la selección del catálogo." : unavailable ? "Inténtalo de nuevo en un momento." : "Cuando haya productos publicados, podrás explorarlos aquí."}</p>
-            {unavailable && <Button variant="outline" disabled={pending} onClick={retry}>{pending ? "Cargando…" : "Reintentar"}</Button>}
+            <h2>{unavailable ? "No pudimos cargar los productos" : selection ? "Aún no hay productos en esta categoría" : "Aún no hay categorías disponibles"}</h2>
+            <p>{unavailable ? "Inténtalo de nuevo en un momento." : "Cuando haya productos publicados, podrás explorarlos aquí."}</p>
+            {unavailable && <LoadingButton variant="outline" busy={pending} onClick={retry}>Reintentar</LoadingButton>}
           </div>
         )}
       </section>
@@ -96,6 +99,7 @@ export default function HomeView({ selections, loading = false, failed = false }
           <Link href={catalogLink}>{selection ? content.catalogLabel : "Ver catálogo"} <ArrowRight size={19} aria-hidden="true" /></Link>
         </div>
         <div className="home-product-list">
+          {loading && Array.from({ length: 3 }, (_, index) => <CardSkeleton key={index} />)}
           {products.map((product) => (
             <article className="home-product-card" key={product.id}>
               <Link href={`/catalogo/${product.slug}`} aria-label={`Ver ${product.name}`}>

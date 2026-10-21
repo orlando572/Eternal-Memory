@@ -1,0 +1,63 @@
+.loading-skeleton { display: block; flex: none; position: relative; overflow: hidden; min-height: 14px; border-radius: 5px; background: #e8dcd3; }
+.loading-skeleton::after { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 20%, #fffdfb80 50%, transparent 80%); transform: translateX(-100%); animation: loading-shimmer 1.8s ease-in-out infinite; animation-delay: .2s; }
+.loading-spinner { display: inline-block; flex: none; width: 18px; height: 18px; animation: loading-spin .85s linear infinite; }
+.loading-indicator { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; min-height: 24px; color: inherit; vertical-align: middle; }
+.loading-region { color: #a6533b; }
+.loading-title { width: min(70%, 380px); height: 38px; margin-bottom: 26px; }
+.loading-line { width: 90%; height: 18px; }
+.loading-label { width: 38%; height: 12px; }
+.loading-input { width: 100%; height: 42px; margin-top: 10px; }
+.loading-action { width: 160px; height: 42px; margin-top: 12px; }
+.loading-price { width: 100px; height: 26px; }
+.loading-form { display: grid; gap: 22px; }
+.loading-field { min-width: 0; }
+.loading-card { overflow: hidden; border: 1px solid #e8dcd3; border-radius: 6px; background: #fffdfb; }
+.loading-card-photo { height: clamp(185px, 18vw, 270px); border-radius: 0; }
+.loading-card-copy { display: grid; gap: 17px; padding: 22px; }
+.loading-button-icon { display: inline-flex; width: 18px; height: 18px; flex: none; }
+.loading-image { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: inherit; pointer-events: none; }
+.loading-price-placeholder { display: inline-block; width: 95px; height: 23px; vertical-align: middle; }
+.loading-table { display: grid; gap: 1px; background: #ded1c9; border: 1px solid #ded1c9; }
+.loading-table-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 24px; align-items: center; min-height: 88px; padding: 20px; background: #fffdfb; }
+.loading-table-row > span { width: 80%; height: 18px; }
+.loading-admin-panel { padding: 30px; margin-top: 28px; background: #fffdfb; border: 1px solid #e8dcd3; }
+.loading-detail-copy { padding: 30px 0; display: grid; gap: 25px; align-content: start; }
+.loading-detail-photo { height: min(47vw, 640px); min-height: 540px; }
+.loading-account { min-height: 24px; width: 65px; }
+.loading-profile-sidebar { padding: 30px; display: grid; gap: 22px; align-content: start; }
+.loading-round { width: 64px; height: 64px; border-radius: 50%; }
+.loading-options { display: grid; gap: 14px; margin-block: 20px; }
+.loading-options .loading-input { margin: 0; }
+.loading-checkout-recovery { min-height: 220px; display: grid; place-items: center; }
+.loading-checkout-recovery .loading-spinner { width: 30px; height: 30px; }
+@keyframes loading-shimmer { to { transform: translateX(100%); } }
+@keyframes loading-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .loading-skeleton::after { animation: none; background: none; }
+  .loading-spinner { animation: none; }
+}
+@media (max-width: 740px) {
+  .loading-detail-photo { height: 72vw; min-height: 300px; }
+  .loading-card-photo { height: 40vw; }
+  .loading-table-row { grid-template-columns: 2fr 1fr; gap: 16px; }
+  .loading-admin-panel { padding: 22px 17px; }
+}
+.home-category-skeleton { width: 130px; height: 58px; }
+.home-loading-feature { overflow: hidden; }
+.home-loading-feature > .loading-region { width: 100%; }
+.home-loading-feature-layout { display: flex; width: 100%; min-height: 285px; }
+.home-loading-feature-photo { width: 59%; min-height: 285px; border-radius: 0; }
+.home-loading-feature-copy { display: flex; flex: 1; flex-direction: column; justify-content: center; gap: 20px; padding: 24px; min-width: 0; }
+.home-product-list .loading-card-photo { height: 13.09vw; }
+.catalog-results-pending { position: relative; opacity: .6; transition: opacity .15s; }
+.header-cart-count .loading-spinner { width: 13px; height: 13px; }
+.header-cart-count .loading-indicator { min-width: 13px; min-height: 13px; }
+@media (max-width: 900px) { .home-product-list .loading-card-photo { height: 175px; } }
+@media (max-width: 600px) {
+  .home-loading-feature-layout { flex-direction: column; }
+  .home-loading-feature-photo { width: 100%; min-height: 210px; }
+  .home-product-list .loading-card-photo { height: 220px; }
+}
+.admin-image-preview { position: relative; }
+.admin-image-preview img { position: relative; }
+@media (prefers-reduced-motion: reduce) { .catalog-results-pending { transition: none; } }

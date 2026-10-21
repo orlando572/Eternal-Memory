@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/features/loading/LoadingButton";
 import { AuthLayout } from "@/features/auth/components/AuthLayout";
 import { signInUser } from "@/services/authService";
 import { readCurrentAccess } from "@/features/auth/services/accountAccessClient";
@@ -23,6 +23,7 @@ export function LoginForm({ callbackError, returnTo }: LoginFormProps) {
     callbackError ? "El enlace no se pudo validar o ya venció. Solicita uno nuevo e inténtalo otra vez." : null,
   );
   const router = useRouter();
+  const [navigating, startNavigation] = useTransition();
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -32,8 +33,7 @@ export function LoginForm({ callbackError, returnTo }: LoginFormProps) {
       await signInUser({ email, password });
       const access = await readCurrentAccess();
       if (!access) throw new Error("La sesión no está disponible. Inicia sesión de nuevo.");
-      router.replace(getPostLoginPath(access.role, returnTo));
-      router.refresh();
+      startNavigation(() => { router.replace(getPostLoginPath(access.role, returnTo)); router.refresh(); });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "No se pudo iniciar sesión. Revisa tus datos e inténtalo de nuevo.");
     } finally {
@@ -55,10 +55,10 @@ export function LoginForm({ callbackError, returnTo }: LoginFormProps) {
         <label htmlFor="login-password">Contraseña</label>
         <input id="login-password" type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Tu contraseña" />
         <p className="auth-forgot-link"><Link href="/recuperar-contrasena">¿Olvidaste tu contraseña?</Link></p>
-        <Button type="submit" disabled={loading}>
-          {loading ? "Ingresando…" : "Ingresar"}
+        <LoadingButton busy={loading || navigating} type="submit" disabled={loading}>
+          Ingresar
           <ArrowRight size={18} aria-hidden="true" />
-        </Button>
+        </LoadingButton>
       </form>
       <p className="auth-switch">¿Aún no tienes cuenta? <Link href="/registro">Crear cuenta</Link></p>
     </AuthLayout>

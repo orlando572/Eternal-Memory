@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { FooterLegal } from "./FooterLegal";
+import { footerContact } from "./footerContent";
 import { FooterIcon } from "@/features/footer/FooterIcon";
 import "@/features/footer/footer.css";
 
@@ -47,19 +49,17 @@ export function SiteFooter() {
           <h2 id="footer-support-title">Estamos para orientarte</h2>
           <p>Un espacio para resolver tus dudas y conocer las opciones a tu ritmo.</p>
           <ul className="footer-contact-list">
-            <li><FooterIcon name="mail" /><div><span>Correo electrónico</span><p>contacto@eternalmemory.example</p></div></li>
-            <li><FooterIcon name="message" /><div><span>WhatsApp</span><p>Canal de atención próximamente</p></div></li>
-            <li><FooterIcon name="clock" /><div><span>Horario de referencia</span><p>Lunes a viernes · 9:00 a 18:00</p></div></li>
+            <li><FooterIcon name="mail" /><div><span>Correo electrónico</span><p><a href={`mailto:${footerContact.email}`}>{footerContact.email}</a></p></div></li>
+            <li><FooterIcon name="message" /><div><span>WhatsApp</span><p><a href={footerContact.whatsappUrl} target="_blank" rel="noopener noreferrer" aria-label={`Escribir por WhatsApp al ${footerContact.phone}, abre una pestaña nueva`}>{footerContact.phone}</a></p></div></li>
+            <li><FooterIcon name="clock" /><div><span>Horario de atención</span><p>{footerContact.schedule}</p></div></li>
+            <li><FooterIcon name="location" /><div><span>Encuéntranos</span><p>{footerContact.location}</p></div></li>
           </ul>
-          <p className="footer-example-note">Datos de contacto y horario de ejemplo.</p>
         </section>
       </div>
 
       <div className="footer-bottom">
         <p>© {new Date().getFullYear()} Eternal Memory. Todos los derechos reservados.</p>
-        <div className="footer-legal" aria-label="Información legal en preparación">
-          <span>Privacidad</span><span>Términos y condiciones</span><span>En preparación</span>
-        </div>
+        <FooterLegal />
         <p className="footer-currency">Perú <span aria-hidden="true">·</span> PEN · S/</p>
       </div>
     </footer>

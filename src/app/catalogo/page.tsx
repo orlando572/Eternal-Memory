@@ -12,7 +12,7 @@ async function CatalogResults({ params }: { params: CatalogSearchParams }) {
 export default async function Page({ searchParams }: { searchParams: Promise<CatalogSearchParams> }) {
   const params = await searchParams;
   return (
-    <Suspense key={JSON.stringify(params)} fallback={<CatalogLoading />}>
+    <Suspense fallback={<CatalogLoading />}>
       <CatalogResults params={params} />
     </Suspense>
   );

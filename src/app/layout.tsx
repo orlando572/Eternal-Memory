@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "@/features/loading/loading.css";
 import { CartProvider } from "@/features/cart/context/CartContext";
 import CartDrawer from "@/features/cart/components/CartDrawer";
 import { SiteFooter } from "@/features/footer/SiteFooter";

@@ -1,17 +1,20 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Archive, ArrowDown, ArrowLeft, ArrowUp, Check, CircleCheck, Eye, EyeOff, FilePenLine, Info, LockKeyhole, Plus, RotateCcw, Save, Trash2 } from "lucide-react";
+import { AlertCircle, Archive, ArrowDown, ArrowLeft, ArrowUp, Eye, EyeOff, FilePenLine, Plus, Save, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/features/loading/LoadingButton";
 import { Input } from "@/components/ui/input";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import type { AdminCategory, AdminProductDraft, AdminVariantDraft, ProductStatus } from "@/features/admin-products/data/adminProducts";
 import { getAdminProduct, saveAdminProduct } from "@/features/admin-products/data/adminProductRepository";
+import { uploadProductImage, removeUnusedProductImage } from "../data/productImageStorage";
 import { useAdminClient } from "./AdminAccessGate";
 import { StatusBadge } from "./AdminProductList";
+import { ProductImageField, type ProductImageEdit } from "./ProductImageField";
 import { AdminEngravingSettings } from "@/features/checkout/components/AdminEngravingSettings";
 
 type FormErrors = Record<string, string>;
@@ -95,7 +98,10 @@ function FieldError({ id, message }: { id: string; message?: string }) {
 export function ProductForm({ initialProduct, categories, isNew, startArchiveConfirmation = false }: { initialProduct: AdminProductDraft; categories: AdminCategory[]; isNew: boolean; startArchiveConfirmation?: boolean }) {
   const client = useAdminClient();
   const router = useRouter();
+  const [savingStatus, setSavingStatus] = useState<ProductStatus | null>(null);
+  const [savingPhase, setSavingPhase] = useState("Guardando producto");
   const [saving, setSaving] = useState(false);
+  const [reloadRequired, setReloadRequired] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [product, setProduct] = useState<AdminProductDraft>(() => ({
@@ -105,16 +111,12 @@ export function ProductForm({ initialProduct, categories, isNew, startArchiveCon
       : [{ id: "new-initial", name: "", sku: "", pricePen: "", stockOnHand: "", stockReserved: 0, isActive: true }],
   }));
   const [errors, setErrors] = useState<FormErrors>({});
-  const [reviewReady, setReviewReady] = useState(false);
+  const [imageEdit, setImageEdit] = useState<ProductImageEdit>({ image: initialProduct.images?.[0] ?? null, file: null, changed: false });
+  const originalImageId = useRef(initialProduct.images?.[0]?.id ?? null);
+  const savingLock = useRef(false);
+  const pendingUpload = useRef<{ file: File; path: string } | null>(null);
+  const [confirmedStatus, setConfirmedStatus] = useState(initialProduct.status);
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(startArchiveConfirmation);
-  const [archiveNotice, setArchiveNotice] = useState<string | null>(null);
-
-  const shownVariants = useMemo(() => product.variants.filter((variant) => !isBlankVariant(variant)), [product.variants]);
-  const startingPrice = shownVariants.filter((variant) => variant.isActive)
-    .map((variant) => parsePrice(variant.pricePen))
-    .filter((price): price is number => price !== null)
-    .sort((a, b) => a - b)[0];
-
   function updateProduct<K extends keyof AdminProductDraft>(key: K, value: AdminProductDraft[K]) {
     setProduct((current) => {
       const next = { ...current, [key]: value };
@@ -127,7 +129,6 @@ export function ProductForm({ initialProduct, categories, isNew, startArchiveCon
       if (key === "name") delete next.slug;
       return next;
     });
-    setReviewReady(false);
     setSaveSuccess(false);
   }
 
@@ -142,28 +143,56 @@ export function ProductForm({ initialProduct, categories, isNew, startArchiveCon
       delete next.status;
       return next;
     });
-    setReviewReady(false);
     setSaveSuccess(false);
   }
 
-  async function handleSave() {
-    const nextErrors = validateProduct(product);
-    if (product.status === "published" && !categories.some((category) => category.id === product.categoryId && category.isActive)) nextErrors.category = "Para publicar, selecciona una categoría activa.";
+  async function handleSave(status: ProductStatus = product.status) {
+    if (savingLock.current || reloadRequired) return;
+    const draft = { ...product, status };
+    const nextErrors = validateProduct(draft);
+    if (status === "published" && !categories.some((category) => category.id === product.categoryId && category.isActive)) nextErrors.category = "Para publicar, selecciona una categoría activa.";
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length) { requestAnimationFrame(() => document.querySelector<HTMLElement>(".admin-product-form [aria-invalid='true']")?.focus()); return; }
+    savingLock.current = true;
+    setSavingStatus(status);
+    setSavingPhase(imageEdit.file ? "Subiendo imagen" : "Guardando producto");
     setSaving(true); setSaveError(null); setSaveSuccess(false);
     try {
-      const id = await saveAdminProduct(client, product);
-      const fresh = await getAdminProduct(client, id);
-      if (!fresh) throw new Error("El producto se guardó, pero no se pudo volver a consultar.");
+      let image = imageEdit.image;
+      if (imageEdit.file && image) {
+        if (pendingUpload.current?.file !== imageEdit.file) {
+          const path = await uploadProductImage(client, imageEdit.file);
+          pendingUpload.current = { file: imageEdit.file, path };
+        }
+        image = { ...image, storagePath: pendingUpload.current!.path, externalUrl: null };
+      }
+      setSavingPhase("Guardando producto");
+      const id = await saveAdminProduct(client, draft, imageEdit.changed ? { originalId: originalImageId.current, image } : undefined);
+      // Keep uploads on ambiguous network failures: the database may have committed.
+      pendingUpload.current = null;
       if (isNew) { router.replace(`/admin/productos/${id}/editar`); return; }
-      setProduct(fresh); setSaveSuccess(true); setReviewReady(false); setArchiveNotice(null);
+      const fresh = await getAdminProduct(client, id).catch(() => null);
+      if (!fresh) {
+        setReloadRequired(true);
+        setSaveError("El producto se guardó. Recarga la ficha antes de continuar.");
+        return;
+      }
+      setProduct(fresh); setConfirmedStatus(fresh.status); setSaveSuccess(true); setShowArchiveConfirm(false);
+      originalImageId.current = fresh.images?.[0]?.id ?? null;
+      setImageEdit({ image: fresh.images?.[0] ?? null, file: null, changed: false });
     } catch (error) {
       const fault = error as { message?: string; code?: string; details?: string } | null;
       const message = fault?.message ?? (error instanceof Error ? error.message : "No se pudo guardar el producto.");
       const code = fault?.code ?? "";
       const details = fault?.details ?? "";
-      if (message.includes("PRODUCT_CONFLICT") || message.includes("VARIANT_CONFLICT") || code === "40001") setSaveError("Otra persona modificó este producto. Recarga la ficha para ver la versión reciente antes de guardar.");
+      if (pendingUpload.current && /^[0-9A-Z]{5}$/.test(code)) {
+        // A returned database error rolls back the entire RPC, so this upload is unused.
+        if (await removeUnusedProductImage(client, pendingUpload.current.path).catch(() => false)) pendingUpload.current = null;
+      }
+      if (message.includes("IMAGE_INVALID")) setSaveError("No se puede leer la imagen. Elige otro archivo JPG, PNG o WebP.");
+      else if (message.includes("IMAGE_UPLOAD_FAILED")) setSaveError("No se pudo subir la imagen. Conservamos los datos para que puedas volver a guardar.");
+      else if (message.includes("IMAGE_CONFLICT")) setSaveError("La imagen principal cambió en otra sesión. Recarga la ficha antes de guardar.");
+      else if (message.includes("PRODUCT_CONFLICT") || message.includes("VARIANT_CONFLICT") || code === "40001") setSaveError("Otra persona modificó este producto. Recarga la ficha para ver la versión reciente antes de guardar.");
       else if (message.includes("ADMIN_REQUIRED") || code === "42501") setSaveError("No tienes permisos para administrar productos.");
       else if (message.includes("STOCK_RESERVED")) setSaveError(`Las existencias son inferiores a las ${details || "unidades"} reservadas actualmente. Recarga la ficha y corrige la cantidad.`);
       else if (message.includes("CATEGORY_UNAVAILABLE")) setSaveError("La categoría no existe o está inactiva para publicar.");
@@ -173,7 +202,7 @@ export function ProductForm({ initialProduct, categories, isNew, startArchiveCon
       else if (message.includes("product_variants_normalized_name_unique") || message.includes("product_variants_product_id_name_key")) setSaveError("Ya existe una variante con ese nombre en este producto.");
       else if (message.includes("products_slug_key")) { setErrors({ slug: "Este identificador ya pertenece a otro producto." }); setSaveError("Este identificador ya pertenece a otro producto. Cambia el nombre para generar otro."); }
       else setSaveError("No se pudo guardar. Revisa los datos e inténtalo de nuevo.");
-    } finally { setSaving(false); }
+    } finally { savingLock.current = false; setSaving(false); }
   }
 
   function moveVariant(index: number, direction: -1 | 1) {
@@ -182,21 +211,12 @@ export function ProductForm({ initialProduct, categories, isNew, startArchiveCon
       [next[index], next[index + direction]] = [next[index + direction], next[index]];
       return { ...current, variants: next };
     });
-    setReviewReady(false);
     setSaveSuccess(false);
   }
 
-  function handleReview(event: FormEvent<HTMLFormElement>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const nextErrors = validateProduct(product);
-    if (product.status === "published" && !categories.some((category) => category.id === product.categoryId && category.isActive)) nextErrors.category = "Para publicar, selecciona una categoría activa.";
-    setErrors(nextErrors);
-    setReviewReady(Object.keys(nextErrors).length === 0);
-    if (Object.keys(nextErrors).length) {
-      requestAnimationFrame(() => {
-        document.querySelector<HTMLElement>(".admin-product-form [aria-invalid='true']")?.focus();
-      });
-    }
+    void handleSave(confirmedStatus === "archived" ? "draft" : "published");
   }
 
   return (
@@ -204,11 +224,12 @@ export function ProductForm({ initialProduct, categories, isNew, startArchiveCon
       <div className="admin-form-topline"><Link href="/admin/productos"><ArrowLeft size={17} /> Volver a productos</Link><span>{isNew ? "Producto nuevo" : "Edición de producto"}</span></div>
       <header className="admin-page-heading admin-form-heading">
         <div><p className="admin-path">Catálogo / Productos / {isNew ? "Nuevo" : "Editar"}</p><h1 id="admin-form-title">{isNew ? "Crear producto" : "Editar producto"}</h1><p>{isNew ? "Prepara una ficha nueva para el catálogo." : "Revisa la información, las variantes y su publicación."}</p></div>
-        {!isNew && <StatusBadge status={product.status} />}
+        <StatusBadge status={confirmedStatus} />
       </header>
 
 
-      <form className="admin-product-form" onSubmit={handleReview} noValidate>
+      <form className="admin-product-form" onSubmit={handleSubmit} noValidate>
+        <fieldset disabled={saving || reloadRequired} className="admin-editor-fields">
         <div className="admin-form-columns">
           <div className="admin-form-body">
             <section className="admin-form-section" aria-labelledby="product-details-title">
@@ -221,14 +242,16 @@ export function ProductForm({ initialProduct, categories, isNew, startArchiveCon
               </div>
             </section>
 
+            <ProductImageField value={imageEdit} onChange={(value) => { setImageEdit(value); setSaveSuccess(false); }} publicUrl={(path) => client.storage.from("product-images").getPublicUrl(path).data.publicUrl} />
+
             <section className="admin-form-section" aria-labelledby="variants-title">
-              <div className="admin-form-section-heading admin-variants-heading"><div className="admin-heading-with-icon"><span className="admin-stack-icon" aria-hidden="true"><span /><span /></span><div><h2 id="variants-title">Variantes y precios</h2><p>Cada opción conserva su precio y existencias propios.</p></div></div><Button type="button" variant="outline" size="sm" onClick={() => { setProduct((current) => ({ ...current, variants: [...current.variants, createBlankVariant()] })); setReviewReady(false); }}><Plus size={16} /> Añadir variante</Button></div>
+              <div className="admin-form-section-heading admin-variants-heading"><div className="admin-heading-with-icon"><span className="admin-stack-icon" aria-hidden="true"><span /><span /></span><div><h2 id="variants-title">Variantes y precios</h2><p>Cada opción conserva su precio y existencias propios.</p></div></div><Button type="button" variant="outline" size="sm" onClick={() => { setProduct((current) => ({ ...current, variants: [...current.variants, createBlankVariant()] })); setSaveSuccess(false); }}><Plus size={16} /> Añadir variante</Button></div>
               <div className="admin-variant-list">
                 {product.variants.map((variant, index) => {
                   const prefix = `variant-${variant.id}`;
                   const canRemove = variant.id.startsWith("new-");
                   return <div className={`admin-variant ${variant.isActive ? "" : "admin-variant-inactive"}`} key={variant.id}>
-                    <div className="admin-variant-heading"><div><span className="admin-variant-index">{String(index + 1).padStart(2, "0")}</span><h3>{variant.name.trim() || "Variante sin nombre"}</h3><span className="admin-variant-state">{variant.isActive ? "Activa" : "Inactiva"}</span></div><div className="admin-variant-actions"><Button type="button" variant="ghost" size="icon" disabled={index === 0} aria-label={`Subir variante ${index + 1}`} title="Subir variante" onClick={() => moveVariant(index, -1)}><ArrowUp size={16} /></Button><Button type="button" variant="ghost" size="icon" disabled={index === product.variants.length - 1} aria-label={`Bajar variante ${index + 1}`} title="Bajar variante" onClick={() => moveVariant(index, 1)}><ArrowDown size={16} /></Button><Button type="button" variant="ghost" size="sm" aria-pressed={variant.isActive} onClick={() => updateVariant(variant.id, "isActive", !variant.isActive)}>{variant.isActive ? <Eye size={16} /> : <EyeOff size={16} />}{variant.isActive ? "Desactivar" : "Activar"}</Button>{canRemove && <Button type="button" variant="ghost" size="icon" aria-label={`Quitar variante ${index + 1} sin guardar`} onClick={() => { setProduct((current) => ({ ...current, variants: current.variants.filter((item) => item.id !== variant.id) })); setReviewReady(false); }}><Trash2 size={16} /></Button>}</div></div>
+                    <div className="admin-variant-heading"><div><span className="admin-variant-index">{String(index + 1).padStart(2, "0")}</span><h3>{variant.name.trim() || "Variante sin nombre"}</h3><span className="admin-variant-state">{variant.isActive ? "Activa" : "Inactiva"}</span></div><div className="admin-variant-actions"><Button type="button" variant="ghost" size="icon" disabled={index === 0} aria-label={`Subir variante ${index + 1}`} title="Subir variante" onClick={() => moveVariant(index, -1)}><ArrowUp size={16} /></Button><Button type="button" variant="ghost" size="icon" disabled={index === product.variants.length - 1} aria-label={`Bajar variante ${index + 1}`} title="Bajar variante" onClick={() => moveVariant(index, 1)}><ArrowDown size={16} /></Button><Button type="button" variant="ghost" size="sm" aria-pressed={variant.isActive} onClick={() => updateVariant(variant.id, "isActive", !variant.isActive)}>{variant.isActive ? <Eye size={16} /> : <EyeOff size={16} />}{variant.isActive ? "Desactivar" : "Activar"}</Button>{canRemove && <Button type="button" variant="ghost" size="icon" aria-label={`Quitar variante ${index + 1} sin guardar`} onClick={() => { setProduct((current) => ({ ...current, variants: current.variants.filter((item) => item.id !== variant.id) })); setSaveSuccess(false); }}><Trash2 size={16} /></Button>}</div></div>
                     <div className="admin-variant-fields">
                       <div className="admin-field"><label htmlFor={`${prefix}-name`}>Nombre <span>*</span></label><Input id={`${prefix}-name`} value={variant.name} onChange={(event) => updateVariant(variant.id, "name", event.target.value)} placeholder="Ej. Bronce pulido" aria-invalid={Boolean(errors[`${prefix}-name`])} aria-describedby={errors[`${prefix}-name`] ? `${prefix}-name-error` : undefined} /><FieldError id={`${prefix}-name-error`} message={errors[`${prefix}-name`]} /></div>
                       <div className="admin-field"><label htmlFor={`${prefix}-sku`}>SKU</label><Input id={`${prefix}-sku`} value={variant.sku} onChange={(event) => updateVariant(variant.id, "sku", event.target.value)} placeholder="Código interno opcional" aria-invalid={Boolean(errors[`${prefix}-sku`])} aria-describedby={errors[`${prefix}-sku`] ? `${prefix}-sku-error` : undefined} /><FieldError id={`${prefix}-sku-error`} message={errors[`${prefix}-sku`]} /></div>
@@ -241,25 +264,21 @@ export function ProductForm({ initialProduct, categories, isNew, startArchiveCon
             </section>
           </div>
 
-          <aside className="admin-form-aside" aria-label="Publicación y resumen">
-            <section className="admin-publish-panel">
-              <div className="admin-aside-heading"><span className="admin-aside-icon"><Eye size={19} /></span><div><h2>Publicación</h2><p>Define cuándo estará disponible.</p></div></div>
-              {product.status === "archived" ? (
-                <div className="admin-archived-state"><StatusBadge status="archived" /><p>El producto y sus variantes se conservan. Puedes recuperarlo como borrador.</p><Button type="button" variant="outline" onClick={() => { updateProduct("status", "draft"); setArchiveNotice("Restaurado como borrador en esta vista. Aún no se ha guardado."); }}><RotateCcw size={16} /> Restaurar como borrador</Button></div>
-              ) : (
-                <div className="admin-field"><label htmlFor="admin-status">Estado del producto</label><NativeSelect id="admin-status" value={product.status} onChange={(event) => { updateProduct("status", event.target.value as ProductStatus); setArchiveNotice(null); }} aria-invalid={Boolean(errors.status)} aria-describedby={errors.status ? "admin-status-error" : undefined}><option value="draft">Borrador</option><option value="published">Publicado</option></NativeSelect><FieldError id="admin-status-error" message={errors.status} /></div>
-              )}
-              <div className="admin-publication-rule"><Info size={16} aria-hidden="true" /><p>Para publicar necesitas una categoría activa y al menos una variante activa con precio mayor que S/ 0.00.</p></div>
-              {initialProduct.status === "published" && product.status !== "published" && <div className="admin-unpublish-note" role="status">Al guardar, este producto dejaría de estar publicado.</div>}
-            </section>
-            {!isNew && product.status !== "archived" && <section className="admin-archive-panel" aria-label="Archivar producto"><div><Archive size={18} aria-hidden="true" /><h2>Retirar del catálogo</h2></div><p>Archivar conserva la ficha y las variantes para recuperarlas después.</p>{showArchiveConfirm ? <div className="admin-archive-confirm" role="group" aria-label="Confirmar archivo"><p>¿Archivar “{product.name}”?</p><div><Button type="button" variant="outline" size="sm" onClick={() => setShowArchiveConfirm(false)}>Cancelar</Button><Button type="button" size="sm" onClick={() => { updateProduct("status", "archived"); setShowArchiveConfirm(false); setArchiveNotice("Marcado como archivado en esta vista. Aún no se ha guardado."); }}><Archive size={15} /> Sí, archivar</Button></div></div> : <Button type="button" variant="outline" size="icon" className="admin-archive-trigger" aria-label="Archivar producto" title="Archivar producto" onClick={() => setShowArchiveConfirm(true)}><Archive size={17} /></Button>}</section>}
-            {archiveNotice && <p className="admin-archive-notice" role="status">{archiveNotice}</p>}
-            <section className="admin-preview-panel"><h2>Resumen de la ficha</h2><div className="admin-preview-rule" /><p className="admin-preview-category">{product.category || "Sin categoría"}</p><h3>{product.name.trim() || "Nombre del producto"}</h3><p className="admin-preview-description">{product.description.trim() || "La descripción aparecerá aquí cuando la escribas."}</p><div className="admin-preview-footer"><span>{shownVariants.length} {shownVariants.length === 1 ? "variante" : "variantes"}</span><strong>{startingPrice === undefined ? "Sin precio" : `S/ ${startingPrice.toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</strong></div></section>
-            <div className="admin-permission-note"><LockKeyhole size={16} /><p>Solo administradores pueden guardar. Los cambios se confirman juntos.</p></div>
-          </aside>
         </div>
-
-        <div className="admin-form-footer"><div className="admin-review-message" aria-live="polite">{saveError && <span role="alert">{saveError} {saveError.includes("Recarga") && <button type="button" onClick={() => window.location.reload()}>Recargar</button>}</span>}{saveSuccess && <span role="status">Cambios guardados. La ficha se volvió a consultar.</span>}{Object.keys(errors).length > 0 ? <><AlertCircle size={17} /> Corrige {Object.keys(errors).length} {Object.keys(errors).length === 1 ? "campo" : "campos"} antes de guardar.</> : reviewReady ? <><CircleCheck size={17} /> Los datos están listos para guardar.</> : <><Info size={17} /> Revisa los datos y guarda los cambios.</>}</div><div className="admin-form-buttons"><Button type="submit" variant="outline"><Check size={17} /> Revisar datos</Button><Button type="button" disabled={saving} onClick={() => void handleSave()}><Save size={17} /> {saving ? "Guardando…" : "Guardar cambios"}</Button></div></div>
+        </fieldset>
+        <div className="admin-form-footer">
+          <div className="admin-review-message" aria-live="polite">
+            {saveError && <span role="alert">{saveError} {saveError.includes("Recarga") && <button type="button" onClick={() => window.location.reload()}>Recargar</button>}</span>}
+            {saveSuccess && <span role="status">Cambios guardados.</span>}
+            {Object.keys(errors).length > 0 && <span role="alert">Corrige los campos indicados antes de guardar. {errors.status}</span>}
+          </div>
+          <div className="admin-form-buttons">
+            {!isNew && confirmedStatus !== "archived" && <details className="admin-more-actions"><summary>Más acciones</summary><div>{confirmedStatus === "published" && <LoadingButton busy={saving && savingStatus === "draft"} busyLabel={savingPhase} type="button" variant="ghost" disabled={saving || reloadRequired} onClick={() => void handleSave("draft")}><EyeOff size={16} />Guardar como borrador</LoadingButton>}<Button type="button" variant="ghost" disabled={saving || reloadRequired} onClick={() => setShowArchiveConfirm(true)}><Archive size={16} />Archivar producto</Button></div></details>}
+            {confirmedStatus === "draft" && <LoadingButton busy={saving && savingStatus === "draft"} busyLabel={savingPhase} type="button" variant="outline" disabled={saving || reloadRequired} onClick={() => void handleSave("draft")}>Guardar borrador</LoadingButton>}
+            <LoadingButton busy={saving && savingStatus === (confirmedStatus === "archived" ? "draft" : "published")} busyLabel={savingPhase} type="submit" disabled={saving || reloadRequired}><Save size={17} />{confirmedStatus === "archived" ? "Restaurar como borrador" : confirmedStatus === "published" ? "Guardar cambios" : "Publicar producto"}</LoadingButton>
+          </div>
+        </div>
+        {showArchiveConfirm && <div className="admin-inline-confirm" role="group" aria-label="Confirmar archivo"><div><h2>¿Archivar “{product.name}”?</h2><p>Se guardarán también los cambios de este formulario y el producto dejará de aparecer en el catálogo. Podrás restaurarlo como borrador.</p></div><div><Button type="button" variant="outline" disabled={saving || reloadRequired} onClick={() => setShowArchiveConfirm(false)}>Cancelar</Button><LoadingButton busy={saving && savingStatus === "archived"} busyLabel={savingPhase} type="button" disabled={saving || reloadRequired} onClick={() => void handleSave("archived")}>Guardar y archivar</LoadingButton></div></div>}
       </form>
       <AdminEngravingSettings categoryId={product.categoryId} />
     </section>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { AdminLoading } from "./AdminLoading";
 import { useAdminClient } from "./AdminAccessGate";
 import { ProductForm } from "./ProductForm";
 import { getAdminProduct, listAdminCategories } from "../data/adminProductRepository";
@@ -24,8 +25,9 @@ export function AdminProductEditor({ id, archive = false }: { id?: string; archi
       .catch(() => { if (active) setState("error"); });
     return () => { active = false; };
   }, [client, id]);
-  if (state !== "ready" || !product) return <section className="admin-content admin-access-state" role={state === "loading" ? "status" : "alert"}>
-    <h1>{state === "loading" ? "Cargando producto…" : state === "missing" ? "Producto no encontrado" : "No se pudo cargar el producto"}</h1>
+  if (state === "loading") return <AdminLoading editor />;
+  if (state !== "ready" || !product) return <section className="admin-content admin-access-state" role="alert">
+    <h1>{state === "missing" ? "Producto no encontrado" : "No se pudo cargar el producto"}</h1>
     <Link href="/admin/productos">Volver a productos</Link>
     {state === "error" && <button type="button" onClick={() => window.location.reload()}>Reintentar</button>}
   </section>;

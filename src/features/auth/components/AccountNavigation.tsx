@@ -7,6 +7,7 @@ import { signOutUser } from "@/services/authService";
 import { AccountLinks } from "@/features/auth/components/AccountLinks";
 import { readCurrentAccess } from "@/features/auth/services/accountAccessClient";
 import type { AccountRole } from "@/features/auth/types/access";
+import { LoadingIndicator } from "@/features/loading/Loading";
 import { DesktopAccountMenu } from "@/features/header/DesktopAccountMenu";
 
 type AccountState = "loading" | "signed-out" | "signed-in" | "error";
@@ -99,7 +100,7 @@ export function AccountNavigation() {
     <div className="site-account" aria-live="polite">
       <div className="header-account-mobile">
         {accountState === "loading" ? (
-          <span className="site-account-loading" aria-label="Comprobando el estado de tu cuenta">Cuenta…</span>
+          <LoadingIndicator label="Comprobando cuenta" className="loading-account" />
         ) : accountState === "signed-in" && role ? (
           <AccountLinks role={role} signingOut={signingOut} onSignOut={handleSignOut} />
         ) : accountState === "error" ? (
