@@ -1,0 +1,56 @@
+/* Los elementos nuevos permanecen ocultos en la cabecera móvil existente. */
+.site-header .header-search,
+.site-header .header-categories,
+.site-header .header-account-menu,
+.site-header .header-cart { display: none; }
+.site-header .header-account-mobile { display: contents; }
+.site-header .header-main { display: contents; }
+
+@media (min-width: 901px) {
+  .site-header.site-nav { display: block; position: relative; z-index: 20; height: auto; padding: 0; background: #171717; color: #f8f4f0; }
+  .site-header .header-main { display: grid; grid-template-columns: minmax(180px, 260px) minmax(180px, 520px) auto; align-items: center; justify-content: space-between; gap: clamp(20px, 2.5vw, 40px); height: 84px; max-width: 1600px; margin-inline: auto; padding-inline: 4.5%; }
+  .site-header .site-brand { width: 100%; height: 54px; }
+  .site-header .site-nav-links { gap: 20px; }
+  .site-header .header-mobile-catalog,
+  .site-header .header-account-mobile,
+  .site-header .site-cart-trigger { display: none; }
+  .site-header .site-account { display: block; }
+  .site-header .header-search { display: flex; align-items: center; position: relative; min-width: 0; height: 44px; border: 1px solid #64534a; border-radius: 5px; background: #f8f0eb; color: #2d2926; }
+  .site-header .header-search:focus-within { outline: 2px solid #e1af9e; outline-offset: 3px; }
+  .site-header .header-search input { flex: 1; min-width: 0; height: 100%; padding: 0 12px 0 16px; border: 0; background: transparent; color: #2d2926; border-radius: 5px; font: 13px "Eternal Sans", sans-serif; box-shadow: none; }
+  .site-header .header-search input::placeholder { color: #655e5a; }
+  .site-header .header-search input:focus-visible { outline: none; box-shadow: none; }
+  .site-header .header-search > button { flex: 0 0 44px; width: 44px; height: 40px; padding: 0; color: #8c432f; background: transparent; }
+  .site-header .header-search-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .site-header .header-account-menu { display: block; position: relative; }
+  .site-header .header-account-trigger,
+  .site-header .header-cart { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 44px; height: 44px; padding: 0 8px; border: 0; border-radius: 4px; background: transparent; color: #f8f4f0; font: 14px "Eternal Sans", sans-serif; white-space: nowrap; }
+  .site-header .header-account-trigger:hover,
+  .site-header .header-cart:hover { background: #2b2420; color: #e1af9e; }
+  .site-header .header-account-trigger[aria-expanded="true"] { background: #2b2420; }
+  .site-header .header-account-trigger > svg:last-child { width: 14px; height: 14px; transition: transform .15s ease; }
+  .site-header .header-account-trigger[aria-expanded="true"] > svg:last-child { transform: rotate(180deg); }
+  .site-header .header-cart { gap: 8px; }
+  .site-header .header-cart-count { display: grid; place-items: center; min-width: 23px; height: 23px; padding-inline: 6px; border-radius: 50%; background: #a6533b; color: white; font-size: 11px; }
+  .site-header .header-account-panel { position: absolute; right: 0; top: calc(100% + 12px); z-index: 30; width: 280px; padding: 20px; border: 1px solid #ded1c9; border-radius: 6px; background: #fffdfb; color: #2d2926; box-shadow: 0 16px 38px rgba(23, 23, 23, .18); }
+  .site-header .header-account-panel[hidden] { display: none; }
+  .site-header .header-account-heading { margin: 0 0 13px; color: #655e5a; font: 12px/1.5 "Eternal Sans", sans-serif; }
+  .site-header .header-account-panel ul { margin: 0; padding: 0; list-style: none; }
+  .site-header .header-account-panel li + li { margin-top: 6px; }
+  .site-header .header-account-panel a { display: flex; align-items: center; min-height: 44px; padding: 10px 12px; border-radius: 4px; color: #2d2926; font: 14px/1.5 "Eternal Sans", sans-serif; text-decoration: none; }
+  .site-header .header-account-panel a:hover { background: #f6ece9; color: #8c432f; }
+  .site-header .header-account-panel .header-login { background: #a6533b; color: white; justify-content: center; }
+  .site-header .header-account-panel .header-login:hover { background: #8f452e; }
+  .site-header .header-signout { width: 100%; justify-content: flex-start; height: 44px; margin-top: 12px; padding: 10px 12px; border-top: 1px solid #ded1c9; border-radius: 0; color: #8c432f; font: 14px "Eternal Sans", sans-serif; }
+  .site-header .header-signout:hover { background: #f6ece9; }
+  .site-header .header-account-status,
+  .site-header .header-account-message { margin: 10px 0 0; color: #655e5a; font: 12px/1.6 "Eternal Sans", sans-serif; }
+  .site-header .header-account-message { color: #7f3024; }
+  .site-header .header-categories { display: block; background: #211d1a; border-top: 1px solid #3d322b; border-bottom: 1px solid #4c3b30; }
+  .site-header .header-categories ul { display: flex; align-items: center; justify-content: center; gap: clamp(24px, 3vw, 48px); max-width: 1440px; margin: 0 auto; padding: 0 4.5%; list-style: none; }
+  .site-header .header-categories a { display: flex; align-items: center; min-height: 44px; padding: 10px 0; border-bottom: 2px solid transparent; color: #dfd3c9; font: 13px/1.5 "Eternal Sans", sans-serif; text-decoration: none; white-space: nowrap; }
+  .site-header .header-categories a:hover,
+  .site-header .header-categories a[aria-current="page"] { color: #f8f0eb; border-bottom-color: #c9866e; }
+  .site-header button:focus-visible,
+  .site-header a:focus-visible { outline: 2px solid #e1af9e; outline-offset: 3px; }
+}
