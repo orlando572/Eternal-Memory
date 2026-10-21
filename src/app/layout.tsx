@@ -5,6 +5,7 @@ import "./globals.css";
 import { CartProvider } from "@/features/cart/context/CartContext";
 import CartDrawer from "@/features/cart/components/CartDrawer";
 import CartTrigger from "@/features/cart/components/CartTrigger";
+import { AccountNavigation } from "@/features/auth/components/AccountNavigation";
 
 export const metadata: Metadata = {
   title: "Eternal Memory — Productos funerarios",
@@ -22,11 +23,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             </Link>
             <div className="site-nav-links">
               <Link href="/catalogo">Catálogo</Link>
-              <Link href="/login">Iniciar sesión</Link>
+              <AccountNavigation />
               <CartTrigger />
             </div>
           </nav>
-          <main>{children}</main>
+          <div id="site-content">{children}</div>
           <CartDrawer />
           <footer className="site-footer">
             <div><strong>Eternal Memory</strong><p>Productos funerarios para elegir con calma.</p></div>
