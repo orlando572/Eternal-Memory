@@ -3,7 +3,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import ProductGallery from "@/features/products/components/ProductGallery";
 import ProductSelector from "@/features/products/components/ProductSelector";
-import { getProductById } from "@/features/products/data/productsData";
+import { getCatalogProduct } from "@/features/catalogo/services/catalogService";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -11,7 +11,7 @@ interface PageProps {
 
 export default async function DetalleProductoPage({ params }: PageProps) {
   const { id } = await params;
-  const product = getProductById(id);
+  const product = await getCatalogProduct(id);
 
   if (!product) {
     notFound();
@@ -20,10 +20,10 @@ export default async function DetalleProductoPage({ params }: PageProps) {
   return (
     <main className="shop-page detail-page">
       <div className="shop-container">
-        <nav className="detail-breadcrumb" aria-label="Ruta de navegación"><Link href="/catalogo">Catálogo</Link><ChevronRight size={16} /><span>{product.nombre}</span></nav>
+        <nav className="detail-breadcrumb" aria-label="Ruta de navegación"><Link href="/catalogo">Catálogo</Link><ChevronRight size={16} aria-hidden="true" /><span>{product.name}</span></nav>
       <div className="detail-layout">
-        <ProductGallery images={product.imagenes} name={product.nombre} />
-        <ProductSelector product={product} />
+        <ProductGallery key={product.id} images={product.images} name={product.name} />
+        <ProductSelector key={product.id} product={product} />
       </div>
       </div>
     </main>

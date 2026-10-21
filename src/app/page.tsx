@@ -1,8 +1,5 @@
-"use client";
-
 import Link from "next/link";
-import { Amphora, ArrowRight, Flower2, Heart, ShoppingCart } from "lucide-react";
-import { useCart } from "@/features/cart/context/CartContext";
+import { Amphora, ArrowRight, Flower2, Heart } from "lucide-react";
 import { PRODUCTOS } from "@/features/products/data/productsData";
 import { Button } from "@/components/ui/button";
 
@@ -17,8 +14,6 @@ const urnImages = [
 ];
 
 export default function HomePage() {
-  const { addToCart } = useCart();
-
   return (
     <div className="home-first-view">
       <section className="home-hero" aria-label="Selección de productos funerarios">
@@ -43,7 +38,8 @@ export default function HomePage() {
             <h2>{featured.nombre}</h2>
             <p>Diseño sobrio en bronce pulido, con acabado mate y cierre hermético de alta seguridad.</p>
             <strong>{featured.precio}</strong>
-            <Button asChild><Link href={`/catalogo/${featured.id}`}>Ver producto <ArrowRight size={18} /></Link></Button>
+            <span className="home-sample-note">Diseño y precio referenciales. Consulta la disponibilidad en el catálogo.</span>
+            <Button asChild><Link href="/catalogo?categoria=urnas">Explorar urnas <ArrowRight size={18} /></Link></Button>
           </div>
         </div>
       </section>
@@ -51,18 +47,18 @@ export default function HomePage() {
         <div className="home-products-intro">
           <p className="home-kicker">Nuestras urnas</p>
           <h2 id="home-products-title">Diseños para<br />cada historia</h2>
-          <p>Urnas en diversos materiales, estilos y tamaños, pensadas para conservar un recuerdo especial.</p>
+          <p>Una selección referencial de diseños y precios. Consulta en el catálogo los productos publicados y su disponibilidad.</p>
           <Link href="/catalogo?categoria=urnas">Ver todas las urnas <ArrowRight size={19} /></Link>
         </div>
         <div className="home-product-list">
           {urns.map((item, index) => (
             <article className="home-product-card" key={item.id}>
-              <Link href={`/catalogo/${item.id}`} aria-label={`Ver ${item.nombre}`}>
+              <Link href="/catalogo?categoria=urnas" aria-label={`Consultar urnas como ${item.nombre}`}>
                 <img src={urnImages[index]} alt={`Imagen referencial de ${item.nombre}`} />
               </Link>
               <div className="home-product-meta">
-                <Link href={`/catalogo/${item.id}`}>{item.nombre}</Link>
-                <div><strong>{item.precio}</strong><Button size="icon" type="button" aria-label={`Añadir ${item.nombre} al carrito`} onClick={() => addToCart({ ...item, selectedOption: item.opciones?.[0] ?? "", quantity: 1 })}><ShoppingCart size={17} /></Button></div>
+                <Link href="/catalogo?categoria=urnas">{item.nombre}</Link>
+                <div><strong>{item.precio}</strong><Button asChild size="icon"><Link href="/catalogo?categoria=urnas" aria-label={`Consultar catálogo de urnas para ${item.nombre}`}><ArrowRight size={17} /></Link></Button></div>
               </div>
             </article>
           ))}

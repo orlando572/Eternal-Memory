@@ -9,7 +9,7 @@ import CartItemRow from "./CartItemRow";
 export default function CartDrawer() {
   const { cart, isOpen, closeCart, clearCart, totalItems } = useCart();
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const subtotal = cart.reduce((total, item) => total + Number(item.precio.replace(/[^\d.]/g, "")) * item.quantity, 0);
+  const subtotal = cart.reduce((total, item) => total + (item.unitPricePen ?? Number(item.precio.replace(/[^\d.]/g, ""))) * item.quantity, 0);
 
   useEffect(() => {
     if (!isOpen) return;

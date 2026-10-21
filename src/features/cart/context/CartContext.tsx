@@ -4,6 +4,10 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Product } from '@/features/products/data/productsData';
 
 export interface CartItem extends Product {
+  productId?: string;
+  variantId?: string;
+  productSlug?: string;
+  unitPricePen?: number;
   selectedOption: string;
   quantity: number;
 }
