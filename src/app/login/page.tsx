@@ -20,7 +20,8 @@ export default function LoginPage() {
     setError(null);
     try {
       await signInUser({ email, password });
-      router.push("/catalogo");
+      const nextPath = new URLSearchParams(window.location.search).get("next");
+      router.push(nextPath?.startsWith("/admin/productos") && !nextPath.startsWith("//") ? nextPath : "/catalogo");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "No se pudo iniciar sesión. Inténtalo otra vez.");
     } finally {
