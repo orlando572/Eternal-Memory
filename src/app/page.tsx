@@ -1,69 +1,34 @@
-import Link from "next/link";
-import { Amphora, ArrowRight, Flower2, Heart } from "lucide-react";
-import { PRODUCTOS } from "@/features/products/data/productsData";
-import { Button } from "@/components/ui/button";
+import { Suspense } from "react";
+import HomeView from "@/features/home/HomeView";
+import { listCatalogCategories, listCatalogProducts } from "@/features/catalogo/services/catalogService";
+import "@/features/home/home.css";
 
-const featured = PRODUCTOS.find((item) => item.id === "urna-serenidad-bronce")!;
-const urns = ["urna-marmol-silencioso", "urna-organica-tierra", "urna-roble-americano"].map(
-  (id) => PRODUCTOS.find((item) => item.id === id)!,
-);
-const urnImages = [
-  "/assets/plates/product-marble-photo.png",
-  "/assets/plates/product-organic-photo.png",
-  "/assets/plates/product-oak-photo.png",
-];
+async function loadHomeCatalog() {
+  try {
+    const categories = await listCatalogCategories();
+    const selections = await Promise.all(categories.map(async (category) => {
+      try {
+        const page = await listCatalogProducts({ categoria: category.slug });
+        return { category, products: page.products.slice(0, 4), failed: false };
+      } catch {
+        return { category, products: [], failed: true };
+      }
+    }));
+    return { selections, failed: false };
+  } catch {
+    return { selections: [], failed: true };
+  }
+}
+
+async function HomeCatalog() {
+  const data = await loadHomeCatalog();
+  return <HomeView {...data} />;
+}
 
 export default function HomePage() {
   return (
-    <div className="home-first-view">
-      <section className="home-hero" aria-label="Selección de productos funerarios">
-        <img className="home-stucco" src="/assets/plates/stucco.png" alt="" />
-        <img className="home-patio" src="/assets/plates/patio-view.png" alt="Patio soleado visto a través de un umbral" />
-
-        <div className="home-intro">
-          <p className="home-kicker">Un último homenaje, siempre presente</p>
-          <h1>Elegir con calma</h1>
-          <p className="home-subtitle">Productos funerarios para honrar a quienes amamos.</p>
-          <div className="home-categories" aria-label="Categorías">
-            <Button asChild className="selected"><Link href="/catalogo?categoria=urnas"><Amphora size={22} strokeWidth={1.5} /> Urnas</Link></Button>
-            <Button asChild variant="outline"><Link href="/catalogo?categoria=ataudes">Ataúdes</Link></Button>
-            <Button asChild variant="outline"><Link href="/catalogo?categoria=flores"><Flower2 size={22} strokeWidth={1.5} /> Arreglos florales</Link></Button>
-            <Button asChild variant="outline"><Link href="/catalogo?categoria=relicarios"><Heart size={24} strokeWidth={1.5} /> Relicarios</Link></Button>
-          </div>
-        </div>
-
-        <div className="home-feature">
-          <img className="home-feature-photo" src="/assets/plates/featured-photo.png" alt="Imagen referencial de la Urna Serenidad en bronce" />
-          <div className="home-feature-info">
-            <h2>{featured.nombre}</h2>
-            <p>Diseño sobrio en bronce pulido, con acabado mate y cierre hermético de alta seguridad.</p>
-            <strong>{featured.precio}</strong>
-            <span className="home-sample-note">Diseño y precio referenciales. Consulta la disponibilidad en el catálogo.</span>
-            <Button asChild><Link href="/catalogo?categoria=urnas">Explorar urnas <ArrowRight size={18} /></Link></Button>
-          </div>
-        </div>
-      </section>
-      <section className="home-products" aria-labelledby="home-products-title">
-        <div className="home-products-intro">
-          <p className="home-kicker">Nuestras urnas</p>
-          <h2 id="home-products-title">Diseños para<br />cada historia</h2>
-          <p>Una selección referencial de diseños y precios. Consulta en el catálogo los productos publicados y su disponibilidad.</p>
-          <Link href="/catalogo?categoria=urnas">Ver todas las urnas <ArrowRight size={19} /></Link>
-        </div>
-        <div className="home-product-list">
-          {urns.map((item, index) => (
-            <article className="home-product-card" key={item.id}>
-              <Link href="/catalogo?categoria=urnas" aria-label={`Consultar urnas como ${item.nombre}`}>
-                <img src={urnImages[index]} alt={`Imagen referencial de ${item.nombre}`} />
-              </Link>
-              <div className="home-product-meta">
-                <Link href="/catalogo?categoria=urnas">{item.nombre}</Link>
-                <div><strong>{item.precio}</strong><Button asChild size="icon"><Link href="/catalogo?categoria=urnas" aria-label={`Consultar catálogo de urnas para ${item.nombre}`}><ArrowRight size={17} /></Link></Button></div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-    </div>
+    <Suspense fallback={<HomeView selections={[]} loading />}>
+      <HomeCatalog />
+    </Suspense>
   );
 }

@@ -7,6 +7,7 @@ import { signOutUser } from "@/services/authService";
 import { AccountLinks } from "@/features/auth/components/AccountLinks";
 import { readCurrentAccess } from "@/features/auth/services/accountAccessClient";
 import type { AccountRole } from "@/features/auth/types/access";
+import { DesktopAccountMenu } from "@/features/header/DesktopAccountMenu";
 
 type AccountState = "loading" | "signed-out" | "signed-in" | "error";
 
@@ -96,16 +97,20 @@ export function AccountNavigation() {
 
   return (
     <div className="site-account" aria-live="polite">
-      {accountState === "loading" ? (
-        <span className="site-account-loading" aria-label="Comprobando el estado de tu cuenta">Cuenta…</span>
-      ) : accountState === "signed-in" && role ? (
-        <AccountLinks role={role} signingOut={signingOut} onSignOut={handleSignOut} />
-      ) : accountState === "error" ? (
-        <button type="button" className="site-account-retry" onClick={() => setRevision((value) => value + 1)}>Reintentar acceso</button>
-      ) : (
-        <Link href="/login">Iniciar sesión</Link>
-      )}
-      {error && <span className="site-account-error" role="alert">{error}</span>}
+      <div className="header-account-mobile">
+        {accountState === "loading" ? (
+          <span className="site-account-loading" aria-label="Comprobando el estado de tu cuenta">Cuenta…</span>
+        ) : accountState === "signed-in" && role ? (
+          <AccountLinks role={role} signingOut={signingOut} onSignOut={handleSignOut} />
+        ) : accountState === "error" ? (
+          <button type="button" className="site-account-retry" onClick={() => setRevision((value) => value + 1)}>Reintentar acceso</button>
+        ) : (
+          <Link href="/login">Iniciar sesión</Link>
+        )}
+        {error && <span className="site-account-error" role="alert">{error}</span>}
+      </div>
+      <DesktopAccountMenu state={accountState} role={role} signingOut={signingOut} error={error}
+        onSignOut={handleSignOut} onRetry={() => setRevision((value) => value + 1)} />
     </div>
   );
 }

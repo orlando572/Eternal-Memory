@@ -1,0 +1,57 @@
+/* Ajustes exclusivos de la portada para el contenido del catálogo real. */
+.home-first-view .home-hero { height: auto; min-height: 38.6vw; padding: 3.9vw 4.5% 24px; }
+.home-first-view .home-intro { position: relative; left: auto; top: auto; width: 65%; }
+.home-first-view .home-categories { max-width: calc(91vw); overflow-x: auto; padding-bottom: 8px; }
+.home-first-view .home-categories button { flex: 0 0 auto; height: 58px; padding: 0 28px; color: #2d2926; background: #f7efebd9; border: 1px solid #ded1c9; border-radius: 6px; gap: 14px; font: 17px "Eternal Display", serif; white-space: nowrap; }
+.home-first-view .home-categories button.selected { background: var(--clay); color: white; border-color: var(--clay); }
+.home-first-view .home-categories button:hover { filter: brightness(.95); }
+.home-first-view .home-categories .home-category-icon { width: 22px; height: 22px; flex-shrink: 0; }
+.home-first-view .home-feature { position: relative; left: auto; top: auto; width: 55%; height: auto; min-height: max(17.58vw, 285px); margin-top: 28px; color: inherit; text-decoration: none; }
+.home-first-view .home-feature-photo { position: relative; flex: 0 0 59%; height: auto; min-height: 285px; background: #f7f0eb; }
+.home-first-view .home-feature-photo img { object-fit: cover; }
+.home-first-view .home-feature-info { min-width: 0; }
+.home-first-view .home-feature-info h2 { white-space: normal; overflow-wrap: anywhere; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.home-first-view .home-feature-info p { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+.home-first-view .home-feature-info strong { line-height: 1.2; overflow-wrap: anywhere; }
+.home-first-view .home-sample-note { display: block; margin-top: 8px; }
+.home-first-view .home-products { height: auto; min-height: 23.9vw; display: grid; grid-template-columns: 24% minmax(0, 1fr); gap: 3%; align-items: start; padding: 2.54vw 3% 3vw 4.5%; }
+.home-first-view .home-products-intro { position: static; width: auto; padding-top: 1.3vw; }
+.home-first-view .home-product-list { position: static; }
+.home-first-view .home-product-card > a { display: block; height: 100%; color: inherit; text-decoration: none; }
+.home-first-view .home-card-image { position: relative; height: 13.09vw; background: #f7f0eb; overflow: hidden; }
+.home-first-view .home-product-meta h3 { margin: 0; font: 16px/1.4 "Eternal Serif", serif; overflow-wrap: anywhere; }
+.home-first-view .home-product-meta strong { font-size: clamp(18px, 1.6vw, 23px); overflow-wrap: anywhere; }
+.home-first-view .home-state { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 14px; padding: 24px; background: #f8f0ed; }
+.home-first-view .home-state h2 { margin: 0; font-size: 26px; }
+.home-first-view .home-state p { margin: 0; color: var(--muted); font: 14px/1.5 "Eternal Sans", sans-serif; }
+.home-category-status { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@media (max-width: 1200px) and (min-width: 901px) {
+  .home-first-view .home-intro { width: 90%; }
+  .home-first-view .home-feature { width: 65%; }
+}
+
+@media (max-width: 900px) {
+  .home-first-view .home-hero { padding: 42px 4% 70px; }
+  .home-first-view .home-intro { width: 100%; }
+  .home-first-view .home-categories { max-width: 100%; }
+  .home-first-view .home-categories button { height: 50px; padding: 0 18px; font-size: 15px; }
+  .home-first-view .home-feature { width: 100%; margin-top: 430px; }
+  .home-first-view .home-products { display: block; padding: 54px 4% 74px; }
+  .home-first-view .home-products-intro { padding: 0; }
+  .home-first-view .home-card-image { height: 175px; }
+}
+
+@media (max-width: 600px) {
+  .home-first-view .home-hero { padding: 34px 20px 42px; }
+  .home-first-view .home-categories { max-width: calc(100% + 20px); }
+  .home-first-view .home-categories button { height: 45px; padding: 0 13px; gap: 7px; font-size: 13px; }
+  .home-first-view .home-categories .home-category-icon { width: 18px; height: 18px; }
+  .home-first-view .home-feature { margin-top: 330px; }
+  .home-first-view .home-feature-photo { width: 100%; height: 210px; min-height: 0; }
+  .home-first-view .home-feature-info { height: auto; min-height: 210px; }
+  .home-first-view .home-state { display: flex; min-height: 210px; }
+  .home-first-view .home-products { padding: 47px 20px 64px; }
+  .home-first-view .home-card-image { height: 220px; }
+  .home-first-view .home-product-meta strong { font-size: 23px; }
+}
