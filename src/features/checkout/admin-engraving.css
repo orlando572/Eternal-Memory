@@ -1,0 +1,13 @@
+.engraving-settings { margin-top: 24px; }
+.engraving-settings-panel { padding: 28px 32px; background: #fffdfb; border: 1px solid #e8dcd3; }
+.engraving-settings h2 { margin: 0 0 10px; color: #171717; font: 400 28px/1.25 "Eternal Display", serif; }
+.engraving-settings p { color: #766b64; font: 13px/1.7 "Eternal Sans", sans-serif; }
+.engraving-settings form { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; margin-top: 24px; }
+.engraving-settings form > div { width: min(100%, 340px); }
+.engraving-settings label { display: block; margin-bottom: 9px; color: #433b35; font: 600 13px "Eternal Sans", sans-serif; }
+.engraving-settings input { background: #fffdfb; font-family: "Eternal Sans", sans-serif; }
+.engraving-settings form p { margin: 8px 0 0; font-size: 12px; }
+.engraving-settings button { font-family: "Eternal Sans", sans-serif; white-space: normal; height: auto; min-height: 40px; }
+.engraving-settings .engraving-settings-error { color: #9a382a; }
+.engraving-settings .engraving-settings-success { color: #3b563a; }
+@media (max-width: 600px) { .engraving-settings-panel { padding: 22px 18px; } .engraving-settings form > div { width: 100%; } }

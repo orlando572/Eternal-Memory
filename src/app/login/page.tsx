@@ -9,7 +9,7 @@ type LoginPageProps = {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const { error, next } = await searchParams;
-  const returnTo = getAdminReturnPath(next);
+  const returnTo = next === "/checkout" ? next : getAdminReturnPath(next);
   const access = await getCurrentAccess().catch(() => null);
   if (access && error !== "auth_callback") {
     redirect(getPostLoginPath(access.role, returnTo));

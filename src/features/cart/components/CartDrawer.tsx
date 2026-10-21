@@ -67,7 +67,7 @@ export default function CartDrawer() {
           <div className="cart-validation-status" aria-live="polite">
             {error ? <><p role="alert">{error} Conservamos tu selección; los importes están ocultos.</p><Button variant="outline" size="sm" type="button" onClick={retry}>Reintentar</Button></> : !validation ? <p role="status">Comprobando precios y existencias vigentes…</p> : excluded > 0 ? <p>{excluded} {excluded === 1 ? "línea excluida" : "líneas excluidas"} del total. Revisa los avisos de cada artículo.</p> : <p>Precios y existencias comprobados.</p>}
           </div>
-          <p>Imágenes referenciales. Tu selección se guarda en este navegador y no reserva unidades. Total solo de artículos, sin envío ni cargos adicionales. La compra en línea aún no está disponible.</p>
+          {initialized && validation && !error && excluded === 0 && <Button asChild><Link href="/checkout" onClick={closeCart}>Continuar con pedido <ArrowRight size={18} aria-hidden="true" /></Link></Button>}
           <Link href="/catalogo" onClick={closeCart}>Seguir explorando <ArrowRight size={18} /></Link>
         </footer>}
       </aside>

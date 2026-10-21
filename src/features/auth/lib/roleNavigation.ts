@@ -20,6 +20,7 @@ export function getAdminReturnPath(value: unknown): string | undefined {
 }
 
 export function getPostLoginPath(role: AccountRole, returnTo?: string): string {
+  if (returnTo === "/checkout") return "/checkout";
   if (role === "admin") return getAdminReturnPath(returnTo) ?? "/admin/productos";
   return "/catalogo";
 }
