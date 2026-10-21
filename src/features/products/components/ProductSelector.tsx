@@ -61,7 +61,6 @@ export default function ProductSelector({ product }: { product: CatalogProduct }
         </div>
         <Button type="button" className="detail-add-button" onClick={handleAddToCart} disabled={!canAdd} aria-describedby="variant-availability"><ShoppingCart size={19} /> Añadir al carrito</Button>
       </div>
-      <p className="detail-support">Tu selección se guarda en este navegador. La disponibilidad puede cambiar; añadir al carrito no reserva unidades.</p>
       <div className="detail-mobile-sticky-add"><strong>{price}</strong><Button type="button" onClick={handleAddToCart} disabled={!canAdd} aria-describedby="variant-availability"><ShoppingCart size={18} /> Añadir al carrito</Button></div>
     </div>
   );

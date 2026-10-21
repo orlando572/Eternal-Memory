@@ -5,13 +5,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, Search } from "lucide-react";
 import { LoadingButton } from "@/features/loading/LoadingButton";
-import { LoadingIndicator } from "@/features/loading/Loading";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ProductImage } from "@/features/products/components/ProductImage";
 import { HomeCategoryIcon } from "@/features/home/HomeCategoryIcon";
 import { ClearFiltersIcon } from "./components/ClearFiltersIcon";
 import { catalogHref, formatCatalogPrice } from "@/features/catalogo/lib/catalogPresentation";
+import { getCatalogBackground } from "@/features/catalogo/lib/catalogBackground";
 import type { CatalogCategory, CatalogFilters, CatalogPage } from "@/features/catalogo/types/catalog";
 
 export default function CatalogoView({ page, categories }: { page: CatalogPage; categories: CatalogCategory[] }) {
@@ -35,9 +35,8 @@ export default function CatalogoView({ page, categories }: { page: CatalogPage; 
 
   return (
     <main className="shop-page">
-      <header className="shop-heading">
+      <header className="shop-heading catalog-heading" style={{ backgroundImage: `url("${getCatalogBackground(filters.categorySlug)}")`, backgroundPosition: "right center" }}>
         <div className="shop-container">
-          <Link className="shop-back-link" href="/">Inicio <ArrowRight size={14} /></Link>
           <h1>Un catálogo para elegir con calma</h1>
           <p>Explora productos funerarios por categoría. Consulta materiales, opciones y precios a tu propio ritmo.</p>
         </div>
@@ -65,8 +64,7 @@ export default function CatalogoView({ page, categories }: { page: CatalogPage; 
           </div>
           <p className="catalog-count" aria-live="polite">{total} {total === 1 ? "producto" : "productos"}</p>
         </div>
-        <p className="catalog-navigation-status" role="status">{pending ? <LoadingIndicator label="Actualizando catálogo" /> : filters.query ? `Resultados para «${filters.query}»` : ""}</p>
-        <p className="shop-image-note">Las imágenes marcadas como referenciales pueden diferir del producto.</p>
+        {filters.query && !pending && <p className="catalog-navigation-status" role="status">Resultados para «{filters.query}»</p>}
         {products.length ? (
           <div className={pending ? "catalog-grid catalog-results-pending" : "catalog-grid"}>
             {products.map((product) => (
@@ -79,7 +77,7 @@ export default function CatalogoView({ page, categories }: { page: CatalogPage; 
                     <p>{product.category.name}</p>
                     <h2>{product.name}</h2>
                     <div><strong>{product.priceFromPen === null ? "Sin opciones disponibles" : `${product.hasPriceRange ? "Desde " : ""}${formatCatalogPrice(product.priceFromPen)}`}</strong><ArrowRight size={20} aria-hidden="true" /></div>
-                    <p className="catalog-availability">{product.isAvailable ? "Disponible" : "Agotado"}{product.images[0]?.isReference ? " · Imagen referencial" : ""}</p>
+                    <p className="catalog-availability">{product.isAvailable ? "Disponible" : "Agotado"}</p>
                   </div>
                 </Link>
               </article>
