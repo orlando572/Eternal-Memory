@@ -1,0 +1,16 @@
+/* Carrito validado: importes y avisos conservan la identidad Patio de luz. */
+.cart-item-image { position: relative; color: var(--muted); text-decoration: none; }
+.cart-item-content h3 a { color: inherit; text-decoration: underline; text-decoration-color: #cbb3a5; text-underline-offset: 3px; }
+.cart-item-content h3 a:hover { color: var(--clay); }
+.cart-item-quantity input { width: 46px; min-width: 0; border: 0; padding: 0 2px; background: transparent; color: var(--ink); text-align: center; font: 13px "Eternal Sans", sans-serif; appearance: textfield; }
+.cart-item-quantity input::-webkit-inner-spin-button, .cart-item-quantity input::-webkit-outer-spin-button { appearance: none; margin: 0; }
+.cart-item-quantity button:disabled { opacity: .4; cursor: default; }
+.cart-item-content .cart-line-subtotal { color: var(--clay); font-weight: 600; font-size: 13px; }
+.cart-item-content .cart-line-notice, .cart-notice { color: #794331; font: 12px/1.5 "Eternal Sans", sans-serif; }
+.cart-notice { padding: 10px 12px; border: 1px solid #d9c9be; border-radius: 4px; background: #fffaf6; }
+.cart-summary > .cart-validation-status { display: block; margin-top: 10px; }
+.cart-validation-status p { margin-top: 0; }
+.cart-validation-status button { margin-top: 8px; }
+@media (max-height: 650px) {
+  .cart-summary { max-height: 48dvh; overflow-y: auto; }
+}
