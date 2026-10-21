@@ -12,6 +12,7 @@ import type { AdminCategory, AdminProductDraft, AdminVariantDraft, ProductStatus
 import { getAdminProduct, saveAdminProduct } from "@/features/admin-products/data/adminProductRepository";
 import { useAdminClient } from "./AdminAccessGate";
 import { StatusBadge } from "./AdminProductList";
+import { AdminEngravingSettings } from "@/features/checkout/components/AdminEngravingSettings";
 
 type FormErrors = Record<string, string>;
 
@@ -260,6 +261,7 @@ export function ProductForm({ initialProduct, categories, isNew, startArchiveCon
 
         <div className="admin-form-footer"><div className="admin-review-message" aria-live="polite">{saveError && <span role="alert">{saveError} {saveError.includes("Recarga") && <button type="button" onClick={() => window.location.reload()}>Recargar</button>}</span>}{saveSuccess && <span role="status">Cambios guardados. La ficha se volvió a consultar.</span>}{Object.keys(errors).length > 0 ? <><AlertCircle size={17} /> Corrige {Object.keys(errors).length} {Object.keys(errors).length === 1 ? "campo" : "campos"} antes de guardar.</> : reviewReady ? <><CircleCheck size={17} /> Los datos están listos para guardar.</> : <><Info size={17} /> Revisa los datos y guarda los cambios.</>}</div><div className="admin-form-buttons"><Button type="submit" variant="outline"><Check size={17} /> Revisar datos</Button><Button type="button" disabled={saving} onClick={() => void handleSave()}><Save size={17} /> {saving ? "Guardando…" : "Guardar cambios"}</Button></div></div>
       </form>
+      <AdminEngravingSettings categoryId={product.categoryId} />
     </section>
   );
 }

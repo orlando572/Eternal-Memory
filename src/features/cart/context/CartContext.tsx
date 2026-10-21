@@ -18,6 +18,7 @@ type State = {
   priceChanges: string[];
 };
 type Action =
+  | { type: "consume-order"; lines: { key: string; productId: string; variantId: string; quantity: number }[] }
   | { type: "initialize"; cart: CartLine[]; warning: string | null }
   | { type: "add"; item: CartLine }
   | { type: "quantity"; key: string; quantity: number }
@@ -35,6 +36,7 @@ function invalidate(state: State, cart = state.cart): State {
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
+    case "consume-order": return invalidate(state, state.cart.filter((item) => !action.lines.some((line) => line.key === item.key && line.productId === item.productId && line.variantId === item.variantId && line.quantity === item.quantity)));
     case "initialize": return { ...invalidate(state, action.cart), initialized: true, storageWarning: action.warning };
     case "open": return { ...invalidate(state), isOpen: true };
     case "close": return { ...state, isOpen: false };
@@ -92,6 +94,7 @@ function reducer(state: State, action: Action): State {
 }
 
 interface CartContextType {
+  consumeOrder: (lines: { key: string; productId: string; variantId: string; quantity: number }[]) => void;
   cart: CartLine[];
   isOpen: boolean;
   initialized: boolean;
@@ -170,10 +173,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const removeFromCart = useCallback((key: string) => dispatch({ type: "remove", key }), []);
   const updateQuantity = useCallback((key: string, quantity: number) => dispatch({ type: "quantity", key, quantity }), []);
   const clearCart = useCallback(() => dispatch({ type: "clear" }), []);
+  const consumeOrder = useCallback((lines: { key: string; productId: string; variantId: string; quantity: number }[]) => dispatch({ type: "consume-order", lines }), []);
   const retry = useCallback(() => dispatch({ type: "refresh" }), []);
   const totalItems = state.cart.reduce((total, item) => total + (Number.isSafeInteger(item.quantity) && item.quantity > 0 ? item.quantity : 0), 0);
 
-  return <CartContext.Provider value={{ ...state, openCart, closeCart, addToCart, removeFromCart, updateQuantity, clearCart, retry, totalItems }}>{children}</CartContext.Provider>;
+  return <CartContext.Provider value={{ ...state, openCart, closeCart, addToCart, removeFromCart, updateQuantity, clearCart, consumeOrder, retry, totalItems }}>{children}</CartContext.Provider>;
 }
 
 export function useCart() {

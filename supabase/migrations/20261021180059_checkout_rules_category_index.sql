@@ -1,0 +1,1 @@
+create index checkout_rules_category_idx on public.checkout_customization_rules(category_slug);
