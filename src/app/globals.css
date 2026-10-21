@@ -197,6 +197,40 @@ img { display: block; }
 .catalog-empty { min-height: 260px; display: grid; align-content: center; text-align: center; }
 .catalog-empty h2 { font-size: 30px; margin: 0; }
 .catalog-empty p { color: #5c5651; font-family: "Eternal Sans", sans-serif; }
+.catalog-search { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; margin-bottom: 25px; }
+.catalog-search>div { flex: 1 1 260px; max-width: 560px; }
+.catalog-search label { display: block; margin-bottom: 8px; font: 14px "Eternal Sans", sans-serif; }
+.catalog-search>button { min-height: 44px; font-family: "Eternal Sans", sans-serif; }
+.catalog-navigation-status { min-height: 20px; margin: 12px 0 0; color: #655e5a; font: 13px "Eternal Sans", sans-serif; }
+.catalog-card-content .catalog-availability { margin-top: 14px; font-size: 12px; line-height: 1.5; }
+.catalog-card-content strong { overflow-wrap: anywhere; }
+.catalog-card-content>div { gap: 10px; }
+.catalog-card-content>div>svg { flex-shrink: 0; }
+.catalog-state-actions { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 14px; }
+.catalog-empty { padding: 35px 0; }
+.catalog-empty h1 { font-size: clamp(30px, 4vw, 44px); line-height: 1.15; }
+.catalog-error { min-height: 65vh; }
+.catalog-pagination { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 18px; margin-top: 40px; font: 14px "Eternal Sans", sans-serif; }
+.catalog-loading { padding-block: 50px; }
+.catalog-loading p { margin-bottom: 25px; color: #655e5a; font: 16px "Eternal Sans", sans-serif; }
+.catalog-skeleton { min-height: 300px; background: #e6d4c3; border-radius: 6px; }
+.product-image-fallback { display: grid; place-items: center; width: 100%; height: 100%; padding: 12px; text-align: center; font: 13px "Eternal Sans", sans-serif; color: #655e5a; }
+.home-product-meta>div>a { display: grid; place-items: center; width: 32px; height: 32px; flex-shrink: 0; color: white; background: var(--clay); border-radius: 4px; }
+.home-sample-note { color: #655e5a; font: 12px/1.4 "Eternal Sans", sans-serif; }
+.detail-availability { margin: 0 0 20px; color: #655e5a; font: 14px/1.6 "Eternal Sans", sans-serif; }
+.detail-quantity button:disabled { opacity: .4; cursor: not-allowed; }
+.detail-description { white-space: pre-line; }
+.detail-main-image, .detail-thumbnails button { position: relative; }
+.detail-thumbnails .product-image-fallback { padding: 3px; font-size: 10px; }
+@media (max-width: 740px) {
+  .catalog-search { gap: 10px; }
+  .catalog-search>div { flex-basis: 100%; max-width: none; }
+  .catalog-search input { font-size: 16px; }
+  .catalog-search>button { flex: 1; }
+  .catalog-pagination { gap: 10px; }
+  .catalog-pagination span { flex-basis: 100%; text-align: center; order: -1; }
+  .detail-mobile-sticky-add>strong { max-width: 40%; white-space: normal; overflow-wrap: anywhere; }
+}
 .detail-page { padding-block: 32px 100px; }
 .detail-breadcrumb { display: flex; gap: 9px; align-items: center; margin-bottom: 30px; color: #685f58; font: 13px "Eternal Sans", sans-serif; }
 .detail-breadcrumb a { color: var(--clay); text-decoration: none; }
@@ -385,7 +419,7 @@ img { display: block; }
   .detail-page { padding-bottom: 128px; }
   .detail-add-button { display: none; }
   .detail-mobile-sticky-add { position: fixed; bottom: 0; left: 0; right: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 20px max(12px, env(safe-area-inset-bottom)); background: #fffaf6; border-top: 1px solid #d9c9be; box-shadow: 0 -8px 24px rgba(76,48,35,.08); }
-  .detail-mobile-sticky-add strong { color: var(--clay); font: 23px "Eternal Serif", serif; white-space: nowrap; }
+  .detail-mobile-sticky-add strong { color: var(--clay); font: 23px "Eternal Serif", serif; white-space: normal; overflow-wrap: anywhere; max-width: 40%; }
   .detail-mobile-sticky-add button { height: 43px; min-width: 0; flex: 1; background: var(--clay); color: white; border-radius: 4px; }
   .auth-layout { display: block; padding-block: 40px 64px; }
   .auth-intro { margin-bottom: 35px; }
