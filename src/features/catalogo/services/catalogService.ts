@@ -146,3 +146,13 @@ export async function getCatalogProduct(slug: string): Promise<CatalogProduct | 
     return data ? mapProduct(data as unknown as ProductRow, client) : null;
   });
 }
+
+// Reuses the same public visibility rules as the catalog and product pages.
+export async function getCatalogProductsByIds(ids: string[]): Promise<CatalogProduct[]> {
+  if (ids.length === 0) return [];
+  return readCatalog(async (client) => {
+    const { data, error } = await publicProducts(client).in("id", ids);
+    if (error || !data) throw new CatalogUnavailableError();
+    return (data as unknown as ProductRow[]).map((row) => mapProduct(row, client));
+  });
+}

@@ -7,20 +7,22 @@ import type { CatalogProduct } from "@/features/catalogo/types/catalog";
 import { formatCatalogPrice } from "@/features/catalogo/lib/catalogPresentation";
 import { catalogCartItem } from "@/features/catalogo/lib/catalogCart";
 import { useCart } from "@/features/cart/context/CartContext";
+import { CART_MAX_LINES, CART_MAX_QUANTITY } from "@/features/cart/types/cart";
 
 export default function ProductSelector({ product }: { product: CatalogProduct }) {
   const [variantId, setVariantId] = useState(product.variants.find((variant) => variant.availableQuantity > 0)?.id ?? product.variants[0]?.id ?? "");
   const [quantity, setQuantity] = useState(1);
   const { cart, addToCart } = useCart();
   const variant = product.variants.find((item) => item.id === variantId);
-  const inCart = cart.reduce((total, item) => total + (item.variantId === variantId ? item.quantity : 0), 0);
-  const remaining = Math.max(0, (variant?.availableQuantity ?? 0) - inCart);
+  const inCart = cart.reduce((total, item) => total + (item.variantId === variantId && item.productId === product.id && Number.isInteger(item.quantity) && item.quantity > 0 && item.quantity <= CART_MAX_QUANTITY ? item.quantity : 0), 0);
+  const remaining = Math.max(0, Math.min(variant?.availableQuantity ?? 0, CART_MAX_QUANTITY) - inCart);
   const selectedQuantity = Math.min(quantity, remaining);
-  const canAdd = Boolean(variant && selectedQuantity > 0);
+  const lineLimit = cart.length >= CART_MAX_LINES && inCart === 0;
+  const canAdd = Boolean(variant && selectedQuantity > 0 && !lineLimit);
   const price = variant ? formatCatalogPrice(variant.pricePen) : "Sin opciones disponibles";
-  const availability = !variant ? "No hay variantes activas disponibles."
+  const availability = lineLimit ? "El carrito admite hasta 50 líneas distintas. Quita una para agregar otra variante." : !variant ? "No hay variantes activas disponibles."
     : variant.availableQuantity === 0 ? "Esta variante está agotada."
-    : remaining === 0 ? "Ya tienes en tu selección todas las unidades disponibles de esta variante."
+    : remaining === 0 ? "Alcanzaste el límite o las unidades disponibles de esta variante en tu selección."
     : `${variant.availableQuantity} ${variant.availableQuantity === 1 ? "unidad disponible" : "unidades disponibles"}${inCart > 0 ? ` · ${inCart} en tu selección` : ""}.`;
 
   function handleAddToCart() {
