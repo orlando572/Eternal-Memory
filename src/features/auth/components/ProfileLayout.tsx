@@ -40,7 +40,7 @@ export function ProfileLayout({ active, fullName, email, role, title, descriptio
             </div>
             <p className="profile-account-role">Rol de la cuenta: <strong>{accountRoleLabels[role]}</strong></p>
           </div>
-          <ProfileTabs active={active} />
+          <ProfileTabs active={active} role={role} />
           <Link href="/catalogo" className="profile-sidebar-back"><ArrowLeft size={15} aria-hidden="true" /> Volver al catálogo</Link>
         </aside>
 

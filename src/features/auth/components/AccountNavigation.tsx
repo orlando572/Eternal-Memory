@@ -3,13 +3,17 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, UserRound } from "lucide-react";
 import { signOutUser } from "@/services/authService";
+import { AccountLinks } from "@/features/auth/components/AccountLinks";
+import { readCurrentAccess } from "@/features/auth/services/accountAccessClient";
+import type { AccountRole } from "@/features/auth/types/access";
 
-type AccountState = "loading" | "signed-out" | "signed-in";
+type AccountState = "loading" | "signed-out" | "signed-in" | "error";
 
 export function AccountNavigation() {
   const [accountState, setAccountState] = useState<AccountState>("loading");
+  const [role, setRole] = useState<AccountRole | null>(null);
+  const [revision, setRevision] = useState(0);
   const [signingOut, setSigningOut] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -17,31 +21,62 @@ export function AccountNavigation() {
   useEffect(() => {
     let active = true;
     let unsubscribe = () => {};
+    let readVersion = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const controller = new AbortController();
 
     async function readAccount() {
+      const version = ++readVersion;
+      setAccountState("loading");
+      setRole(null);
+      setError(null);
+      try {
+        const access = await readCurrentAccess(controller.signal);
+        if (!active || version !== readVersion) return;
+        setRole(access?.role ?? null);
+        setAccountState(access ? "signed-in" : "signed-out");
+      } catch (caught) {
+        if (!active || version !== readVersion) return;
+        setAccountState("error");
+        setError(caught instanceof Error ? caught.message : "No se pudo comprobar tu cuenta.");
+      }
+    }
+
+    async function subscribeToAccount() {
       try {
         const { createClient } = await import("@/lib/supabase/client");
         if (!active) return;
 
         const supabase = createClient();
-        const { data, error: authError } = await supabase.auth.getUser();
-        if (active) setAccountState(!authError && data.user ? "signed-in" : "signed-out");
-
         const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-          if (active) setAccountState(session?.user ? "signed-in" : "signed-out");
+          if (!active) return;
+          ++readVersion;
+          setRole(null);
+          setError(null);
+          if (timer) clearTimeout(timer);
+          if (!session?.user) {
+            setAccountState("signed-out");
+            return;
+          }
+          setAccountState("loading");
+          // Read through the server outside the Supabase auth callback.
+          timer = setTimeout(() => { if (active) void readAccount(); }, 0);
         });
         unsubscribe = () => listener.subscription.unsubscribe();
+        await readAccount();
       } catch {
         if (active) setAccountState("signed-out");
       }
     }
 
-    void readAccount();
+    void subscribeToAccount();
     return () => {
       active = false;
+      controller.abort();
+      if (timer) clearTimeout(timer);
       unsubscribe();
     };
-  }, []);
+  }, [revision]);
 
   async function handleSignOut() {
     setSigningOut(true);
@@ -49,6 +84,7 @@ export function AccountNavigation() {
     try {
       await signOutUser();
       setAccountState("signed-out");
+      setRole(null);
       router.replace("/");
       router.refresh();
     } catch (caught) {
@@ -62,15 +98,10 @@ export function AccountNavigation() {
     <div className="site-account" aria-live="polite">
       {accountState === "loading" ? (
         <span className="site-account-loading" aria-label="Comprobando el estado de tu cuenta">Cuenta…</span>
-      ) : accountState === "signed-in" ? (
-        <>
-          <Link href="/perfil" className="site-account-profile">
-            <UserRound size={16} aria-hidden="true" /> <span>Mi perfil</span>
-          </Link>
-          <button type="button" className="site-account-signout" onClick={handleSignOut} disabled={signingOut} aria-label="Cerrar sesión">
-            <LogOut size={16} aria-hidden="true" /> <span>{signingOut ? "Cerrando…" : "Cerrar sesión"}</span>
-          </button>
-        </>
+      ) : accountState === "signed-in" && role ? (
+        <AccountLinks role={role} signingOut={signingOut} onSignOut={handleSignOut} />
+      ) : accountState === "error" ? (
+        <button type="button" className="site-account-retry" onClick={() => setRevision((value) => value + 1)}>Reintentar acceso</button>
       ) : (
         <Link href="/login">Iniciar sesión</Link>
       )}
