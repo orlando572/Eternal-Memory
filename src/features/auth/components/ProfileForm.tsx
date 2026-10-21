@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/features/loading/LoadingButton";
 import { saveCurrentProfile } from "@/features/auth/actions/profileActions";
 import { requestEmailChange } from "@/services/authService";
 
@@ -95,10 +95,10 @@ export function ProfileForm({ email: initialEmail, fullName, phone, dni, birthDa
             <label htmlFor="profile-email">Correo electrónico</label>
             <input id="profile-email" type="email" autoComplete="email" required maxLength={254} value={email} onChange={(event) => { setEmail(event.target.value); setEmailSuccess(null); }} />
           </div>
-          <Button type="submit" disabled={emailPending || email.trim().toLowerCase() === initialEmail.trim().toLowerCase()}>
-            {emailPending ? "Solicitando cambio…" : "Actualizar correo"}
+          <LoadingButton busy={emailPending} type="submit" disabled={emailPending || email.trim().toLowerCase() === initialEmail.trim().toLowerCase()}>
+            Actualizar correo
             <ArrowRight size={18} aria-hidden="true" />
-          </Button>
+          </LoadingButton>
         </form>
       </section>
 
@@ -135,10 +135,10 @@ export function ProfileForm({ email: initialEmail, fullName, phone, dni, birthDa
             </select>
           </div>
           <div className="profile-form-actions profile-field-wide">
-            <Button type="submit" disabled={pending}>
-              {pending ? "Guardando cambios…" : "Guardar perfil"}
+            <LoadingButton busy={pending} type="submit" disabled={pending}>
+              Guardar perfil
               <ArrowRight size={18} aria-hidden="true" />
-            </Button>
+            </LoadingButton>
           </div>
         </form>
       </section>

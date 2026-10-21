@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
+import { FormSkeleton, LoadingRegion, LoadingIndicator } from "@/features/loading/Loading";
+import { LoadingButton } from "@/features/loading/LoadingButton";
 import { Input } from "@/components/ui/input";
 import type { AdminEngravingSettings as Settings } from "@/features/checkout/services/adminEngravingService";
 import "@/features/checkout/admin-engraving.css";
@@ -54,18 +56,18 @@ export function AdminEngravingSettings({ categoryId }: { categoryId: string }) {
   }
 
   if (!categoryId) return null;
-  if (!current) return error ? <div className="engraving-settings"><p role="alert" className="engraving-settings-error">{error}</p><Button type="button" variant="outline" disabled={loading} onClick={() => { setLoading(true); setReload((value) => value + 1); }}>{loading ? "Cargando…" : "Reintentar configuración del grabado"}</Button></div> : null;
+  if (!current) return error ? <div className="engraving-settings"><p role="alert" className="engraving-settings-error">{error}</p><LoadingButton busy={loading} type="button" variant="outline" disabled={loading} onClick={() => { setLoading(true); setReload((value) => value + 1); }}>Reintentar configuración del grabado</LoadingButton></div> : <div className="engraving-settings"><LoadingRegion label="Cargando configuración de grabado"><FormSkeleton fields={1} /></LoadingRegion></div>;
   if (current.categoryId !== categoryId) return null;
 
   return <section className="engraving-settings" aria-labelledby="engraving-settings-title" id="configuracion-grabado">
     <div className="engraving-settings-panel">
       <header><h2 id="engraving-settings-title">Configuración del grabado</h2><p>Define el precio del grabado para todas las urnas.</p></header>
-      {loading && <p role="status">Cargando precio del grabado…</p>}
+      {loading && <LoadingIndicator label="Cargando precio del grabado" />}
       {error && <p className="engraving-settings-error" role="alert" id="engraving-settings-error">{error}</p>}
       {success && <p className="engraving-settings-success" role="status">{success}</p>}
       {current && <form onSubmit={save} aria-busy={saving}>
         <div><label htmlFor="engraving-price">Precio adicional por urna (S/)</label><Input id="engraving-price" inputMode="decimal" value={price} onChange={(event) => { setPrice(event.target.value); setSuccess(null); }} required maxLength={13} disabled={loading || saving} aria-describedby={error ? "engraving-settings-error" : undefined} /></div>
-        <Button type="submit" disabled={saving || loading}>{saving ? "Guardando…" : "Guardar precio del grabado"}</Button>
+        <LoadingButton busy={saving} type="submit" disabled={saving || loading}>Guardar precio del grabado</LoadingButton>
       </form>}
       {!loading && <Button type="button" variant="ghost" disabled={saving} onClick={() => { setLoading(true); setSuccess(null); setReload((value) => value + 1); }}>Cargar precio actual</Button>}
       {current && !current.active && <p className="engraving-settings-error">El grabado está desactivado actualmente. Guardar el precio no lo activará.</p>}

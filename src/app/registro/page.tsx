@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/features/loading/LoadingButton";
 import { AuthLayout } from "@/features/auth/components/AuthLayout";
 import { registerUser } from "@/services/authService";
 
@@ -60,10 +60,10 @@ export default function RegisterPage() {
           <label htmlFor="register-password">Contraseña</label>
           <input id="register-password" type="password" autoComplete="new-password" required minLength={6} value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Al menos 6 caracteres" aria-describedby="register-password-hint" />
           <span id="register-password-hint" className="auth-field-hint">Usa al menos 6 caracteres.</span>
-          <Button type="submit" disabled={loading}>
-            {loading ? "Creando cuenta…" : "Crear cuenta"}
+          <LoadingButton busy={loading} type="submit" disabled={loading}>
+            Crear cuenta
             <ArrowRight size={18} aria-hidden="true" />
-          </Button>
+          </LoadingButton>
         </form>
       )}
       <p className="auth-switch">¿Ya tienes una cuenta? <Link href="/login">Iniciar sesión</Link></p>

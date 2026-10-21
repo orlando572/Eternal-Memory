@@ -1,12 +1,10 @@
+import { CardSkeleton, FormSkeleton, LoadingRegion, Skeleton } from "@/features/loading/Loading";
+
 export function CatalogLoading({ detail = false }: { detail?: boolean }) {
-  return (
-    <main className="shop-page catalog-loading" aria-busy="true" aria-label={detail ? "Cargando producto" : "Cargando catálogo"}>
-      <div className="shop-container">
-        <p role="status">{detail ? "Cargando los detalles del producto…" : "Cargando catálogo…"}</p>
-        <div className={detail ? "detail-layout" : "catalog-grid"} aria-hidden="true">
-          {Array.from({ length: detail ? 2 : 4 }, (_, index) => <div className="catalog-skeleton" key={index} />)}
-        </div>
-      </div>
-    </main>
-  );
+  return <main className="shop-page catalog-loading" aria-busy="true"><div className="shop-container">
+    <LoadingRegion label={detail ? "Cargando producto" : "Cargando catálogo"}>
+      <Skeleton className="loading-title" />
+      {detail ? <div className="detail-layout"><Skeleton className="loading-detail-photo" /><div className="loading-detail-copy"><FormSkeleton fields={3} /></div></div> : <><div className="loading-options"><Skeleton className="loading-input" /><Skeleton className="loading-line" /></div><div className="catalog-grid">{Array.from({ length: 4 }, (_, index) => <CardSkeleton key={index} />)}</div></>}
+    </LoadingRegion>
+  </div></main>;
 }

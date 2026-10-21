@@ -2,10 +2,12 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowRight, ShoppingBag, X } from "lucide-react";
+import { LoadingIndicator, LoadingRegion, Skeleton } from "@/features/loading/Loading";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/features/cart/context/CartContext";
 import CartItemRow from "@/features/cart/components/CartItemRow";
+import { CartIcon } from "@/features/cart/components/CartIcon";
+import { useCartMotion } from "@/features/cart/components/useCartMotion";
 import "@/features/cart/cart.css";
 
 export default function CartDrawer() {
@@ -13,15 +15,17 @@ export default function CartDrawer() {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLElement>(null);
   const excluded = validation?.lines.filter((line) => line.status !== "valid").length ?? 0;
+  const { present, finishExit } = useCartMotion(isOpen);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!present) return;
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-    closeButtonRef.current?.focus();
+    closeButtonRef.current?.focus({ preventScroll: true });
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") closeCart();
       if (event.key !== "Tab") return;
-      const controls = Array.from(drawerRef.current?.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled])') ?? []);
+      const controls = Array.from(drawerRef.current?.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled])') ?? [])
+        .filter((control) => control.getClientRects().length > 0);
       const first = controls[0];
       const last = controls[controls.length - 1];
       if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
@@ -39,36 +43,43 @@ export default function CartDrawer() {
       content.forEach((element, index) => { element.inert = previousInert[index]; });
       if (previousFocus?.isConnected) previousFocus.focus();
     };
-  }, [isOpen, closeCart]);
+  }, [present, closeCart]);
 
-  if (!isOpen) return null;
+  if (!present) return null;
 
   return (
-    <div className="cart-overlay">
+    <div className="cart-overlay" data-state={isOpen ? "open" : "closed"}>
       <button className="cart-backdrop" type="button" onClick={closeCart} aria-label="Cerrar carrito" tabIndex={-1} />
-      <aside ref={drawerRef} className="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title">
+      <aside ref={drawerRef} className="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title"
+        onTransitionEnd={(event) => { if (event.target === event.currentTarget && event.propertyName === "transform") finishExit(); }}>
         <header className="cart-header">
           <div><h2 id="cart-title">Tu selección</h2><p>{totalItems} {totalItems === 1 ? "unidad guardada" : "unidades guardadas"}</p></div>
-          <Button ref={closeButtonRef} variant="ghost" size="icon" type="button" onClick={closeCart} aria-label="Cerrar carrito"><X size={22} /></Button>
+          <div className="cart-header-actions">
+            {cart.length > 0 && <Button className="cart-clear-desktop" variant="ghost" type="button" onClick={clearCart}>Vaciar carrito</Button>}
+            <Button className="cart-close" ref={closeButtonRef} variant="ghost" size="icon" type="button" onClick={closeCart} aria-label="Cerrar carrito"><CartIcon name="close" /></Button>
+          </div>
         </header>
         <div className="cart-body">
           {storageWarning && <p className="cart-notice" role="alert">{storageWarning}</p>}
           {mutationWarning && <p className="cart-notice" role="alert">{mutationWarning}</p>}
-          {!initialized ? <p role="status">Recuperando tu selección…</p> : cart.length === 0 ? (
-            <div className="cart-empty"><ShoppingBag size={38} strokeWidth={1.25} /><h3>Aún no elegiste productos</h3><p>Explora el catálogo y guarda las opciones que quieras revisar.</p><Link href="/catalogo" onClick={closeCart}>Explorar catálogo <ArrowRight size={18} /></Link></div>
+          {!initialized ? <LoadingRegion label="Recuperando selección"><div className="loading-options"><Skeleton className="loading-input" /><Skeleton className="loading-input" /></div></LoadingRegion> : cart.length === 0 ? (
+            <div className="cart-empty"><CartIcon name="cart" /><h3>Aún no elegiste productos</h3><p>Explora el catálogo y guarda las opciones que quieras revisar.</p><Link href="/catalogo" onClick={closeCart}>Explorar catálogo <CartIcon name="arrow" /></Link></div>
           ) : cart.map((item) => <CartItemRow key={item.key} item={item} />)}
         </div>
         {cart.length > 0 && <footer className="cart-summary">
-          <Button variant="ghost" type="button" onClick={clearCart}>Vaciar carrito</Button>
-          <div aria-live="polite">
+          <Button className="cart-clear-mobile" variant="ghost" type="button" onClick={clearCart}>Vaciar carrito</Button>
+          <div className="cart-total" aria-live="polite">
             <span>{excluded ? "Total de artículos válidos" : "Total de artículos"}</span>
-            {validation ? <strong>S/ {validation.totalPen.toFixed(2)}</strong> : <span>{error ? "Sin validar" : "Validando…"}</span>}
+            {validation ? <strong>S/ {validation.totalPen.toFixed(2)}</strong> : <span>{error ? "Sin validar" : <LoadingIndicator label="Validando total" />}</span>}
           </div>
-          <div className="cart-validation-status" aria-live="polite">
-            {error ? <><p role="alert">{error} Conservamos tu selección; los importes están ocultos.</p><Button variant="outline" size="sm" type="button" onClick={retry}>Reintentar</Button></> : !validation ? <p role="status">Comprobando precios y existencias vigentes…</p> : excluded > 0 ? <p>{excluded} {excluded === 1 ? "línea excluida" : "líneas excluidas"} del total. Revisa los avisos de cada artículo.</p> : <p>Precios y existencias comprobados.</p>}
-          </div>
-          {initialized && validation && !error && excluded === 0 && <Button asChild><Link href="/checkout" onClick={closeCart}>Continuar con pedido <ArrowRight size={18} aria-hidden="true" /></Link></Button>}
-          <Link href="/catalogo" onClick={closeCart}>Seguir explorando <ArrowRight size={18} /></Link>
+          {(error || !validation || excluded > 0) && (
+            <div className="cart-validation-status" data-status={error ? "error" : !validation ? "loading" : "warning"} aria-live="polite">
+              {error ? <><p role="alert">{error} Conservamos tu selección; los importes están ocultos.</p><Button variant="outline" size="sm" type="button" onClick={retry}>Reintentar</Button></> : !validation ? <LoadingIndicator label="Comprobando precios y existencias" /> : <p>{excluded} {excluded === 1 ? "línea excluida" : "líneas excluidas"} del total. Revisa los avisos de cada artículo.</p>}
+            </div>
+          )}
+          {initialized && validation && !error && excluded === 0 && <Button asChild><Link className="cart-checkout" href="/checkout" onClick={closeCart}>Continuar con pedido <CartIcon name="arrow" /></Link></Button>}
+          <Button className="cart-continue-desktop" variant="ghost" type="button" onClick={closeCart}>Seguir explorando</Button>
+          <Link className="cart-continue-mobile" href="/catalogo" onClick={closeCart}>Seguir explorando <CartIcon name="arrow" /></Link>
         </footer>}
       </aside>
     </div>

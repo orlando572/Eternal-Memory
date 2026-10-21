@@ -17,6 +17,14 @@ export interface AdminVariantDraft {
   isActive: boolean;
 }
 
+export interface AdminProductImage {
+  id: string;
+  storagePath: string | null;
+  externalUrl: string | null;
+  altText: string;
+  isReference: boolean;
+}
+
 export interface AdminProductDraft {
   id: string;
   updatedAt?: string;
@@ -27,6 +35,7 @@ export interface AdminProductDraft {
   description: string;
   status: ProductStatus;
   variants: AdminVariantDraft[];
+  images?: AdminProductImage[];
 }
 
 export function createEmptyProduct(): AdminProductDraft {

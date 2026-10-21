@@ -3,7 +3,9 @@
 import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/features/loading/LoadingButton";
 import type { AccountRole } from "@/features/auth/types/access";
+import { LoadingRegion, Skeleton } from "@/features/loading/Loading";
 import { HeaderIcon } from "@/features/header/HeaderIcon";
 
 type DesktopAccountMenuProps = {
@@ -53,7 +55,7 @@ export function DesktopAccountMenu({ state, role, signingOut, error, onSignOut, 
       </Button>
       <div className="header-account-panel" id={panelId} hidden={!open}>
         <p className="header-account-heading">{state === "signed-in" ? "Tu espacio personal" : "Bienvenido a Eternal Memory"}</p>
-        {state === "loading" ? <p className="header-account-status" role="status">Comprobando tu cuenta…</p>
+        {state === "loading" ? <LoadingRegion label="Comprobando cuenta"><div className="loading-options"><Skeleton className="loading-line" /><Skeleton className="loading-line" /></div></LoadingRegion>
           : state === "error" ? <Button variant="outline" type="button" onClick={onRetry}>Reintentar acceso</Button>
           : state === "signed-in" && role ? (
             <>
@@ -62,8 +64,8 @@ export function DesktopAccountMenu({ state, role, signingOut, error, onSignOut, 
                 {role === "user" && <li><Link href="/perfil/historial" onClick={() => setOpen(false)}>Mis pedidos</Link></li>}
                 {role === "admin" && <li><Link href="/admin/productos" onClick={() => setOpen(false)}>Administración</Link></li>}
               </ul>
-              <Button className="header-signout" variant="ghost" type="button" disabled={signingOut}
-                onClick={() => void onSignOut()}>{signingOut ? "Cerrando sesión…" : "Cerrar sesión"}</Button>
+              <LoadingButton busy={signingOut} className="header-signout" variant="ghost" type="button" disabled={signingOut}
+                onClick={() => void onSignOut()}>Cerrar sesión</LoadingButton>
             </>
           ) : (
             <ul>
