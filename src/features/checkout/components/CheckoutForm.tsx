@@ -11,7 +11,8 @@ import { NativeSelect } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { useCart } from "@/features/cart/context/CartContext";
 import { CheckoutError, readCheckoutInput } from "@/features/checkout/lib/validation";
-import { attemptStorageKey, checkoutRequest, CheckoutRequestError, isCheckoutOrder, money, orderStatusLabel, paymentStatusLabel, readAttempt, type CheckoutAttempt } from "@/features/checkout/lib/checkoutClient";
+import { attemptStorageKey, checkoutRequest, CheckoutRequestError, isCheckoutOrder, money, orderStatusLabel, paymentStatusLabel, type CheckoutAttempt } from "@/features/checkout/lib/checkoutClient";
+import { discardDamagedCheckoutAttempt, readStoredCheckoutAttempt, type StoredCheckoutAttempt } from "@/features/checkout/lib/checkoutAttemptStorage";
 import type { CheckoutInput, CheckoutOptions, CheckoutOrder, CheckoutQuote } from "@/features/checkout/types/checkout";
 import { CheckoutSummary } from "@/features/checkout/components/CheckoutSummary";
 
@@ -38,6 +39,8 @@ export function CheckoutForm({ userId, initialContact }: { userId: string; initi
   const [attempt, setAttempt] = useState<CheckoutAttempt | null>(null);
   const [recovered, setRecovered] = useState(false);
   const [storageBlocked, setStorageBlocked] = useState(false);
+  const [damagedAttempt, setDamagedAttempt] = useState<string | null>(null);
+  const [discardConfirmed, setDiscardConfirmed] = useState(false);
   const [order, setOrder] = useState<CheckoutOrder | null>(null);
   const [now, setNow] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
@@ -61,8 +64,7 @@ export function CheckoutForm({ userId, initialContact }: { userId: string; initi
     let active = true;
     queueMicrotask(() => {
       if (!active) return;
-      try { setAttempt(readAttempt(sessionStorage.getItem(storageKey))); }
-      catch { setStorageBlocked(true); setError("No pudimos recuperar el intento guardado en esta pestaña. No confirmes otro pedido hasta revisar el resultado anterior."); }
+      applyStoredAttempt(readStoredCheckoutAttempt(storageKey));
       setRecovered(true);
     });
     return () => { active = false; };
@@ -101,6 +103,31 @@ export function CheckoutForm({ userId, initialContact }: { userId: string; initi
     if (error) noticeRef.current?.focus();
   }, [error]);
   useEffect(() => { if (order) orderRef.current?.focus(); }, [order]);
+
+  function applyStoredAttempt(stored: StoredCheckoutAttempt) {
+    setDiscardConfirmed(false);
+    setStorageBlocked(stored.status !== "ready");
+    setDamagedAttempt(stored.status === "invalid" ? stored.raw : null);
+    setAttempt(stored.status === "ready" ? stored.attempt : null);
+    setReviewed(null);
+    setError(stored.status === "invalid"
+      ? "No pudimos leer el intento guardado en esta pestaña. Si ya intentaste confirmar un pedido, comprueba su resultado con atención al cliente antes de continuar."
+      : stored.status === "unavailable"
+        ? "El navegador no permite acceder al intento guardado. Permite el almacenamiento de este sitio y vuelve a comprobarlo."
+        : null);
+  }
+
+  function recoverStorage(discard = false) {
+    if (requestLock.current || (discard && (!discardConfirmed || damagedAttempt === null))) return;
+    const stored = discard && damagedAttempt !== null
+      ? discardDamagedCheckoutAttempt(storageKey, damagedAttempt)
+      : readStoredCheckoutAttempt(storageKey);
+    applyStoredAttempt(stored);
+    if (stored.status === "ready") {
+      if (stored.attempt) void finishAttempt(stored.attempt);
+      else requestAnimationFrame(() => formRef.current?.querySelector<HTMLInputElement>("input")?.focus());
+    }
+  }
 
   async function finishAttempt(current: CheckoutAttempt) {
     if (requestLock.current) return;
@@ -221,7 +248,15 @@ export function CheckoutForm({ userId, initialContact }: { userId: string; initi
   return <main className="shop-page checkout-page"><div className="shop-container">
     <header className="checkout-heading"><Link href="/catalogo" className="shop-back-link"><ArrowLeft size={15} aria-hidden="true" /> Volver al catálogo</Link><p className="checkout-kicker">Tu selección, con calma</p><h1>Revisa tu pedido.</h1><p>Completa la entrega, elige un grabado si lo deseas y revisa el total antes de confirmar.</p></header>
     {error && <div ref={noticeRef} tabIndex={-1} role="alert" className="checkout-notice checkout-error"><p>{error}</p>{needsLogin && <Link href="/login?next=%2Fcheckout">Iniciar sesión y volver a mi pedido</Link>}</div>}
-    {!initialized || !recovered ? <LoadingRegion label="Recuperando selección y pedido"><div className="checkout-grid"><FormSkeleton fields={4} /><FormSkeleton fields={2} /></div></LoadingRegion> : order ? <>
+    {!initialized || !recovered ? <LoadingRegion label="Recuperando selección y pedido"><div className="checkout-grid"><FormSkeleton fields={4} /><FormSkeleton fields={2} /></div></LoadingRegion> : storageBlocked ? <section className="checkout-empty checkout-notice" aria-labelledby="checkout-recovery-title">
+      <h2 id="checkout-recovery-title">Recuperar la preparación del pedido</h2>
+      {damagedAttempt !== null ? <>
+        <p>Los datos guardados están dañados. Descartarlos no cancela un pedido que ya se haya registrado. Conservaremos tu carrito y los datos del formulario.</p>
+        <label className="checkout-check"><input type="checkbox" checked={discardConfirmed} onChange={(event) => setDiscardConfirmed(event.target.checked)} /><span>He comprobado que no tengo un pedido pendiente por recuperar.</span></label>
+        <Button type="button" disabled={!discardConfirmed} onClick={() => recoverStorage(true)}>Descartar datos dañados y continuar</Button>
+      </> : <p>No descartaremos ningún intento mientras no podamos comprobar el almacenamiento.</p>}
+      <Button type="button" variant="outline" onClick={() => recoverStorage()}>Reintentar lectura del intento</Button>
+    </section> : order ? <>
       <div ref={orderRef} tabIndex={-1} className="checkout-receipt" role="status"><PackageCheck size={30} aria-hidden="true" /><h2>{order.status === "pending_payment" ? "Tu pedido está registrado" : "Estado de tu pedido"}</h2><p className="checkout-order-id">Pedido {order.id}</p><p>{order.status === "pending_payment" ? (Date.parse(order.reservationExpiresAt) > now ? `Pendiente de pago. Reserva hasta ${new Date(order.reservationExpiresAt).toLocaleString("es-PE", { timeZone: "America/Lima" })} (hora de Perú).` : "El plazo de reserva terminó. El estado se actualizará al procesar el vencimiento.") : order.status === "canceled" ? "El pedido está cancelado; no se ha creado otra reserva." : `Estado: ${orderStatusLabel(order.status)}. Estado de pago: ${paymentStatusLabel(order.paymentStatus)}.`}</p><p>El pago en línea todavía no está habilitado. La confirmación del pedido no equivale a un pago ni garantiza una fecha de entrega.</p><Button type="button" variant="outline" onClick={() => { try { sessionStorage.removeItem(storageKey); setAttempt(null); setOrder(null); setReviewed(null); setEngravings({}); setError(null); } catch { setError("No pudimos liberar el intento guardado. Inténtalo de nuevo."); } }}>Preparar otro pedido</Button></div>
       <CheckoutSummary calculating={busy === "quote"} quote={null} order={order} now={now} valid={false} busy={false} onConfirm={() => {}} />
     </> : attempt ? <section className="checkout-empty" aria-busy={busy === "order"}>{busy ? <div className="loading-checkout-recovery"><LoadingIndicator label="Recuperando confirmación del pedido" /></div> : <><h2>Recuperar la confirmación</h2><p>No recibimos la confirmación. Recupera el resultado del mismo intento antes de crear otro pedido.</p></>}<LoadingButton busy={busy !== null} type="button" disabled={busy !== null} onClick={() => void finishAttempt(attempt)}>Recuperar resultado del pedido</LoadingButton></section>
