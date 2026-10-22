@@ -31,6 +31,7 @@ export function readSavedCart(): { cart: CartLine[]; warning: string | null } {
         variantId: typeof item.variantId === "string" ? text(item.variantId) : undefined,
         productSlug: typeof item.productSlug === "string" ? text(item.productSlug) : undefined,
         unitPricePen: typeof item.unitPricePen === "number" && Number.isFinite(item.unitPricePen) && item.unitPricePen >= 0 ? item.unitPricePen : undefined,
+        consumedOrderIds: Array.isArray(item.consumedOrderIds) ? [...new Set(item.consumedOrderIds.filter((id): id is string => typeof id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)))] : undefined,
       }];
     });
     return { cart, warning: damaged ? "Parte del carrito guardado no pudo recuperarse." : null };

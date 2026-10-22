@@ -14,6 +14,7 @@ export interface CartItem extends Product {
 
 export interface CartLine extends CartItem {
   key: string;
+  consumedOrderIds?: string[];
 }
 
 export type CartSelection = {

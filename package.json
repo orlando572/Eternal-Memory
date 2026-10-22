@@ -13,6 +13,7 @@
     "test:checkout": "node --test src/features/checkout/checkoutRecovery.test.mjs",
     "validate:commits": "node scripts/ci/validate-task-commits.mts",
     "test:cart": "playwright test",
+    "test:cart-order": "node --test src/features/cart/tests/cartOrder.test.mjs",
     "test": "npm run test:roles && npm run test:cart",
     "typecheck": "tsc --noEmit"
   },
