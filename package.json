@@ -11,6 +11,7 @@
     "test:profile": "node --test src/features/auth/profileForm.test.mjs",
     "test:ci": "node --test scripts/ci/validate-task-commits.test.mjs",
     "test:checkout": "node --test src/features/checkout/checkoutRecovery.test.mjs",
+    "test:checkout-engraving": "node --test src/features/checkout/checkoutEngraving.test.mjs",
     "validate:commits": "node scripts/ci/validate-task-commits.mts",
     "test:cart": "playwright test",
     "test:cart-order": "node --test src/features/cart/tests/cartOrder.test.mjs",
