@@ -40,7 +40,7 @@
   .site-header .header-account-panel a { display: flex; align-items: center; min-height: 44px; padding: 10px 12px; border-radius: 4px; color: #2d2926; font: 14px/1.5 "Eternal Sans", sans-serif; text-decoration: none; }
   .site-header .header-account-panel a:hover { background: #f6ece9; color: #8c432f; }
   .site-header .header-account-panel .header-login { background: #a6533b; color: white; justify-content: center; }
-  .site-header .header-account-panel .header-login:hover { background: #8f452e; }
+  .site-header .header-account-panel .header-login:hover { background: #8f452e; color: white; }
   .site-header .header-signout { width: 100%; justify-content: flex-start; height: 44px; margin-top: 12px; padding: 10px 12px; border-top: 1px solid #ded1c9; border-radius: 0; color: #8c432f; font: 14px "Eternal Sans", sans-serif; }
   .site-header .header-signout:hover { background: #f6ece9; }
   .site-header .header-account-status,
