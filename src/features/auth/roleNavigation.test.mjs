@@ -133,6 +133,7 @@ test("la página de login redirige una sesión existente según su rol", async (
 test("la navegación solo muestra Administración al administrador", () => {
   const { AccountLinks } = loadSource("./components/AccountLinks.tsx", {
     "next/link": ({ href, children, ...props }) => React.createElement("a", { href, ...props }, children),
+    "@/features/loading/Loading": { Spinner: () => null },
   });
   for (const role of ["admin", "user"]) {
     const markup = renderToStaticMarkup(React.createElement(AccountLinks, { role, signingOut: false, onSignOut() {} }));
@@ -146,10 +147,10 @@ for (const role of ["admin", "user", null]) {
   test(`el formulario completa el login sin saltarse la comprobación de rol: ${role}`, async () => {
     const calls = [];
     const form = loadSource("./components/LoginForm.tsx", {
-      react: { useState: (value) => [value, () => {}] },
+      react: { useState: (value) => [value, () => {}], useTransition: () => [false, (navigate) => navigate()] },
       "next/link": () => null,
       "next/navigation": { useRouter: () => ({ replace: (path) => calls.push(path), refresh() {} }) },
-      "@/components/ui/button": { Button: () => null },
+      "@/features/loading/LoadingButton": { LoadingButton: () => null },
       "@/features/auth/components/AuthLayout": { AuthLayout: () => null },
       "@/services/authService": { signInUser: async () => calls.push("authenticated") },
       "@/features/auth/services/accountAccessClient": { readCurrentAccess: async () => {

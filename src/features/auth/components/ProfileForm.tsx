@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { LoadingButton } from "@/features/loading/LoadingButton";
@@ -34,6 +34,7 @@ export function ProfileForm({ email: initialEmail, fullName, phone, dni, birthDa
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const saveLock = useRef(false);
   const router = useRouter();
 
   async function handleEmailSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -58,6 +59,8 @@ export function ProfileForm({ email: initialEmail, fullName, phone, dni, birthDa
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (saveLock.current) return;
+    saveLock.current = true;
     setPending(true);
     setError(null);
     setSuccess(false);
@@ -79,6 +82,7 @@ export function ProfileForm({ email: initialEmail, fullName, phone, dni, birthDa
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "No se pudo guardar el perfil. Inténtalo de nuevo.");
     } finally {
+      saveLock.current = false;
       setPending(false);
     }
   }
@@ -106,27 +110,27 @@ export function ProfileForm({ email: initialEmail, fullName, phone, dni, birthDa
         <h3 id="profile-details-heading">Datos personales</h3>
         {error && <div className="auth-message error" role="alert">{error}</div>}
         {success && <div className="auth-message success" role="status">Los cambios del perfil se guardaron.</div>}
-        <form className="profile-details-form" onSubmit={handleSubmit}>
+        <form className="profile-details-form" onSubmit={handleSubmit} aria-busy={pending}>
           <div className="profile-field">
             <label htmlFor="profile-phone">Teléfono <span className="auth-optional">(opcional)</span></label>
-            <input id="profile-phone" type="tel" autoComplete="tel" maxLength={30} value={telephone} onChange={(event) => { setTelephone(event.target.value); setSuccess(false); }} />
+            <input id="profile-phone" type="tel" autoComplete="tel" maxLength={30} value={telephone} disabled={pending} onChange={(event) => { setTelephone(event.target.value); setSuccess(false); }} />
           </div>
           <div className="profile-field">
             <label htmlFor="profile-dni">DNI <span className="auth-optional">(opcional)</span></label>
-            <input id="profile-dni" type="text" inputMode="numeric" autoComplete="off" maxLength={8} pattern="[0-9]{8}" aria-describedby="profile-dni-hint" value={documentNumber} onChange={(event) => { setDocumentNumber(event.target.value); setSuccess(false); }} />
+            <input id="profile-dni" type="text" inputMode="numeric" autoComplete="off" maxLength={8} pattern="[0-9]{8}" aria-describedby="profile-dni-hint" value={documentNumber} disabled={pending} onChange={(event) => { setDocumentNumber(event.target.value); setSuccess(false); }} />
             <span id="profile-dni-hint" className="auth-field-hint">Ingresa los 8 dígitos del DNI.</span>
           </div>
           <div className="profile-field profile-field-wide">
             <label htmlFor="profile-name">Nombre completo</label>
-            <input id="profile-name" type="text" autoComplete="name" required minLength={2} maxLength={120} value={name} onChange={(event) => { setName(event.target.value); setSuccess(false); }} />
+            <input id="profile-name" type="text" autoComplete="name" required minLength={2} maxLength={120} value={name} disabled={pending} onChange={(event) => { setName(event.target.value); setSuccess(false); }} />
           </div>
           <div className="profile-field">
             <label htmlFor="profile-birth-date">Fecha de nacimiento <span className="auth-optional">(opcional)</span></label>
-            <input id="profile-birth-date" type="date" autoComplete="bday" max={getToday()} value={dateOfBirth} onChange={(event) => { setDateOfBirth(event.target.value); setSuccess(false); }} />
+            <input id="profile-birth-date" type="date" autoComplete="bday" max={getToday()} value={dateOfBirth} disabled={pending} onChange={(event) => { setDateOfBirth(event.target.value); setSuccess(false); }} />
           </div>
           <div className="profile-field">
             <label htmlFor="profile-gender">Género <span className="auth-optional">(opcional)</span></label>
-            <select id="profile-gender" value={selectedGender} onChange={(event) => { setSelectedGender(event.target.value); setSuccess(false); }}>
+            <select id="profile-gender" value={selectedGender} disabled={pending} onChange={(event) => { setSelectedGender(event.target.value); setSuccess(false); }}>
               <option value="">Selecciona una opción</option>
               <option value="female">Mujer</option>
               <option value="male">Hombre</option>
@@ -135,7 +139,7 @@ export function ProfileForm({ email: initialEmail, fullName, phone, dni, birthDa
             </select>
           </div>
           <div className="profile-form-actions profile-field-wide">
-            <LoadingButton busy={pending} type="submit" disabled={pending}>
+            <LoadingButton busy={pending} busyLabel="Guardando perfil" type="submit" disabled={pending}>
               Guardar perfil
               <ArrowRight size={18} aria-hidden="true" />
             </LoadingButton>
