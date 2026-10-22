@@ -48,9 +48,10 @@ export function CheckoutForm({ userId, initialContact }: { userId: string; initi
   const orderRef = useRef<HTMLDivElement>(null);
   const requestLock = useRef(false);
   const storageKey = attemptStorageKey(userId);
-  const productIds = JSON.stringify([...new Set(cart.flatMap((line) => line.productId ? [line.productId] : []))].sort());
+  const cartProducts = JSON.stringify(cart.map(({ key, productId }) => ({ key, productId })));
   const selection = cart.map(({ key, productId, variantId, quantity }) => ({ key, productId, variantId, quantity }));
-  const signature = JSON.stringify({ fields, selection, engravings });
+  const engravingRules = cart.filter((item) => engravings[item.key]?.enabled).map((item) => ({ key: item.key, rule: options?.products.find((product) => product.id === item.productId)?.customization ?? null }));
+  const signature = JSON.stringify({ fields, selection, engravings, engravingRules });
   const validCart = !!validation && validation.lines.length === cart.length && cart.every((item) => item.productId && item.variantId && validation.lines.some((line) => line.key === item.key && line.status === "valid"));
   const quoteValid = !!reviewed && reviewed.signature === signature && Date.parse(reviewed.quote.expiresAt) > now && validCart && now > 0;
 
@@ -71,12 +72,18 @@ export function CheckoutForm({ userId, initialContact }: { userId: string; initi
   }, [storageKey]);
 
   useEffect(() => {
-    const ids = JSON.parse(productIds) as string[];
+    const products = JSON.parse(cartProducts) as { key: string; productId?: string }[];
+    const ids = [...new Set(products.flatMap((item) => item.productId ? [item.productId] : []))].sort();
     if (!initialized || !ids.length) return;
     let active = true;
     void checkoutRequest<CheckoutOptions>("/api/checkout/opciones", { productIds: ids }).then((data) => {
       if (active) {
         setOptions(data); setOptionsError(null);
+        const available = new Set(products.filter((item) => data.products.some((product) => product.id === item.productId && product.customization)).map((item) => item.key));
+        setEngravings((previous) => {
+          const entries = Object.entries(previous).filter(([key]) => available.has(key));
+          return entries.length === Object.keys(previous).length ? previous : Object.fromEntries(entries);
+        });
         setReviewed((previous) => previous && previous.quote.summary.lines.some((line) => {
           if (!line.customization) return false;
           const rule = data.products.find((product) => product.id === line.productId)?.customization;
@@ -85,7 +92,7 @@ export function CheckoutForm({ userId, initialContact }: { userId: string; initi
       }
     }).catch((caught) => { if (active) setOptionsError(caught instanceof Error ? caught.message : "No se pudieron cargar las opciones de entrega."); });
     return () => { active = false; };
-  }, [initialized, productIds, optionsRetry]);
+  }, [initialized, cartProducts, optionsRetry]);
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -178,9 +185,15 @@ export function CheckoutForm({ userId, initialContact }: { userId: string; initi
     setError(null);
   }
 
+  function currentEngraving(item: { key: string; productId?: string }): Engraving {
+    return options?.products.some((product) => product.id === item.productId && product.customization)
+      ? engravings[item.key] ?? noEngraving
+      : noEngraving;
+  }
+
   function buildInput(): CheckoutInput {
     const lines = cart.flatMap((item) => {
-      const engraving = engravings[item.key] ?? noEngraving;
+      const engraving = currentEngraving(item);
       const base = { key: item.key, productId: item.productId, variantId: item.variantId, quantity: item.quantity };
       if (engraving.enabled && engraving.perUnit && item.quantity > 1) return Array.from({ length: item.quantity }, (_, index) => ({ ...base, key: `${item.key.slice(0, 180)}:name:${index}`, quantity: 1, customization: { mode: "urn_name", text: engraving.names[index] ?? "" } }));
       return [{ ...base, customization: engraving.enabled ? { mode: "urn_name", text: engraving.text } : null }];
@@ -284,9 +297,12 @@ export function CheckoutForm({ userId, initialContact }: { userId: string; initi
           {cart.map((item, itemIndex) => {
             const product = options?.products.find((entry) => entry.id === item.productId);
             const rule = product?.customization;
-            const engraving = engravings[item.key] ?? noEngraving;
+            const engraving = currentEngraving(item);
             const units = Number.isInteger(item.quantity) && item.quantity >= 1 && item.quantity <= 50 ? item.quantity : 1;
-            const lineOffset = cart.slice(0, itemIndex).reduce((total, previous) => total + (engravings[previous.key]?.enabled && engravings[previous.key]?.perUnit ? previous.quantity : 1), 0);
+            const lineOffset = cart.slice(0, itemIndex).reduce((total, previous) => {
+              const previousEngraving = currentEngraving(previous);
+              return total + (previousEngraving.enabled && previousEngraving.perUnit ? previous.quantity : 1);
+            }, 0);
             const engravingField = (index: number) => `lines.${lineOffset + index}.customization.text`;
             return <div className="checkout-product" key={item.key}><h3>{product?.name ?? item.nombre}</h3><p>{item.selectedOption} · {item.quantity} {item.quantity === 1 ? "unidad" : "unidades"}</p>
               {fieldErrors[`line:${item.key}`] && <p className="checkout-field-error">{fieldErrors[`line:${item.key}`]}</p>}
