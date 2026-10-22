@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:roles": "node --test src/features/auth/roleNavigation.test.mjs",
+    "test:profile": "node --test src/features/auth/profileForm.test.mjs",
     "test:ci": "node --test scripts/ci/validate-task-commits.test.mjs",
     "test:checkout": "node --test src/features/checkout/checkoutRecovery.test.mjs",
     "validate:commits": "node scripts/ci/validate-task-commits.mts",
