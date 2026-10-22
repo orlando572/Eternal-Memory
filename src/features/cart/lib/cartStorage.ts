@@ -6,10 +6,12 @@ function text(value: unknown, fallback = ""): string {
   return typeof value === "string" ? value.slice(0, 200) : fallback;
 }
 
-export function readSavedCart(): { cart: CartLine[]; warning: string | null } {
+export function readSavedCart(): { cart: CartLine[]; warning: string | null; snapshot: string | null | undefined } {
+  let snapshot: string | null | undefined;
   try {
     const saved = localStorage.getItem(CART_STORAGE_KEY);
-    if (!saved) return { cart: [], warning: null };
+    snapshot = saved;
+    if (!saved) return { cart: [], warning: null, snapshot };
     if (saved.length > 1_000_000) throw new Error("Cart too large");
     const parsed: unknown = JSON.parse(saved);
     if (!Array.isArray(parsed)) throw new Error("Invalid cart");
@@ -34,8 +36,8 @@ export function readSavedCart(): { cart: CartLine[]; warning: string | null } {
         consumedOrderIds: Array.isArray(item.consumedOrderIds) ? [...new Set(item.consumedOrderIds.filter((id): id is string => typeof id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)))] : undefined,
       }];
     });
-    return { cart, warning: damaged ? "Parte del carrito guardado no pudo recuperarse." : null };
+    return { cart, warning: damaged ? "Parte del carrito guardado no pudo recuperarse." : null, snapshot };
   } catch {
-    return { cart: [], warning: "No se pudo recuperar el carrito guardado. El almacenamiento puede estar dañado o bloqueado." };
+    return { cart: [], warning: "No se pudo recuperar el carrito guardado. El almacenamiento puede estar dañado o bloqueado.", snapshot };
   }
 }

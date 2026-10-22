@@ -16,10 +16,13 @@ type State = {
   storageWarning: string | null;
   mutationWarning: string | null;
   priceChanges: string[];
+  persist: boolean;
+  snapshot?: string | null;
 };
 type Action =
   | { type: "consume-order"; orderId: string; lines: { key: string; productId: string; variantId: string; quantity: number }[] }
-  | { type: "initialize"; cart: CartLine[]; warning: string | null }
+  | { type: "initialize" | "synchronize"; cart: CartLine[]; warning: string | null; snapshot?: string | null }
+  | { type: "persisted"; version: number; snapshot: string }
   | { type: "add"; item: CartLine }
   | { type: "quantity"; key: string; quantity: number }
   | { type: "remove"; key: string }
@@ -28,10 +31,10 @@ type Action =
   | { type: "failed"; version: number; message: string }
   | { type: "storage-warning"; message: string };
 
-const initialState: State = { cart: [], isOpen: false, initialized: false, version: 0, validation: null, error: null, storageWarning: null, mutationWarning: null, priceChanges: [] };
+const initialState: State = { cart: [], isOpen: false, initialized: false, version: 0, validation: null, error: null, storageWarning: null, mutationWarning: null, priceChanges: [], persist: false };
 
 function invalidate(state: State, cart = state.cart): State {
-  return { ...state, cart, version: state.version + 1, validation: null, error: null, mutationWarning: null };
+  return { ...state, cart, persist: state.persist || cart !== state.cart, version: state.version + 1, validation: null, error: null, mutationWarning: null };
 }
 
 function reducer(state: State, action: Action): State {
@@ -44,7 +47,11 @@ function reducer(state: State, action: Action): State {
       // Persist the receipt with the remaining units so recovery cannot deduct twice.
       return [{ ...item, quantity, consumedOrderIds: [...(item.consumedOrderIds ?? []), action.orderId] }];
     }));
-    case "initialize": return { ...invalidate(state, action.cart), initialized: true, storageWarning: action.warning };
+    case "synchronize":
+      if (action.snapshot === state.snapshot) return state;
+      return { ...invalidate(state, action.cart), initialized: true, snapshot: action.snapshot, storageWarning: action.warning, priceChanges: [], persist: false };
+    case "initialize": return { ...invalidate(state, action.cart), initialized: true, snapshot: action.snapshot, storageWarning: action.warning, priceChanges: [], persist: false };
+    case "persisted": return action.version === state.version ? { ...state, snapshot: action.snapshot, persist: false } : state;
     case "open": return { ...invalidate(state), isOpen: true };
     case "close": return { ...state, isOpen: false };
     case "refresh": return invalidate(state);
@@ -93,7 +100,7 @@ function reducer(state: State, action: Action): State {
         }
       }
       if (merged.length !== cart.length) return { ...invalidate(state, merged), priceChanges: [...changes] };
-      return { ...state, cart, validation: action.result, error: null, priceChanges: [...changes] };
+      return { ...state, cart, persist: true, validation: action.result, error: null, priceChanges: [...changes] };
     }
     case "failed": return action.version === state.version ? { ...state, validation: null, error: action.message } : state;
     case "storage-warning": return { ...state, storageWarning: action.message };
@@ -125,20 +132,49 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  // Read the current value rather than an event's potentially superseded newValue.
+  const synchronize = useCallback(() => {
+    const saved = readSavedCart();
+    if (saved.snapshot === undefined) {
+      if (saved.warning) dispatch({ type: "storage-warning", message: saved.warning });
+      return;
+    }
+    dispatch({ type: "synchronize", ...saved });
+  }, []);
+
   // Cargar carrito guardado desde localStorage
   useEffect(() => {
     let active = true;
     const saved = readSavedCart();
-    queueMicrotask(() => { if (active) dispatch({ type: "initialize", ...saved }); });
+    queueMicrotask(() => {
+      if (active) {
+        dispatch({ type: "initialize", ...saved });
+      }
+    });
     return () => { active = false; };
   }, []);
 
-  // Guardar en localStorage cuando el carrito cambie
+  // Never echo external snapshots or overwrite a more recent shared selection.
   useEffect(() => {
-    if (!state.initialized) return;
-    try { localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state.cart)); }
+    if (!state.initialized || !state.persist) return;
+    const current = readSavedCart();
+    if (current.snapshot === undefined) {
+      if (current.warning) dispatch({ type: "storage-warning", message: current.warning });
+      return;
+    }
+    if (current.snapshot !== state.snapshot) {
+      dispatch({ type: "synchronize", ...current });
+      return;
+    }
+    try {
+      const saved = JSON.stringify(state.cart);
+      if (saved !== current.snapshot) {
+        localStorage.setItem(CART_STORAGE_KEY, saved);
+      }
+      dispatch({ type: "persisted", version: state.version, snapshot: saved });
+    }
     catch { dispatch({ type: "storage-warning", message: "No se pudo guardar la selección en este navegador. Puede perderse al recargar." }); }
-  }, [state.cart, state.initialized]);
+  }, [state.cart, state.initialized, state.persist, state.snapshot, state.version]);
 
   useEffect(() => {
     if (!state.initialized || state.cart.length === 0) return;
@@ -156,7 +192,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         const result = await response.json();
         if (!response.ok) throw new Error(typeof result.error === "string" ? result.error : "No se pudo validar el carrito.");
         if (!Array.isArray(result.lines) || result.lines.length !== lines.length || !Number.isFinite(result.totalPen)) throw new Error("La respuesta del carrito no es válida.");
-        if (active) dispatch({ type: "validated", version, result });
+        if (active) {
+          synchronize();
+          dispatch({ type: "validated", version, result });
+        }
       } catch (error) {
         if (active) dispatch({ type: "failed", version, message: error instanceof Error && error.name !== "AbortError" ? error.message : "No se pudo validar el carrito. Reintenta en un momento." });
       } finally { clearTimeout(timer); }
@@ -164,24 +203,33 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     return () => { active = false; controller.abort(); clearTimeout(timer); };
     // A validated response updates display metadata without changing the selection version.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.version, state.initialized]);
+  }, [state.version, state.initialized, synchronize]);
 
   useEffect(() => {
-    const onVisible = () => { if (document.visibilityState === "visible") dispatch({ type: "refresh" }); };
-    const onFocus = () => dispatch({ type: "refresh" });
+    const onFocus = () => { synchronize(); dispatch({ type: "refresh" }); };
+    const onVisible = () => { if (document.visibilityState === "visible") onFocus(); };
+    const onStorage = (event: StorageEvent) => {
+      if (event.storageArea === window.localStorage && (event.key === CART_STORAGE_KEY || event.key === null)) synchronize();
+    };
     document.addEventListener("visibilitychange", onVisible);
     window.addEventListener("focus", onFocus);
-    return () => { document.removeEventListener("visibilitychange", onVisible); window.removeEventListener("focus", onFocus); };
-  }, []);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, [synchronize]);
 
-  const openCart = useCallback(() => dispatch({ type: "open" }), []);
+  const changeCart = useCallback((action: Action) => { synchronize(); dispatch(action); }, [synchronize]);
+  const openCart = useCallback(() => changeCart({ type: "open" }), [changeCart]);
   const closeCart = useCallback(() => dispatch({ type: "close" }), []);
-  const addToCart = useCallback((item: CartItem) => dispatch({ type: "add", item: { ...item, key: crypto.randomUUID() } }), []);
-  const removeFromCart = useCallback((key: string) => dispatch({ type: "remove", key }), []);
-  const updateQuantity = useCallback((key: string, quantity: number) => dispatch({ type: "quantity", key, quantity }), []);
-  const clearCart = useCallback(() => dispatch({ type: "clear" }), []);
-  const consumeOrder = useCallback((lines: { key: string; productId: string; variantId: string; quantity: number }[], orderId: string) => dispatch({ type: "consume-order", lines, orderId }), []);
-  const retry = useCallback(() => dispatch({ type: "refresh" }), []);
+  const addToCart = useCallback((item: CartItem) => changeCart({ type: "add", item: { ...item, key: crypto.randomUUID() } }), [changeCart]);
+  const removeFromCart = useCallback((key: string) => changeCart({ type: "remove", key }), [changeCart]);
+  const updateQuantity = useCallback((key: string, quantity: number) => changeCart({ type: "quantity", key, quantity }), [changeCart]);
+  const clearCart = useCallback(() => changeCart({ type: "clear" }), [changeCart]);
+  const consumeOrder = useCallback((lines: { key: string; productId: string; variantId: string; quantity: number }[], orderId: string) => changeCart({ type: "consume-order", lines, orderId }), [changeCart]);
+  const retry = useCallback(() => changeCart({ type: "refresh" }), [changeCart]);
   const totalItems = state.cart.reduce((total, item) => total + (Number.isSafeInteger(item.quantity) && item.quantity > 0 ? item.quantity : 0), 0);
 
   return <CartContext.Provider value={{ ...state, openCart, closeCart, addToCart, removeFromCart, updateQuantity, clearCart, consumeOrder, retry, totalItems }}>{children}</CartContext.Provider>;
