@@ -114,7 +114,7 @@ export function CheckoutForm({ userId, initialContact }: { userId: string; initi
       if (!isCheckoutOrder(result)) throw new CheckoutRequestError("No se pudo verificar la respuesta. Recupera el resultado del mismo intento.");
       const completed = { ...current, orderId: result.id, finalized: true };
       try { sessionStorage.setItem(storageKey, JSON.stringify(completed)); } catch { /* The original pending attempt still recovers the same order. */ }
-      if (!current.finalized && result.status === "pending_payment" && Date.parse(result.reservationExpiresAt) > Date.now()) consumeOrder(current.selection);
+      if (!current.finalized && result.status === "pending_payment" && Date.parse(result.reservationExpiresAt) > Date.now()) consumeOrder(current.selection, result.id);
       setAttempt(completed);
       setOrder(result);
     } catch (caught) {
