@@ -365,7 +365,7 @@ Configurar **Rulesets** para `main` y `develop`: PR obligatorio, una aprobación
 ## 6. Herramientas y acuerdos de equipo
 
 - **GitHub Issues + Projects:** fuente de verdad para responsables, estados, criterios y bloqueos.
-- **Pull Requests:** revisión cruzada y discusión técnica; cada PR enlaza su Issue, explica cambio y pruebas, y añade captura cuando afecta a la interfaz.
+- **Pull Requests:** revisión cruzada y discusión técnica; cada PR enlaza su Issue y explica cambio y pruebas.
 - **GitHub Actions:** evidencia automática del lint, pruebas y build.
 - **README:** instrucciones de instalación, variables de entorno y recorrido de desarrollo; actualizarlo al integrar cada servicio nuevo.
 
