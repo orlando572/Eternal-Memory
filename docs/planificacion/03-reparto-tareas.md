@@ -78,9 +78,6 @@ Regla del tablero: **una tarea en `In Progress` por persona**. Las columnas de u
 
 Dependencias entre personas que conviene vigilar: TSK-16 (Orlando) espera a TSK-15 (Evelyn); TSK-34 (Orlando) espera a TSK-40 (Evelyn) si se usan imágenes nuevas; TSK-47 (Evelyn) espera a la imagen publicada por TSK-46 y TSK-48 (Orlando).
 
-> ⚠️ El plan del Avance 3 indica entrega el jueves 19/11/2026 a las 08:45. Si
-> esa fecha se mantiene, las olas 6 a 8 deben adelantarse a la etapa 1.
-
 ---
 
 ## 5. Etapa 1 — Mejoras y correcciones de la tienda
