@@ -23,13 +23,13 @@ Comprobado en GitHub (issues, PR y milestone «Ecommerce funcional») y en el c�
 | Tarea | Estado |
 | --- | --- |
 | TSK-01 a TSK-10, TSK-17, TSK-21 a TSK-28 | Cerradas en GitHub. |
-| TSK-29 · Actualización del README | Hecha (PR #56 unido a `develop`), **sin issue** en el tablero. |
-| TSK-30 · Orden, limpieza, documentación y retiro de Playwright | Hecha (PR #57 unido a `develop`), **sin issue** en el tablero. |
-| TSK-31 · Este reparto | En curso (rama `docs/tsk-31-reparto-tareas`). |
+| TSK-29 · Actualización del README | Hecha (PR #56 unido a `develop`). Issue #58 creado después y cerrado. |
+| TSK-30 · Orden, limpieza, documentación y retiro de Playwright | Hecha (PR #57 unido a `develop`). Issue #59 creado después y cerrado. |
+| TSK-31 · Este reparto | Issue #60, rama `docs/tsk-31-reparto-tareas` y PR hacia `develop`. |
 | TSK-11 a TSK-16, TSK-19, TSK-20 | Abiertas. No existe código de Stripe, `/checkout/resultado`, API de pedidos de la cuenta, `/admin/pedidos` ni páginas `/nosotros`, `/contacto`, `/envios`. `/perfil/historial` existe pero está vacío. |
 | TSK-18 · Almacenamiento de imágenes | **Casi hecha.** El bucket `product-images` limita a 5 MB y a JPG/PNG/WebP, solo los administradores pueden escribir, cada subida usa un nombre nuevo sin sobrescribir y `removeUnusedProductImage` no borra imágenes ya vinculadas. Falta verificarlo en un entorno real y cerrar el issue con evidencia. |
-| TSK-32 a TSK-42 | Solo en el plan `01-mejoras-tienda.md`; **no están en el tablero**. |
-| TSK-43 a TSK-48 | Solo en el plan `02-avance-3-docker-cd-cloud.md`; **no están en el tablero**. No existen `Dockerfile`, `docker-compose.yml`, `.dockerignore`, `.env.example` ni `cd.yml`. |
+| TSK-32 a TSK-42 | Definidas en `01-mejoras-tienda.md` y creadas como issues #61 a #71. Sin implementar. |
+| TSK-43 a TSK-50 | Definidas en `02-avance-3-docker-cd-cloud.md` y en este documento, y creadas como issues #72 a #79. No existen `Dockerfile`, `docker-compose.yml`, `.dockerignore`, `.env.example` ni `cd.yml`. |
 
 Otros hallazgos que afectan al reparto:
 
@@ -37,7 +37,7 @@ Otros hallazgos que afectan al reparto:
 - El footer conserva datos provisionales (`+51 900 000 000`, `contacto@eternalmemory.pe`). La antigua «TSK-31 · Datos comerciales reales» de `01-mejoras-tienda.md` **se integra en TSK-20**, y el código TSK-31 pasa a este reparto.
 - La tabla `product_images` ya tiene `sort_order` y `alt_text`, lo que facilita la galería múltiple (TSK-19).
 - La migración inicial ya incluye `register_payment_session` y `record_payment_event` (pago y eventos idempotentes) y `advance_order_status` (`paid → processing → shipped → completed`, solo administradores, con historial). TSK-11 y TSK-15 parten de esas funciones: falta la integración con Stripe, las rutas de la aplicación y las transiciones de cancelación y revisión.
-- No se pudo leer el tablero de GitHub Projects: el token de `gh` no tiene el permiso `read:project`. La comparación se hizo con los issues.
+- Antes de este reparto, TSK-29 a TSK-50 no tenían issue y el tablero solo tenía TSK-01 a TSK-28 y la tarjeta del PR #56.
 
 ## 3. Resumen por persona
 
@@ -97,7 +97,7 @@ Criterios de aceptación:
 - [ ] Si la subida o el guardado fallan, el producto conserva la imagen anterior.
 - [ ] Comentario de cierre en el issue con la evidencia (migración, archivo y prueba realizada).
 
-#### [TSK-19] Gestión visual de imágenes · issue #28 (abierto, se reasigna a Orlando)
+#### [TSK-19] Gestión visual de imágenes · issue #28 (abierto, reasignado a Orlando)
 - **Responsable:** Orlando · **Etiquetas:** `Frontend`, `Backend` · **Prioridad:** P1 · **Tamaño:** M
 - **Rama:** `feature/tsk-19-galeria-imagenes` · **Depende de:** TSK-18
 
@@ -109,7 +109,7 @@ Criterios de aceptación:
 - [ ] La ficha (`ProductGallery.tsx`) muestra las imágenes guardadas en su orden (`sort_order`).
 - [ ] Un error de subida se explica sin perder las imágenes ya guardadas.
 
-#### [TSK-36] Ordenar y filtrar el catálogo (nueva)
+#### [TSK-36] Ordenar y filtrar el catálogo · issue #65
 - **Responsable:** Orlando · **Etiquetas:** `Frontend`, `Backend`, `enhancement` · **Prioridad:** P1 · **Tamaño:** M
 - **Rama:** `feature/tsk-36-orden-filtros` · **Depende de:** —
 
@@ -122,7 +122,7 @@ Criterios de aceptación:
 - [ ] Contador de resultados y botón «Limpiar filtros».
 - [ ] Prueba con `node --test` de la validación de parámetros.
 
-#### [TSK-37] Mejoras de la ficha de producto (nueva)
+#### [TSK-37] Mejoras de la ficha de producto · issue #66
 - **Responsable:** Orlando · **Etiquetas:** `Frontend`, `Backend`, `enhancement` · **Prioridad:** P1 · **Tamaño:** M
 - **Rama:** `feature/tsk-37-ficha-producto` · **Depende de:** — (enlaza a `/envios` de TSK-20 cuando exista)
 
@@ -134,7 +134,7 @@ Criterios de aceptación:
 - [ ] Bloque bajo el precio: envío según zona y si el producto admite grabado.
 - [ ] Aviso visible de «imagen referencial» cuando corresponda.
 
-#### [TSK-38] Productos destacados (nueva)
+#### [TSK-38] Productos destacados · issue #67
 - **Responsable:** Orlando · **Etiquetas:** `Backend`, `Frontend`, `enhancement` · **Prioridad:** P2 · **Tamaño:** S
 - **Rama:** `feature/tsk-38-destacados` · **Depende de:** —
 
@@ -146,7 +146,7 @@ Criterios de aceptación:
 - [ ] La portada muestra primero los productos destacados y publicados.
 - [ ] Lista revisada de productos `published` y en borrador, anotada en el PR.
 
-#### [TSK-33] Nuevas secciones de la portada (nueva)
+#### [TSK-33] Nuevas secciones de la portada · issue #62
 - **Responsable:** Orlando · **Etiquetas:** `Frontend`, `enhancement` · **Prioridad:** P1 · **Tamaño:** M
 - **Rama:** `feature/tsk-33-secciones-portada` · **Depende de:** —
 
@@ -157,7 +157,7 @@ Criterios de aceptación:
 - [ ] Ninguna promesa no verificada (plazos de entrega, atención 24/7, stock garantizado).
 - [ ] Responsive a 375 px y contraste AA, con la identidad «Patio de luz».
 
-#### [TSK-39] SEO y vista previa al compartir (nueva)
+#### [TSK-39] SEO y vista previa al compartir · issue #68
 - **Responsable:** Orlando · **Etiquetas:** `Frontend`, `enhancement` · **Prioridad:** P2 · **Tamaño:** S
 - **Rama:** `feature/tsk-39-seo` · **Depende de:** — (usa la imagen Open Graph de TSK-40 si está lista)
 
@@ -169,7 +169,7 @@ Criterios de aceptación:
 - [ ] Imagen Open Graph por defecto con el logo.
 - [ ] Al pegar el enlace de un producto en WhatsApp se ven su nombre y su imagen.
 
-#### [TSK-34] Banner informativo de la portada (nueva)
+#### [TSK-34] Banner informativo de la portada · issue #63
 - **Responsable:** Orlando · **Etiquetas:** `Frontend`, `enhancement` · **Prioridad:** P2 · **Tamaño:** S
 - **Rama:** `feature/tsk-34-banner-portada` · **Depende de:** TSK-40 si se usan imágenes nuevas
 
@@ -194,7 +194,7 @@ Criterios de aceptación:
 - [ ] Detalle `/admin/pedidos/[id]` con contacto, líneas, grabados, historial y solo las transiciones válidas de TSK-15.
 - [ ] Mensajes claros ante permisos insuficientes o transiciones rechazadas.
 
-#### [TSK-32] Resumen del administrador (nueva)
+#### [TSK-32] Resumen del administrador · issue #61
 - **Responsable:** Orlando · **Etiquetas:** `Frontend`, `Backend`, `enhancement` · **Prioridad:** P2 · **Tamaño:** M
 - **Rama:** `feature/tsk-32-resumen-admin` · **Depende de:** TSK-16
 
@@ -231,7 +231,7 @@ Criterios de aceptación:
 - [ ] Una cuenta sin pedidos ve «Aún no tienes pedidos» y un enlace al catálogo.
 - [ ] Etiquetas reutilizadas de `orderStatusLabel` y `paymentStatusLabel`.
 
-#### [TSK-11] Pago de prueba con Stripe · issue #20 (abierto, se reasigna a Evelyn)
+#### [TSK-11] Pago de prueba con Stripe · issue #20 (abierto, reasignado a Evelyn)
 - **Responsable:** Evelyn · **Etiquetas:** `Backend` · **Prioridad:** P0 · **Tamaño:** L
 - **Rama:** `feature/tsk-11-pagos` · **Depende de:** checkout actual
 
@@ -244,7 +244,7 @@ Criterios de aceptación:
 - [ ] Claves solo en `.env.local` (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`), nunca en el repositorio.
 - [ ] Pruebas con `node --test`: firma inválida, evento duplicado e importe distinto.
 
-#### [TSK-12] Resultado del pago · issue #21 (abierto, se reasigna a Evelyn)
+#### [TSK-12] Resultado del pago · issue #21 (abierto, reasignado a Evelyn)
 - **Responsable:** Evelyn · **Etiquetas:** `Frontend` · **Prioridad:** P0 · **Tamaño:** M
 - **Rama:** `feature/tsk-12-resultado-pago` · **Depende de:** TSK-11
 
@@ -255,7 +255,7 @@ Criterios de aceptación:
 - [ ] Vistas de pagado, pendiente (se actualiza sola cada pocos segundos) y cancelado o fallido (reintentar o volver al carrito).
 - [ ] Enlace «Ver mi pedido» hacia `/perfil/historial/[id]` (TSK-14).
 
-#### [TSK-40] Imágenes publicitarias (nueva)
+#### [TSK-40] Imágenes publicitarias · issue #69
 - **Responsable:** Evelyn · **Etiquetas:** `Frontend`, `documentation` · **Prioridad:** P2 · **Tamaño:** M
 - **Rama:** `feature/tsk-40-imagenes-publicitarias` · **Depende de:** decisión del equipo sobre el origen de las imágenes
 
@@ -267,7 +267,7 @@ Criterios de aceptación:
 - [ ] Paleta de `DESIGN.md`, sin texto incrustado y menos de 250 KB por archivo, en `public/assets/banners/`.
 - [ ] Origen y licencia de cada imagen anotados en `docs/recursos/`.
 
-#### [TSK-15] Operación y estados de pedidos · issue #24 (abierto, se reasigna a Evelyn)
+#### [TSK-15] Operación y estados de pedidos · issue #24 (abierto, reasignado a Evelyn)
 - **Responsable:** Evelyn · **Etiquetas:** `Backend` · **Prioridad:** P1 · **Tamaño:** M
 - **Rama:** `feature/tsk-15-estados-pedido` · **Depende de:** TSK-11
 
@@ -280,7 +280,7 @@ Criterios de aceptación:
 - [ ] Cada cambio guarda autor, fecha y motivo en `order_status_history`; las transiciones inválidas se rechazan.
 - [ ] Prueba de transiciones válidas e inválidas.
 
-#### [TSK-20] Páginas comerciales y contacto · issue #29 (abierto, se reasigna a Evelyn)
+#### [TSK-20] Páginas comerciales y contacto · issue #29 (abierto, reasignado a Evelyn)
 - **Responsable:** Evelyn · **Etiquetas:** `Frontend`, `Backend` · **Prioridad:** P1 · **Tamaño:** M
 - **Rama:** `feature/tsk-20-paginas-contacto` · **Depende de:** datos reales de contacto y tarifas (los aporta Orlando)
 
@@ -293,7 +293,7 @@ Criterios de aceptación:
 - [ ] Enlaces del header y del footer actualizados; los modales de privacidad y términos pasan a páginas.
 - [ ] Textos legales y comerciales revisados por Orlando antes del merge.
 
-#### [TSK-35] Botón flotante de contacto (nueva)
+#### [TSK-35] Botón flotante de contacto · issue #64
 - **Responsable:** Evelyn · **Etiquetas:** `Frontend`, `enhancement` · **Prioridad:** P2 · **Tamaño:** S
 - **Rama:** `feature/tsk-35-contacto-flotante` · **Depende de:** TSK-20 (número de WhatsApp real)
 
@@ -305,7 +305,7 @@ Criterios de aceptación:
 - [ ] Oculto en `/admin` y `/checkout`.
 - [ ] Accesible con teclado y con nombre accesible.
 
-#### [TSK-42] Pruebas en CI de lo nuevo (nueva)
+#### [TSK-42] Pruebas en CI de lo nuevo · issue #71
 - **Responsable:** Evelyn · **Etiquetas:** `CI` · **Prioridad:** P1 · **Tamaño:** S
 - **Rama:** `chore/tsk-42-pruebas-ci` · **Depende de:** TSK-11, TSK-13, TSK-15
 
@@ -316,7 +316,7 @@ Criterios de aceptación:
 - [ ] Prueba con `node --test` de la lógica del recorrido catálogo → carrito → checkout → resultado.
 - [ ] Un PR real muestra el check `quality-and-build` en verde con las pruebas nuevas.
 
-#### [TSK-41] Revisión de accesibilidad y responsive (nueva)
+#### [TSK-41] Revisión de accesibilidad y responsive · issue #70
 - **Responsable:** Evelyn · **Etiquetas:** `accessibility` · **Prioridad:** P1 · **Tamaño:** S
 - **Rama:** no aplica (registra issues) · **Depende de:** el resto de la etapa 1
 
@@ -336,7 +336,7 @@ Empieza cuando la etapa 1 esté integrada en `develop`. El detalle técnico est�
 
 ### Orlando
 
-#### [TSK-43] Dockerfile optimizado — Alumno 1 (nueva)
+#### [TSK-43] Dockerfile optimizado — Alumno 1 · issue #72
 - **Responsable:** Orlando · **Etiquetas:** `CI` · **Prioridad:** P0 · **Tamaño:** M
 - **Rama:** `feature/tsk-43-dockerfile` · **Depende de:** etapa 1
 
@@ -349,7 +349,7 @@ Criterios de aceptación:
 - [ ] `.dockerignore` con `node_modules`, `.next`, `.git`, `.env*`, `*.deb`, `docs` y `supabase/.temp`.
 - [ ] `docker build` y `docker run -p 3000:3000` abren la tienda; tamaño de la imagen anotado para el informe.
 
-#### [TSK-45] Seeder de catálogo y administración — Alumno 3, primera mitad (nueva)
+#### [TSK-45] Seeder de catálogo y administración — Alumno 3, primera mitad · issue #74
 - **Responsable:** Orlando · **Etiquetas:** `Backend` · **Prioridad:** P0 · **Tamaño:** S
 - **Rama:** `feature/tsk-45-seeder-catalogo` · **Depende de:** TSK-44
 
@@ -361,7 +361,7 @@ Criterios de aceptación:
 - [ ] Sin contraseñas ni claves reales; las credenciales de prueba se documentan en `.env.example` o en el README del seeder.
 - [ ] `docker compose exec db psql -U postgres -c "select count(*) from public.products where status = 'published';"` devuelve más de cero.
 
-#### [TSK-46] Pipeline de CD hacia GHCR (nueva)
+#### [TSK-46] Pipeline de CD hacia GHCR · issue #75
 - **Responsable:** Orlando · **Etiquetas:** `CI` · **Prioridad:** P0 · **Tamaño:** M
 - **Rama:** `feature/tsk-46-cd` · **Depende de:** TSK-43
 
@@ -373,7 +373,7 @@ Criterios de aceptación:
 - [ ] Llamada al `RENDER_DEPLOY_HOOK_URL` solo si el secret existe.
 - [ ] Paquete `ghcr.io/orlando572/eternal-memory` público.
 
-#### [TSK-48] Release `develop → main` y protección de ramas (nueva)
+#### [TSK-48] Release `develop → main` y protección de ramas · issue #77
 - **Responsable:** Orlando · **Etiquetas:** `CI` · **Prioridad:** P0 · **Tamaño:** S
 - **Rama:** PR `develop → main` · **Depende de:** TSK-43, TSK-44, TSK-45, TSK-46, TSK-49
 
@@ -387,7 +387,7 @@ Criterios de aceptación:
 
 ### Evelyn
 
-#### [TSK-44] Servicio de BD y variables de entorno — Alumno 2 (nueva)
+#### [TSK-44] Servicio de BD y variables de entorno — Alumno 2 · issue #73
 - **Responsable:** Evelyn · **Etiquetas:** `CI`, `Backend` · **Prioridad:** P0 · **Tamaño:** M
 - **Rama:** `feature/tsk-44-docker-compose` · **Depende de:** TSK-43 para el servicio `app`
 
@@ -399,7 +399,7 @@ Criterios de aceptación:
 - [ ] `.env.example` con todas las variables y valores de ejemplo, sin secretos reales.
 - [ ] `docker compose up -d --build` levanta ambos servicios y `docker compose ps` los muestra *healthy*.
 
-#### [TSK-49] Seeder de clientes, tarifas y pedidos — Alumno 3, segunda mitad (nueva)
+#### [TSK-49] Seeder de clientes, tarifas y pedidos — Alumno 3, segunda mitad · issue #78
 - **Responsable:** Evelyn · **Etiquetas:** `Backend` · **Prioridad:** P0 · **Tamaño:** S
 - **Rama:** `feature/tsk-49-seeder-pedidos` · **Depende de:** TSK-44 y TSK-45 (usa sus productos)
 
@@ -411,7 +411,7 @@ Criterios de aceptación:
 - [ ] Sin datos personales reales.
 - [ ] `docker compose exec db psql -U postgres -c "select status, count(*) from public.orders group by status;"` muestra los estados sembrados.
 
-#### [TSK-47] Infraestructura en Render (nueva)
+#### [TSK-47] Infraestructura en Render · issue #76
 - **Responsable:** Evelyn · **Etiquetas:** `CI` · **Prioridad:** P0 · **Tamaño:** M
 - **Rama:** no aplica (configuración en la nube) · **Depende de:** TSK-46 y la imagen publicada por TSK-48
 
@@ -424,7 +424,7 @@ Criterios de aceptación:
 - [ ] URL de Render y `/auth/callback` añadidas en Supabase Auth (con la cuenta que tenga acceso).
 - [ ] Capturas del panel, de los logs del deploy y de la tienda en la URL pública con inicio de sesión funcionando.
 
-#### [TSK-50] Informe del Avance 3 y evidencias (nueva)
+#### [TSK-50] Informe del Avance 3 y evidencias · issue #79
 - **Responsable:** Evelyn · **Etiquetas:** `documentation` · **Prioridad:** P0 · **Tamaño:** M
 - **Rama:** `docs/tsk-50-informe-avance-3` · **Depende de:** TSK-47 y TSK-48
 
@@ -438,45 +438,45 @@ Criterios de aceptación:
 
 ---
 
-## 7. Cambios pendientes en GitHub
+## 7. Cambios aplicados en GitHub
 
-Nada de esto se ha hecho; requiere la autorización de Orlando.
+Aplicados el 18/11/2026 con autorización de Orlando.
 
-**Issues que faltan en el tablero (22):**
+**Issues creados (22), todos en el tablero «Eternal Memory — Gestión del Proyecto»:**
 
-| Código | Título | Responsable | Etiquetas | Estado inicial |
-| --- | --- | --- | --- | --- |
-| TSK-29 | Actualización del README | Orlando | `documentation` | Cerrado (PR #56) |
-| TSK-30 | Orden y limpieza del proyecto | Orlando | `documentation` | Cerrado (PR #57) |
-| TSK-31 | Planificación del reparto de tareas | Orlando | `documentation` | In Review al abrir su PR |
-| TSK-32 | Resumen del administrador | Orlando | `Frontend`, `Backend`, `enhancement` | To Do |
-| TSK-33 | Nuevas secciones de la portada | Orlando | `Frontend`, `enhancement` | To Do |
-| TSK-34 | Banner informativo de la portada | Orlando | `Frontend`, `enhancement` | To Do |
-| TSK-35 | Botón flotante de contacto | Evelyn | `Frontend`, `enhancement` | To Do |
-| TSK-36 | Ordenar y filtrar el catálogo | Orlando | `Frontend`, `Backend`, `enhancement` | To Do |
-| TSK-37 | Mejoras de la ficha de producto | Orlando | `Frontend`, `Backend`, `enhancement` | To Do |
-| TSK-38 | Productos destacados | Orlando | `Backend`, `Frontend`, `enhancement` | To Do |
-| TSK-39 | SEO y vista previa al compartir | Orlando | `Frontend`, `enhancement` | To Do |
-| TSK-40 | Imágenes publicitarias | Evelyn | `Frontend`, `documentation` | To Do |
-| TSK-41 | Revisión de accesibilidad y responsive | Evelyn | `accessibility` | To Do |
-| TSK-42 | Pruebas en CI de lo nuevo | Evelyn | `CI` | To Do |
-| TSK-43 | Dockerfile optimizado | Orlando | `CI` | To Do |
-| TSK-44 | Servicio de BD y variables de entorno | Evelyn | `CI`, `Backend` | To Do |
-| TSK-45 | Seeder de catálogo y administración | Orlando | `Backend` | To Do |
-| TSK-46 | Pipeline de CD hacia GHCR | Orlando | `CI` | To Do |
-| TSK-47 | Infraestructura en Render | Evelyn | `CI` | To Do |
-| TSK-48 | Release `develop → main` y protección de ramas | Orlando | `CI` | To Do |
-| TSK-49 | Seeder de clientes, tarifas y pedidos | Evelyn | `Backend` | To Do |
-| TSK-50 | Informe del Avance 3 y evidencias | Evelyn | `documentation` | To Do |
+| Issue | Código | Título | Responsable | Milestone | Estado |
+| --- | --- | --- | --- | --- | --- |
+| #58 | TSK-29 | Actualización del README | Orlando | Ecommerce funcional | Done (cerrado) |
+| #59 | TSK-30 | Orden y limpieza del proyecto | Orlando | Ecommerce funcional | Done (cerrado) |
+| #60 | TSK-31 | Planificación del reparto de tareas | Orlando | Ecommerce funcional | In Progress |
+| #61 | TSK-32 | Resumen del administrador | Orlando | Tienda completa | To do |
+| #62 | TSK-33 | Nuevas secciones de la portada | Orlando | Tienda completa | To do |
+| #63 | TSK-34 | Banner informativo de la portada | Orlando | Tienda completa | To do |
+| #64 | TSK-35 | Botón flotante de contacto | Evelyn | Tienda completa | To do |
+| #65 | TSK-36 | Ordenar y filtrar el catálogo | Orlando | Tienda completa | To do |
+| #66 | TSK-37 | Mejoras de la ficha de producto | Orlando | Tienda completa | To do |
+| #67 | TSK-38 | Productos destacados | Orlando | Tienda completa | To do |
+| #68 | TSK-39 | SEO y vista previa al compartir | Orlando | Tienda completa | To do |
+| #69 | TSK-40 | Imágenes publicitarias | Evelyn | Tienda completa | To do |
+| #70 | TSK-41 | Revisión de accesibilidad y responsive | Evelyn | Tienda completa | To do |
+| #71 | TSK-42 | Pruebas en CI de lo nuevo | Evelyn | Tienda completa | To do |
+| #72 | TSK-43 | Dockerfile optimizado | Orlando | Avance 3 | To do |
+| #73 | TSK-44 | Servicio de BD y variables de entorno | Evelyn | Avance 3 | To do |
+| #74 | TSK-45 | Seeder de catálogo y administración | Orlando | Avance 3 | To do |
+| #75 | TSK-46 | Pipeline de CD hacia GHCR | Orlando | Avance 3 | To do |
+| #76 | TSK-47 | Infraestructura en Render | Evelyn | Avance 3 | To do |
+| #77 | TSK-48 | Release `develop → main` y protección de ramas | Orlando | Avance 3 | To do |
+| #78 | TSK-49 | Seeder de clientes, tarifas y pedidos | Evelyn | Avance 3 | To do |
+| #79 | TSK-50 | Informe del Avance 3 y evidencias | Evelyn | Avance 3 | To do |
 
 **Cambios en issues existentes:**
 
-- Reasignar a Evelyn (`Eve3000a`): #20 TSK-11, #21 TSK-12, #24 TSK-15 y #29 TSK-20.
-- Reasignar a Orlando (`orlando572`): #28 TSK-19.
-- Añadir a la descripción de #29 (TSK-20) los criterios de datos comerciales reales.
-- Cerrar #27 (TSK-18) con el comentario de evidencia cuando se verifique.
+- Reasignados a Evelyn: #20 TSK-11, #21 TSK-12, #24 TSK-15 y #29 TSK-20 (este último con la etiqueta `Backend` y los criterios de datos comerciales reales).
+- Reasignado a Orlando: #28 TSK-19 (con la etiqueta `Backend`).
+- #27 TSK-18 sigue abierto hasta verificar la subida de imágenes y cerrarlo con evidencia.
 
 **Organización:**
 
-- Milestones propuestos: «Tienda completa» (etapa 1) y «Avance 3» (etapa 2). Los issues abiertos pueden quedarse en «Ecommerce funcional» o moverse a «Tienda completa».
-- Añadir los issues nuevos al tablero de GitHub Projects con `Status`, `Priority` y tamaño. Para leer y editar el tablero desde la terminal, el token de `gh` necesita el permiso `project` (`gh auth refresh -s project`).
+- Milestones nuevos: «Tienda completa» (TSK-32 a TSK-42) y «Avance 3» (TSK-43 a TSK-50). Los issues que ya estaban abiertos siguen en «Ecommerce funcional».
+- Se retiró del tablero la tarjeta del PR #56 para no contar TSK-29 dos veces.
+- El tablero solo tiene el campo `Status`; la prioridad y el tamaño figuran en la descripción de cada issue.
