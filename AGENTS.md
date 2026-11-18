@@ -2,16 +2,18 @@
 
 ## Estructura del proyecto
 
-Este proyecto usa Next.js App Router. Las rutas están en `src/app/`: inicio (`/`), catálogo (`/catalogo`), ficha (`/catalogo/[id]`), acceso (`/login`) y registro (`/registro`). Los datos de muestra están en `src/features/products/data/productsData.ts`; las vistas y el carrito, en `src/features/`. Los componentes base de shadcn/ui están en `src/components/ui/`, Supabase en `src/lib/`, la autenticación en `src/services/authService.ts` y los recursos estáticos en `public/`. Coloca el código nuevo junto a su funcionalidad y usa `@/*` para importar desde `src/`.
+Este proyecto usa Next.js App Router. Las rutas están en `src/app/`: inicio (`/`), catálogo (`/catalogo`), ficha (`/catalogo/[id]`), acceso (`/login`), registro (`/registro`), checkout (`/checkout`), perfil (`/perfil`) y administración (`/admin/productos`); las API internas están en `src/app/api/`. Las vistas, el carrito, el checkout y la administración están en `src/features/`. Los componentes base de shadcn/ui están en `src/components/ui/`, los clientes de Supabase en `src/lib/supabase/`, la autenticación en `src/services/authService.ts` y `src/features/auth/`, el esquema y los datos de muestra en `supabase/migrations/`, la documentación en `docs/` y los recursos estáticos en `public/`. Coloca el código nuevo junto a su funcionalidad y usa `@/*` para importar desde `src/`.
 
 ## Comandos de desarrollo
 
 - `npm ci` instala las dependencias del archivo de bloqueo.
 - `npm run dev` inicia el servidor local.
 - `npm run lint` revisa el código con ESLint.
+- `npm run typecheck` comprueba TypeScript.
 - `npm run build` compila para producción; `npm run start` ejecuta esa versión.
+- `npm test` y los scripts `test:*` de `package.json` ejecutan las pruebas.
 
-No existe `npm test`. Antes de proponer cambios de código, ejecuta lint y build.
+Antes de proponer cambios de código, ejecuta lint, typecheck y build.
 
 ## Estilo de código
 
@@ -25,19 +27,19 @@ Usa las imágenes de prueba existentes para productos y señálalas como referen
 
 ## Estado funcional
 
-El catálogo filtra por categoría y cada ficha permite elegir variante y cantidad. El carrito se guarda en `localStorage` de este navegador; no se sincroniza con la cuenta. El subtotal es referencial y no hay compra en línea ni checkout implementados. Acceso y registro usan Supabase Auth cuando se configuran las variables de entorno; una compilación con valores de ejemplo no verifica que la autenticación funcione.
+El catálogo lee los productos publicados de Supabase, filtra por categoría, busca por nombre y pagina; cada ficha permite elegir variante y cantidad. El carrito se guarda en `localStorage` de este navegador, se sincroniza entre pestañas y valida precios y existencias en el servidor; no se sincroniza con la cuenta. El checkout crea pedidos pendientes de pago con reserva, pero el pago en línea no está implementado. El administrador gestiona productos, variantes, imagen de portada y ajustes de grabado. Acceso y registro usan Supabase Auth cuando se configuran las variables de entorno; una compilación con valores de ejemplo no verifica que la autenticación funcione.
 
 ## Pruebas
 
-Aún no hay framework de pruebas, pruebas automatizadas ni umbral de cobertura. Si una tarea autorizada requiere pruebas, colócalas junto a la funcionalidad, usa nombres como `ProductGallery.test.tsx` y añade el comando a `package.json`. Informa solo verificaciones realmente ejecutadas.
+Las pruebas usan el ejecutor nativo `node --test` (`*.test.mjs`); `npm test` las ejecuta todas. No hay umbral de cobertura. El CI de `.github/workflows/ci.yml` ejecuta lint, pruebas, typecheck y build en cada pull request. Si una tarea autorizada requiere pruebas, colócalas junto a la funcionalidad y añade el comando a `package.json`. Informa solo verificaciones realmente ejecutadas.
 
 ## Commits y pull requests
 
-Usa mensajes de commit breves y generales en español, sin dos puntos ni prefijos técnicos, por ejemplo `Actualización de la documentación del proyecto`. En cada pull request explica el cambio, su verificación y el issue relacionado. Incluye capturas si cambia la interfaz y confirma la rama de destino.
+Usa mensajes de commit breves y generales en español, sin dos puntos ni prefijos técnicos, e incluye la referencia de la tarea, por ejemplo `Actualización de la documentación del proyecto TSK-30`; el CI rechaza commits sin referencia TSK. Trabaja en ramas creadas desde `develop` y abre los pull requests hacia `develop`. En cada pull request explica el cambio, su verificación y el issue relacionado. Incluye capturas si cambia la interfaz y confirma la rama de destino.
 
 ## Configuración y alcance
 
-Define `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` en un `.env` local cuando necesites Supabase. No subas credenciales; Git ignora `.env*`. Distingue `PRODUCT.md` como contexto de producto y `DESIGN.md` como guía visual; comprueba las capacidades reales en el código si esos documentos difieren de él. `GESTION_PROYECTO.md` es un plan, no prueba de implementación. Implementa solo tareas solicitadas expresamente.
+Define `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` en un `.env` local cuando necesites Supabase. No subas credenciales; Git ignora `.env*`. Distingue `PRODUCT.md` como contexto de producto y `DESIGN.md` como guía visual; comprueba las capacidades reales en el código si esos documentos difieren de él. Los documentos de `docs/planificacion/` son planes, no prueba de implementación. Implementa solo tareas solicitadas expresamente.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

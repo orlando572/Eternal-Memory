@@ -13,11 +13,9 @@
     "test:checkout": "node --test src/features/checkout/checkoutRecovery.test.mjs",
     "test:checkout-engraving": "node --test src/features/checkout/checkoutEngraving.test.mjs",
     "validate:commits": "node scripts/ci/validate-task-commits.mts",
-    "test:cart": "playwright test",
     "test:cart-order": "node --test src/features/cart/tests/cartOrder.test.mjs",
     "test:cart-sync": "node --test src/features/cart/tests/cartSync.test.mjs",
-    "test:cart-sync:browser": "playwright test cartSync.spec.ts",
-    "test": "npm run test:roles && npm run test:cart",
+    "test": "npm run test:roles && npm run test:profile && npm run test:ci && npm run test:checkout && npm run test:checkout-engraving && npm run test:cart-order && npm run test:cart-sync",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -33,7 +31,6 @@
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
-    "@playwright/test": "1.64.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

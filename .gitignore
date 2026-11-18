@@ -15,9 +15,6 @@
 
 # next.js
 /.next/
-/.next-cart-test/
-/test-results/
-/playwright-report/
 /out/
 
 # production
@@ -50,5 +47,4 @@ next-env.d.ts
 /.agents/skills/
 /.codex/
 /.impeccable/
-/docs/
 /skills-lock*.json

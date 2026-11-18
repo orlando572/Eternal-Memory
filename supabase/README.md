@@ -2,8 +2,8 @@
 
 Las migraciones crean el modelo de la tienda y cargan los 48 productos actuales
 como **borradores**, con 94 variantes, 48 imágenes referenciales y stock cero.
-Ningún producto se publica automáticamente. El catálogo de Next.js sigue leyendo
-`productsData.ts`: conectar las pantallas a Supabase es un trabajo posterior.
+Ningún producto se publica automáticamente. El catálogo de Next.js lee de estas
+tablas y solo muestra los productos con estado `published`.
 
 ## Desplegar
 
