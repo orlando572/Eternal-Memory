@@ -188,6 +188,17 @@ export async function listRelatedCatalogProducts(product: Pick<CatalogProduct, "
   });
 }
 
+// Home page selection: featured products first (TSK-38), then by name.
+export async function listHomeCatalogProducts(categorySlug: string, limit: number): Promise<CatalogProduct[]> {
+  if (!isCatalogSlug(categorySlug) || limit < 1) return [];
+  return readCatalog(async (client) => {
+    const { data, error } = await publicProducts(client, { query: "", categorySlug, sort: CATALOG_DEFAULT_SORT, minPrice: null, maxPrice: null, page: 1, pageSize: limit })
+      .order("is_featured", { ascending: false }).order("name").order("id").limit(limit);
+    if (error || !data) throw new CatalogUnavailableError();
+    return (data as unknown as ProductRow[]).map((row) => mapProduct(row, client));
+  });
+}
+
 // Reuses the same public visibility rules as the catalog and product pages.
 export async function getCatalogProductsByIds(ids: string[]): Promise<CatalogProduct[]> {
   if (ids.length === 0) return [];

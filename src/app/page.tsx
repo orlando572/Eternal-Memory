@@ -5,7 +5,7 @@ import { HomeSupport } from "@/features/home/HomeSupport";
 import { HomeFeaturedCategories } from "@/features/home/HomeFeaturedCategories";
 import { HomeFaq } from "@/features/home/HomeFaq";
 import { HomeContact } from "@/features/home/HomeContact";
-import { listCatalogCategories, listCatalogProducts } from "@/features/catalogo/services/catalogService";
+import { listCatalogCategories, listHomeCatalogProducts } from "@/features/catalogo/services/catalogService";
 import "@/features/home/home.css";
 
 // La rejilla y las categorías destacadas comparten una sola consulta por petición.
@@ -16,8 +16,8 @@ async function loadHomeCatalog() {
     const categories = await loadCategories();
     const selections = await Promise.all(categories.map(async (category) => {
       try {
-        const page = await listCatalogProducts({ categoria: category.slug });
-        return { category, products: page.products.slice(0, 4), failed: false };
+        const products = await listHomeCatalogProducts(category.slug, 4);
+        return { category, products, failed: false };
       } catch {
         return { category, products: [], failed: true };
       }
