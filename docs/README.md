@@ -11,6 +11,7 @@
 - `gestion-proyecto.md`: plan inicial del proyecto, Kanban, reparto TSK-01 a TSK-20 y convenciones (corte: 20/10/2026).
 - `01-mejoras-tienda.md`: mejoras de la tienda por fases (Parte 2).
 - `02-avance-3-docker-cd-cloud.md`: Avance 3 — Docker, entrega continua y nube (Parte 1).
+- `03-reparto-tareas.md`: reparto vigente de tareas por integrante (TSK-11 a TSK-50), orden de ejecución y cambios pendientes en GitHub.
 
 ## Especificaciones — `specs/`
 

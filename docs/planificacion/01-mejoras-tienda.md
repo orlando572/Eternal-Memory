@@ -5,6 +5,10 @@
 >
 > Fecha de elaboración: 18/11/2026. Equipo: Orlando (líder) y Evelyn.
 > Este documento es un plan; no prueba que nada esté implementado.
+>
+> **El reparto vigente está en `03-reparto-tareas.md`** y prevalece sobre los
+> responsables indicados aquí. La antigua TSK-31 (datos comerciales) se integró
+> en TSK-20, y el código TSK-31 pasó a la planificación del reparto.
 
 ## 1. Punto de partida (comprobado en el código)
 

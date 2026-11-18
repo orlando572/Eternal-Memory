@@ -2,6 +2,10 @@
 
 > Se ejecuta **después** de las mejoras de la tienda (`01-mejoras-tienda.md`).
 >
+> **El reparto vigente está en `03-reparto-tareas.md`**: los seeders se dividen
+> en TSK-45 (Orlando) y TSK-49 (Evelyn), Render pasa a Evelyn (TSK-47) y el
+> informe es la nueva TSK-50.
+>
 > ⚠️ **Fecha límite del curso:** jueves 19/11/2026, 08:45, vía UTP+CLASS (un solo
 > intento, lo entrega un integrante). Si la tienda no está lista a tiempo, este
 > plan debe adelantarse: es lo que se evalúa en el Avance 3.
