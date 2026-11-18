@@ -35,7 +35,7 @@ Las pruebas usan el ejecutor nativo `node --test` (`*.test.mjs`); `npm test` las
 
 ## Commits y pull requests
 
-Usa mensajes de commit breves y generales en español, sin dos puntos ni prefijos técnicos, e incluye la referencia de la tarea, por ejemplo `Actualización de la documentación del proyecto TSK-30`; el CI rechaza commits sin referencia TSK. Trabaja en ramas creadas desde `develop` y abre los pull requests hacia `develop`. En cada pull request explica el cambio, su verificación y el issue relacionado. Incluye capturas si cambia la interfaz y confirma la rama de destino.
+Usa mensajes de commit breves y generales en español, sin dos puntos ni prefijos técnicos, e incluye la referencia de la tarea, por ejemplo `Actualización de la documentación del proyecto TSK-30`; el CI rechaza commits sin referencia TSK. Trabaja en ramas creadas desde `develop` y abre los pull requests hacia `develop`. En cada pull request explica el cambio, su verificación y el issue relacionado. Confirma la rama de destino.
 
 ## Configuración y alcance
 

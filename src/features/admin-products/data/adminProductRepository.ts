@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { AdminCategory, AdminProductDraft, ProductStatus, AdminProductImage } from "./adminProducts";
+import { buildGalleryPayload } from "./productGallery";
 
 type ProductRow = {
   id: string; slug: string; name: string; description: string | null;
@@ -49,10 +50,10 @@ export async function listAdminCategories(client: SupabaseClient): Promise<Admin
   return (data ?? []).map((row) => ({ id: row.id, name: row.name, isActive: row.is_active }));
 }
 
-export async function saveAdminProduct(client: SupabaseClient, product: AdminProductDraft, cover?: { originalId: string | null; image: AdminProductImage | null }): Promise<string> {
-  const { data, error } = await client.rpc("save_admin_product_with_image", {
+export async function saveAdminProduct(client: SupabaseClient, product: AdminProductDraft, gallery?: { originalIds: string[]; images: AdminProductImage[] }): Promise<string> {
+  const { data, error } = await client.rpc("save_admin_product_with_images", {
     payload: {
-      ...(cover ? { cover: { original_id: cover.originalId, image: cover.image ? { storage_path: cover.image.storagePath, external_url: cover.image.externalUrl, alt_text: cover.image.altText, is_reference: cover.image.isReference } : null } } : {}),
+      ...(gallery ? { images: buildGalleryPayload(gallery.originalIds, gallery.images) } : {}),
       id: product.id || null,
       updated_at: product.updatedAt,
       slug: product.slug,

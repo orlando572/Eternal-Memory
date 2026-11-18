@@ -58,6 +58,6 @@
   .home-loading-feature-photo { width: 100%; min-height: 210px; }
   .home-product-list .loading-card-photo { height: 220px; }
 }
-.admin-image-preview { position: relative; }
-.admin-image-preview img { position: relative; }
+.admin-gallery-preview { position: relative; }
+.admin-gallery-preview img { position: relative; }
 @media (prefers-reduced-motion: reduce) { .catalog-results-pending { transition: none; } }
