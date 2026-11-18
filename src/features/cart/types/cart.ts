@@ -1,9 +1,20 @@
-import type { Product } from "@/features/products/data/productsData";
+// Datos de presentación que el carrito guarda de cada producto.
+interface CartProduct {
+  id: string;
+  categoria: string;
+  nombre: string;
+  precio: string;
+  badge: string;
+  badgeTipo: "moss" | "neutral" | "ember" | "brass";
+  descripcion?: string;
+  imagenes?: string[];
+  opciones?: string[];
+}
 
 export const CART_MAX_LINES = 50;
 export const CART_MAX_QUANTITY = 50;
 
-export interface CartItem extends Product {
+export interface CartItem extends CartProduct {
   productId?: string;
   variantId?: string;
   productSlug?: string;
