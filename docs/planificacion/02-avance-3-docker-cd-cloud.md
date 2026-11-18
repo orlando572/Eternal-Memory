@@ -39,7 +39,7 @@
   1. `deps`: `npm ci` con caché.
   2. `builder`: `npm run build`, con `ARG NEXT_PUBLIC_SUPABASE_URL` y `ARG NEXT_PUBLIC_SUPABASE_ANON_KEY`.
   3. `runner`: solo `.next/standalone`, `.next/static` y `public`; usuario sin privilegios; `EXPOSE 3000`; `HEALTHCHECK`.
-- `.dockerignore`: `node_modules`, `.next`, `.next-cart-test`, `test-results`, `.git`, `.env*`, `*.deb`, `docs`, `supabase/.temp`.
+- `.dockerignore`: `node_modules`, `.next`, `.git`, `.env*`, `*.deb`, `docs`, `supabase/.temp`.
 
 > **Clave:** Next.js incrusta las variables `NEXT_PUBLIC_*` **al compilar**. En
 > el CD deben pasarse como `build-args` desde *Variables* de GitHub. Si no, la

@@ -262,7 +262,7 @@ Lineamientos: paleta clay/paper/stucco de `DESIGN.md`, luz natural cálida, sin 
 
 ### TSK-42 · Pruebas en CI de lo nuevo — Orlando · S (nuevo)
 - [ ] Añadir a `.github/workflows/ci.yml` las pruebas nuevas (pagos, consulta de pedidos, estados) y las que ya existen pero no se ejecutan en CI (`test:checkout`, `test:checkout-engraving`, `test:cart-order`, `test:cart-sync`).
-- [ ] Una prueba Playwright del recorrido completo: catálogo → carrito → checkout → resultado.
+- [ ] Pruebas con `node --test` de la lógica del recorrido completo: catálogo → carrito → checkout → resultado.
 
 ---
 

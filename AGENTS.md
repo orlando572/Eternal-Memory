@@ -31,7 +31,7 @@ El catálogo lee los productos publicados de Supabase, filtra por categoría, bu
 
 ## Pruebas
 
-Las pruebas unitarias usan `node --test` (`*.test.mjs`) y las de navegador usan Playwright (`*.spec.ts`, configurado en `playwright.config.ts`). No hay umbral de cobertura. El CI de `.github/workflows/ci.yml` ejecuta lint, pruebas, typecheck y build en cada pull request. Si una tarea autorizada requiere pruebas, colócalas junto a la funcionalidad y añade el comando a `package.json`. Informa solo verificaciones realmente ejecutadas.
+Las pruebas usan el ejecutor nativo `node --test` (`*.test.mjs`); `npm test` las ejecuta todas. No hay umbral de cobertura. El CI de `.github/workflows/ci.yml` ejecuta lint, pruebas, typecheck y build en cada pull request. Si una tarea autorizada requiere pruebas, colócalas junto a la funcionalidad y añade el comando a `package.json`. Informa solo verificaciones realmente ejecutadas.
 
 ## Commits y pull requests
 
