@@ -2,15 +2,14 @@
 
 import { useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { ArrowLeft, ArrowRight, Search } from "lucide-react";
 import { LoadingButton } from "@/features/loading/LoadingButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ProductImage } from "@/features/products/components/ProductImage";
 import { HomeCategoryIcon } from "@/features/home/HomeCategoryIcon";
 import { ClearFiltersIcon } from "./components/ClearFiltersIcon";
-import { catalogHref, formatCatalogPrice } from "@/features/catalogo/lib/catalogPresentation";
+import { CatalogProductCard } from "./components/CatalogProductCard";
+import { catalogHref } from "@/features/catalogo/lib/catalogPresentation";
 import { getCatalogBackground } from "@/features/catalogo/lib/catalogBackground";
 import type { CatalogCategory, CatalogFilters, CatalogPage } from "@/features/catalogo/types/catalog";
 
@@ -67,21 +66,7 @@ export default function CatalogoView({ page, categories }: { page: CatalogPage; 
         {filters.query && !pending && <p className="catalog-navigation-status" role="status">Resultados para «{filters.query}»</p>}
         {products.length ? (
           <div className={pending ? "catalog-grid catalog-results-pending" : "catalog-grid"}>
-            {products.map((product) => (
-              <article className="catalog-card" key={product.id}>
-                <Link href={`/catalogo/${product.slug}`} aria-label={`Ver ${product.name}`}>
-                  <div className="catalog-card-image">
-                    <ProductImage src={product.images[0]?.src} alt={product.images[0]?.alt || `${product.images[0]?.isReference ? "Imagen referencial de " : ""}${product.name}`} sizes="(max-width: 640px) 90vw, (max-width: 1000px) 45vw, 23vw" />
-                  </div>
-                  <div className="catalog-card-content">
-                    <p>{product.category.name}</p>
-                    <h2>{product.name}</h2>
-                    <div><strong>{product.priceFromPen === null ? "Sin opciones disponibles" : `${product.hasPriceRange ? "Desde " : ""}${formatCatalogPrice(product.priceFromPen)}`}</strong><ArrowRight size={20} aria-hidden="true" /></div>
-                    <p className="catalog-availability">{product.isAvailable ? "Disponible" : "Agotado"}</p>
-                  </div>
-                </Link>
-              </article>
-            ))}
+            {products.map((product) => <CatalogProductCard key={product.id} product={product} />)}
           </div>
         ) : (
           <div className="catalog-empty">
