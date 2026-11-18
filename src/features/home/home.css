@@ -55,3 +55,85 @@
   .home-first-view .home-card-image { height: 220px; }
   .home-first-view .home-product-meta strong { font-size: 23px; }
 }
+
+/* Secciones bajo la rejilla de productos (TSK-33). Colores de DESIGN.md: papel, estuco,
+   suelo de producto, tarjeta, tinta, copia, arcilla y trazo suave. */
+.home-section { padding: clamp(56px, 6vw, 96px) 4.5%; color: var(--ink); background: var(--paper); font-family: "Eternal Sans", sans-serif; }
+.home-section-intro { max-width: 620px; }
+.home-section h2 { margin: 12px 0 0; font: 400 clamp(32px, 2.9vw, 44px)/1.05 "Eternal Display", serif; letter-spacing: -.035em; }
+.home-section-intro > p:not(.home-kicker) { margin: 14px 0 0; color: var(--muted); font-size: 16px; line-height: 1.6; }
+.home-section h3 { margin: 0; font: 400 20px/1.25 "Eternal Serif", serif; letter-spacing: -.02em; }
+:where(.home-section) ol, :where(.home-section) ul { margin: 0; padding: 0; list-style: none; }
+
+.home-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(20px, 2.4vw, 40px); margin-top: 44px; }
+.home-step { min-width: 0; padding-top: 22px; border-top: 1px solid #ded1c9; }
+.home-step-marker { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; color: var(--clay); }
+.home-step-marker span { color: var(--muted); font: 15px "Eternal Display", serif; letter-spacing: .08em; }
+.home-step p, .home-support-list p { margin: 8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+.home-support { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.6fr); gap: clamp(32px, 4vw, 72px); align-items: start; background: var(--stucco); }
+.home-support-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(16px, 1.56vw, 24px); }
+.home-support-list li { min-width: 0; padding: 26px 24px; background: #fffdfb; border-radius: 6px; box-shadow: 0 12px 25px rgba(76,48,35,.05); }
+.home-support-list svg { margin-bottom: 16px; color: var(--clay); }
+
+.home-featured { background: #f7f0eb; }
+.home-featured-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(16px, 1.56vw, 24px); margin-top: 40px; }
+.home-featured-card { display: flex; flex-direction: column; height: 100%; overflow: hidden; color: var(--ink); text-decoration: none; background: #fffdfb; border-radius: 6px; box-shadow: 0 12px 25px rgba(76,48,35,.05); }
+.home-featured-image { position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--stucco); }
+.home-featured-image img { object-fit: cover; object-position: right center; transition: transform .4s cubic-bezier(.2,.8,.2,1); }
+.home-featured-card:hover .home-featured-image img { transform: scale(1.035); }
+.home-featured-body { display: flex; flex: 1; flex-direction: column; align-items: flex-start; padding: 18px 20px 22px; }
+.home-featured-body h3 { display: flex; align-items: center; gap: 10px; overflow-wrap: anywhere; }
+.home-featured-body h3 svg { flex-shrink: 0; color: var(--clay); }
+.home-featured-body p { margin: 8px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.home-featured-action { display: inline-flex; align-items: center; gap: 8px; margin-top: auto; padding-top: 16px; color: var(--clay); font-size: 15px; }
+.home-featured-card:hover .home-featured-action { text-decoration: underline; text-underline-offset: 4px; }
+.home-featured-skeleton { display: block; height: 320px; border-radius: 6px; }
+.home-featured-empty { margin: 32px 0 0; color: var(--muted); font-size: 15px; line-height: 1.6; }
+.home-featured-all { display: inline-flex; align-items: center; gap: 10px; margin-top: 32px; color: var(--clay); font-size: 16px; text-decoration: none; }
+.home-featured-all:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+.home-faq { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.6fr); gap: clamp(32px, 4vw, 72px); align-items: start; }
+.home-faq-list { border-top: 1px solid #ded1c9; }
+.home-faq-item { border-bottom: 1px solid #ded1c9; }
+.home-faq-item summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 44px; padding: 20px 0; cursor: pointer; list-style: none; font: 18px/1.35 "Eternal Serif", serif; }
+.home-faq-item summary::-webkit-details-marker { display: none; }
+.home-faq-item summary:hover { color: var(--clay); }
+.home-faq-item summary svg { flex-shrink: 0; color: var(--clay); transition: transform .2s ease; }
+.home-faq-item[open] summary svg { transform: rotate(180deg); }
+.home-faq-item > p { max-width: 68ch; margin: 0; padding: 0 0 22px; color: var(--muted); font-size: 15px; line-height: 1.65; }
+
+.home-contact { display: flex; flex-direction: column; align-items: center; text-align: center; background: var(--stucco); }
+.home-contact h2 { max-width: 760px; font-size: clamp(32px, 3.4vw, 52px); }
+.home-contact-text { max-width: 560px; margin: 14px 0 0; color: var(--muted); font-size: 16px; line-height: 1.6; }
+.home-contact-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 28px; }
+.home-contact-actions a { height: 48px; padding: 0 22px; border-radius: 4px; font: 15px "Eternal Sans", sans-serif; text-decoration: none; }
+.home-contact-hours { display: inline-flex; align-items: center; gap: 8px; margin: 22px 0 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.home-contact-hours svg { flex-shrink: 0; color: var(--clay); }
+
+@media (prefers-reduced-motion: reduce) {
+  .home-featured-image img, .home-faq-item summary svg { transition: none; }
+  .home-featured-card:hover .home-featured-image img { transform: none; }
+}
+
+@media (max-width: 1100px) {
+  .home-steps, .home-featured-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 900px) {
+  .home-section { padding: 64px 4%; }
+  .home-support, .home-faq { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .home-section { padding: 56px 20px; }
+  .home-section h2, .home-contact h2 { font-size: 34px; }
+  .home-steps, .home-support-list, .home-featured-list { grid-template-columns: minmax(0, 1fr); }
+  .home-steps { gap: 28px; margin-top: 32px; }
+  .home-featured-list { margin-top: 32px; gap: 22px; }
+  .home-featured-image { aspect-ratio: 16 / 9; }
+  .home-support-list li { padding: 22px 20px; }
+  .home-faq-item summary { font-size: 17px; }
+  .home-contact-actions { width: 100%; }
+  .home-contact-actions a { width: 100%; }
+}
