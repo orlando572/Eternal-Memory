@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { CatalogProduct } from "@/features/catalogo/types/catalog";
@@ -9,7 +9,7 @@ import { catalogCartItem } from "@/features/catalogo/lib/catalogCart";
 import { useCart } from "@/features/cart/context/CartContext";
 import { CART_MAX_LINES, CART_MAX_QUANTITY } from "@/features/cart/types/cart";
 
-export default function ProductSelector({ product }: { product: CatalogProduct }) {
+export default function ProductSelector({ product, serviceInfo }: { product: CatalogProduct; serviceInfo?: ReactNode }) {
   const [variantId, setVariantId] = useState(product.variants.find((variant) => variant.availableQuantity > 0)?.id ?? product.variants[0]?.id ?? "");
   const [quantity, setQuantity] = useState(1);
   const { cart, addToCart } = useCart();
@@ -35,6 +35,7 @@ export default function ProductSelector({ product }: { product: CatalogProduct }
       <p className="detail-category">{product.category.name}</p>
       <h1>{product.name}</h1>
       <strong className="detail-price" aria-live="polite">{price}</strong>
+      {serviceInfo}
       <p className="detail-description">{product.description || "Consulta las opciones y la disponibilidad de este producto."}</p>
       {product.variants.length > 0 && (
         <fieldset className="detail-options">

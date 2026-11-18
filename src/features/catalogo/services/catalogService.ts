@@ -147,6 +147,17 @@ export async function getCatalogProduct(slug: string): Promise<CatalogProduct | 
   });
 }
 
+// Published products of the same active category, excluding the current one.
+export async function listRelatedCatalogProducts(product: Pick<CatalogProduct, "id" | "category">, limit: number): Promise<CatalogProduct[]> {
+  if (!isCatalogSlug(product.category.slug) || limit < 1) return [];
+  return readCatalog(async (client) => {
+    const { data, error } = await publicProducts(client, { query: "", categorySlug: product.category.slug, page: 1, pageSize: limit })
+      .neq("id", product.id).order("name").order("id").limit(limit);
+    if (error || !data) throw new CatalogUnavailableError();
+    return (data as unknown as ProductRow[]).map((row) => mapProduct(row, client));
+  });
+}
+
 // Reuses the same public visibility rules as the catalog and product pages.
 export async function getCatalogProductsByIds(ids: string[]): Promise<CatalogProduct[]> {
   if (ids.length === 0) return [];
