@@ -17,7 +17,8 @@
     "test:cart-sync": "node --test src/features/cart/tests/cartSync.test.mjs",
     "test:admin-gallery": "node --test src/features/admin-products/productGallery.test.mjs",
     "test:product-detail": "node --test src/features/products/productDetail.test.mjs",
-    "test": "npm run test:roles && npm run test:profile && npm run test:ci && npm run test:checkout && npm run test:checkout-engraving && npm run test:cart-order && npm run test:cart-sync && npm run test:admin-gallery && npm run test:product-detail",
+    "test:catalog-params": "node --test src/features/catalogo/lib/catalogParams.test.mjs",
+    "test": "npm run test:roles && npm run test:profile && npm run test:ci && npm run test:checkout && npm run test:checkout-engraving && npm run test:cart-order && npm run test:cart-sync && npm run test:admin-gallery && npm run test:product-detail && npm run test:catalog-params",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

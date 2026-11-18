@@ -9,17 +9,24 @@ import { Input } from "@/components/ui/input";
 import { HomeCategoryIcon } from "@/features/home/HomeCategoryIcon";
 import { ClearFiltersIcon } from "./components/ClearFiltersIcon";
 import { CatalogProductCard } from "./components/CatalogProductCard";
-import { catalogHref } from "@/features/catalogo/lib/catalogPresentation";
+import { CatalogRefine } from "./components/CatalogRefine";
+import { catalogHref, describeCatalogFilters } from "@/features/catalogo/lib/catalogPresentation";
 import { getCatalogBackground } from "@/features/catalogo/lib/catalogBackground";
 import type { CatalogCategory, CatalogFilters, CatalogPage } from "@/features/catalogo/types/catalog";
+import "./catalogo.css";
+
+// "Limpiar filtros" removes what narrows the results (search, category and
+// price range) and keeps the chosen order, which never hides products.
+const CLEARED_FILTERS: Partial<CatalogFilters> = { query: "", categorySlug: null, minPrice: null, maxPrice: null, page: 1 };
 
 export default function CatalogoView({ page, categories }: { page: CatalogPage; categories: CatalogCategory[] }) {
-  const { products, filters, total, totalPages } = page;
+  const { products, filters, total, totalPages, priceFiltersUnavailable } = page;
   const [query, setQuery] = useState(filters.query);
   const [pending, startTransition] = useTransition();
   const [pendingTarget, setPendingTarget] = useState("");
   const router = useRouter();
-  const hasFilters = Boolean(filters.query || filters.categorySlug);
+  const hasFilters = Boolean(filters.query || filters.categorySlug) || filters.minPrice !== null || filters.maxPrice !== null;
+  const filterSummary = describeCatalogFilters(filters);
   const outOfRange = filters.page > 1 && products.length === 0;
 
   function navigate(next: Partial<CatalogFilters>, target?: string) {
@@ -47,8 +54,11 @@ export default function CatalogoView({ page, categories }: { page: CatalogPage; 
             <Input id="catalog-query" type="search" value={query} maxLength={100} onChange={(event) => setQuery(event.target.value)} placeholder="Nombre del producto" />
           </div>
           <LoadingButton type="submit" busy={pending && pendingTarget === "search"} disabled={pending}><Search size={17} aria-hidden="true" /> Buscar</LoadingButton>
-          {hasFilters && <LoadingButton busy={pending && pendingTarget === "clear"} variant="outline" type="button" disabled={pending} onClick={() => navigate({ query: "", categorySlug: null, page: 1 }, "clear")}><ClearFiltersIcon />Limpiar filtros</LoadingButton>}
         </form>
+        <CatalogRefine filters={filters} pending={pending} busyTarget={pendingTarget}
+          onSortChange={(sort) => navigate({ sort, page: 1 }, "sort")}
+          onPriceApply={(range) => navigate({ ...range, page: 1 }, "price")} />
+        {priceFiltersUnavailable && <p className="catalog-price-notice" role="status">Por ahora no podemos ordenar ni filtrar por precio. Te mostramos el catálogo en su orden habitual.</p>}
         <div className="catalog-toolbar">
           <div className="catalog-tabs" role="group" aria-label="Filtrar por categoría">
             {[{ id: "all", slug: null, name: "Todos" }, ...categories].map((category) => (
@@ -61,9 +71,14 @@ export default function CatalogoView({ page, categories }: { page: CatalogPage; 
               </LoadingButton>
             ))}
           </div>
-          <p className="catalog-count" aria-live="polite">{total} {total === 1 ? "producto" : "productos"}</p>
+          <p className="catalog-count" aria-live="polite">{total} {total === 1 ? "producto" : "productos"}{hasFilters ? (total === 1 ? " encontrado" : " encontrados") : ""}</p>
         </div>
-        {filters.query && !pending && <p className="catalog-navigation-status" role="status">Resultados para «{filters.query}»</p>}
+        {hasFilters && (
+          <div className="catalog-active-filters">
+            <p className="catalog-navigation-status" role="status">{pending ? "" : filterSummary}</p>
+            <LoadingButton busy={pending && pendingTarget === "clear"} variant="outline" type="button" disabled={pending} onClick={() => navigate(CLEARED_FILTERS, "clear")}><ClearFiltersIcon />Limpiar filtros</LoadingButton>
+          </div>
+        )}
         {products.length ? (
           <div className={pending ? "catalog-grid catalog-results-pending" : "catalog-grid"}>
             {products.map((product) => <CatalogProductCard key={product.id} product={product} />)}
@@ -71,8 +86,8 @@ export default function CatalogoView({ page, categories }: { page: CatalogPage; 
         ) : (
           <div className="catalog-empty">
             <h2>{outOfRange ? "No hay productos en esta página" : hasFilters ? "No encontramos coincidencias" : "Aún no hay productos publicados"}</h2>
-            <p>{outOfRange ? "Vuelve a la primera página para consultar los resultados." : hasFilters ? "Prueba otro nombre o limpia los filtros para seguir explorando." : "Cuando haya productos publicados, podrás consultarlos aquí."}</p>
-            {(outOfRange || hasFilters) && <div className="catalog-state-actions"><Button variant="outline" disabled={pending} onClick={() => navigate(outOfRange ? { page: 1 } : { query: "", categorySlug: null, page: 1 })}>{outOfRange ? "Volver a la primera página" : "Ver todo el catálogo"}</Button></div>}
+            <p>{outOfRange ? "Vuelve a la primera página para consultar los resultados." : hasFilters ? "Prueba otro nombre u otro rango de precio, o limpia los filtros para seguir explorando." : "Cuando haya productos publicados, podrás consultarlos aquí."}</p>
+            {(outOfRange || hasFilters) && <div className="catalog-state-actions"><Button variant="outline" disabled={pending} onClick={() => navigate(outOfRange ? { page: 1 } : CLEARED_FILTERS, outOfRange ? "page-1" : "clear")}>{outOfRange ? "Volver a la primera página" : "Ver todo el catálogo"}</Button></div>}
           </div>
         )}
         {totalPages > 1 && products.length > 0 && (
