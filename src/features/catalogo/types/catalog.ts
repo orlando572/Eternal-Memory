@@ -2,11 +2,19 @@ export type CatalogSearchParams = {
   q?: string | string[];
   categoria?: string | string[];
   pagina?: string | string[];
+  orden?: string | string[];
+  min?: string | string[];
+  max?: string | string[];
 };
+
+export type CatalogSort = "relevancia" | "precio-asc" | "precio-desc" | "nombre";
 
 export type CatalogFilters = {
   query: string;
   categorySlug: string | null;
+  sort: CatalogSort;
+  minPrice: number | null;
+  maxPrice: number | null;
   page: number;
   pageSize: number;
 };
@@ -49,4 +57,7 @@ export type CatalogPage = {
   filters: CatalogFilters;
   total: number;
   totalPages: number;
+  // True when the database does not yet expose `price_from_pen`: the page was
+  // served with the default order and without the requested price range.
+  priceFiltersUnavailable: boolean;
 };
