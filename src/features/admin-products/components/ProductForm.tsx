@@ -14,7 +14,8 @@ import { getAdminProduct, saveAdminProduct } from "@/features/admin-products/dat
 import { uploadProductImage, removeUnusedProductImage } from "../data/productImageStorage";
 import { useAdminClient } from "./AdminAccessGate";
 import { StatusBadge } from "./AdminProductList";
-import { ProductImageField, type ProductImageEdit } from "./ProductImageField";
+import { ProductGalleryField } from "./ProductGalleryField";
+import { removedStoragePaths, toGalleryItems, type GalleryItem } from "../data/productGallery";
 import { AdminEngravingSettings } from "@/features/checkout/components/AdminEngravingSettings";
 
 type FormErrors = Record<string, string>;
@@ -111,10 +112,12 @@ export function ProductForm({ initialProduct, categories, isNew, startArchiveCon
       : [{ id: "new-initial", name: "", sku: "", pricePen: "", stockOnHand: "", stockReserved: 0, isActive: true }],
   }));
   const [errors, setErrors] = useState<FormErrors>({});
-  const [imageEdit, setImageEdit] = useState<ProductImageEdit>({ image: initialProduct.images?.[0] ?? null, file: null, changed: false });
-  const originalImageId = useRef(initialProduct.images?.[0]?.id ?? null);
+  const [gallery, setGallery] = useState<GalleryItem[]>(() => toGalleryItems(initialProduct.images));
+  const [galleryChanged, setGalleryChanged] = useState(false);
+  const savedImages = useRef(initialProduct.images ?? []);
   const savingLock = useRef(false);
-  const pendingUpload = useRef<{ file: File; path: string } | null>(null);
+  // Uploads already stored for this draft, reused if the save is retried.
+  const pendingUploads = useRef(new Map<File, string>());
   const [confirmedStatus, setConfirmedStatus] = useState(initialProduct.status);
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(startArchiveConfirmation);
   function updateProduct<K extends keyof AdminProductDraft>(key: K, value: AdminProductDraft[K]) {
@@ -155,21 +158,26 @@ export function ProductForm({ initialProduct, categories, isNew, startArchiveCon
     if (Object.keys(nextErrors).length) { requestAnimationFrame(() => document.querySelector<HTMLElement>(".admin-product-form [aria-invalid='true']")?.focus()); return; }
     savingLock.current = true;
     setSavingStatus(status);
-    setSavingPhase(imageEdit.file ? "Subiendo imagen" : "Guardando producto");
+    const uploads = galleryChanged ? gallery.filter((item) => item.file) : [];
+    setSavingPhase(uploads.length ? "Subiendo imágenes" : "Guardando producto");
     setSaving(true); setSaveError(null); setSaveSuccess(false);
     try {
-      let image = imageEdit.image;
-      if (imageEdit.file && image) {
-        if (pendingUpload.current?.file !== imageEdit.file) {
-          const path = await uploadProductImage(client, imageEdit.file);
-          pendingUpload.current = { file: imageEdit.file, path };
+      let images = gallery.map((item) => item.image);
+      if (galleryChanged) {
+        for (const [index, item] of uploads.entries()) {
+          if (uploads.length > 1) setSavingPhase(`Subiendo imagen ${index + 1} de ${uploads.length}`);
+          if (!pendingUploads.current.has(item.file!)) pendingUploads.current.set(item.file!, await uploadProductImage(client, item.file!));
         }
-        image = { ...image, storagePath: pendingUpload.current!.path, externalUrl: null };
+        images = gallery.map((item) => item.file ? { ...item.image, storagePath: pendingUploads.current.get(item.file)!, externalUrl: null } : item.image);
       }
       setSavingPhase("Guardando producto");
-      const id = await saveAdminProduct(client, draft, imageEdit.changed ? { originalId: originalImageId.current, image } : undefined);
+      const id = await saveAdminProduct(client, draft, galleryChanged ? { originalIds: savedImages.current.map((image) => image.id), images } : undefined);
       // Keep uploads on ambiguous network failures: the database may have committed.
-      pendingUpload.current = null;
+      pendingUploads.current.clear();
+      if (galleryChanged) {
+        // Files of removed or replaced images; the helper skips any still referenced.
+        for (const path of removedStoragePaths(savedImages.current, images)) void removeUnusedProductImage(client, path).catch(() => false);
+      }
       if (isNew) { router.replace(`/admin/productos/${id}/editar`); return; }
       const fresh = await getAdminProduct(client, id).catch(() => null);
       if (!fresh) {
@@ -178,20 +186,24 @@ export function ProductForm({ initialProduct, categories, isNew, startArchiveCon
         return;
       }
       setProduct(fresh); setConfirmedStatus(fresh.status); setSaveSuccess(true); setShowArchiveConfirm(false);
-      originalImageId.current = fresh.images?.[0]?.id ?? null;
-      setImageEdit({ image: fresh.images?.[0] ?? null, file: null, changed: false });
+      savedImages.current = fresh.images ?? [];
+      setGallery(toGalleryItems(fresh.images)); setGalleryChanged(false);
     } catch (error) {
       const fault = error as { message?: string; code?: string; details?: string } | null;
       const message = fault?.message ?? (error instanceof Error ? error.message : "No se pudo guardar el producto.");
       const code = fault?.code ?? "";
       const details = fault?.details ?? "";
-      if (pendingUpload.current && /^[0-9A-Z]{5}$/.test(code)) {
-        // A returned database error rolls back the entire RPC, so this upload is unused.
-        if (await removeUnusedProductImage(client, pendingUpload.current.path).catch(() => false)) pendingUpload.current = null;
+      if (pendingUploads.current.size && /^[0-9A-Z]{5}$/.test(code)) {
+        // A returned database error rolls back the entire RPC, so these uploads are unused.
+        for (const [file, path] of [...pendingUploads.current]) {
+          if (await removeUnusedProductImage(client, path).catch(() => false)) pendingUploads.current.delete(file);
+        }
       }
-      if (message.includes("IMAGE_INVALID")) setSaveError("No se puede leer la imagen. Elige otro archivo JPG, PNG o WebP.");
-      else if (message.includes("IMAGE_UPLOAD_FAILED")) setSaveError("No se pudo subir la imagen. Conservamos los datos para que puedas volver a guardar.");
-      else if (message.includes("IMAGE_CONFLICT")) setSaveError("La imagen principal cambió en otra sesión. Recarga la ficha antes de guardar.");
+      if (message.includes("IMAGE_INVALID")) setSaveError("No se puede leer una de las imágenes nuevas. Reemplázala por otro archivo JPG, PNG o WebP. Las imágenes guardadas no cambiaron.");
+      else if (message.includes("IMAGE_UPLOAD_FAILED")) setSaveError("No se pudo subir una imagen. Las imágenes guardadas no cambiaron; vuelve a guardar para reintentarlo.");
+      else if (message.includes("IMAGE_UPLOAD_MISSING")) setSaveError("Una imagen nueva no llegó al almacenamiento. Las imágenes guardadas no cambiaron; vuelve a guardar.");
+      else if (message.includes("INVALID_IMAGE")) setSaveError("Los datos de las imágenes no son válidos. Recarga la ficha antes de guardar.");
+      else if (message.includes("IMAGE_CONFLICT")) setSaveError("Las imágenes cambiaron en otra sesión. Recarga la ficha antes de guardar.");
       else if (message.includes("PRODUCT_CONFLICT") || message.includes("VARIANT_CONFLICT") || code === "40001") setSaveError("Otra persona modificó este producto. Recarga la ficha para ver la versión reciente antes de guardar.");
       else if (message.includes("ADMIN_REQUIRED") || code === "42501") setSaveError("No tienes permisos para administrar productos.");
       else if (message.includes("STOCK_RESERVED")) setSaveError(`Las existencias son inferiores a las ${details || "unidades"} reservadas actualmente. Recarga la ficha y corrige la cantidad.`);
@@ -242,7 +254,7 @@ export function ProductForm({ initialProduct, categories, isNew, startArchiveCon
               </div>
             </section>
 
-            <ProductImageField value={imageEdit} onChange={(value) => { setImageEdit(value); setSaveSuccess(false); }} publicUrl={(path) => client.storage.from("product-images").getPublicUrl(path).data.publicUrl} />
+            <ProductGalleryField items={gallery} onChange={(items) => { setGallery(items); setGalleryChanged(true); setSaveSuccess(false); }} publicUrl={(path) => client.storage.from("product-images").getPublicUrl(path).data.publicUrl} />
 
             <section className="admin-form-section" aria-labelledby="variants-title">
               <div className="admin-form-section-heading admin-variants-heading"><div className="admin-heading-with-icon"><span className="admin-stack-icon" aria-hidden="true"><span /><span /></span><div><h2 id="variants-title">Variantes y precios</h2><p>Cada opción conserva su precio y existencias propios.</p></div></div><Button type="button" variant="outline" size="sm" onClick={() => { setProduct((current) => ({ ...current, variants: [...current.variants, createBlankVariant()] })); setSaveSuccess(false); }}><Plus size={16} /> Añadir variante</Button></div>

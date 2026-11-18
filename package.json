@@ -15,7 +15,8 @@
     "validate:commits": "node scripts/ci/validate-task-commits.mts",
     "test:cart-order": "node --test src/features/cart/tests/cartOrder.test.mjs",
     "test:cart-sync": "node --test src/features/cart/tests/cartSync.test.mjs",
-    "test": "npm run test:roles && npm run test:profile && npm run test:ci && npm run test:checkout && npm run test:checkout-engraving && npm run test:cart-order && npm run test:cart-sync",
+    "test:admin-gallery": "node --test src/features/admin-products/productGallery.test.mjs",
+    "test": "npm run test:roles && npm run test:profile && npm run test:ci && npm run test:checkout && npm run test:checkout-engraving && npm run test:cart-order && npm run test:cart-sync && npm run test:admin-gallery",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
