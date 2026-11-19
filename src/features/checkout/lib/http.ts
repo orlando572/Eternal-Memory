@@ -5,11 +5,15 @@ import { CheckoutError } from "@/features/checkout/lib/validation";
 
 export const checkoutHeaders = { "Cache-Control": "private, no-store", "Vary": "Cookie" };
 
-export async function readCheckoutBody(request: Request): Promise<unknown> {
+export function assertSameOrigin(request: Request): void {
   const origin = request.headers.get("origin");
   if ((origin && origin !== new URL(request.url).origin) || request.headers.get("sec-fetch-site") === "cross-site") {
     throw new CheckoutError("INVALID_ORIGIN", "La solicitud no está permitida.", 403);
   }
+}
+
+export async function readCheckoutBody(request: Request): Promise<unknown> {
+  assertSameOrigin(request);
   if (request.headers.get("content-type")?.split(";")[0].trim().toLowerCase() !== "application/json") {
     throw new CheckoutError("INVALID_INPUT", "Envía los datos en formato JSON.", 415);
   }
