@@ -42,5 +42,5 @@ export function isStripeCheckoutUrl(value: unknown): value is string {
   }
 }
 
-/** TSK-14 sustituirá este destino por `/perfil/historial/[id]` cuando exista el detalle. */
-export const orderHistoryHref = () => "/perfil/historial";
+/** Detalle del pedido en el perfil (TSK-14). */
+export const orderHistoryHref = (orderId: string) => `/perfil/historial/${orderId}`;
