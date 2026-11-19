@@ -11,12 +11,13 @@
     "test:profile": "node --test src/features/auth/profileForm.test.mjs",
     "test:ci": "node --test scripts/ci/validate-task-commits.test.mjs",
     "test:checkout": "node --test src/features/checkout/checkoutRecovery.test.mjs",
+    "test:checkout-payment": "node --test src/features/checkout/checkoutPayment.test.mjs",
     "test:checkout-engraving": "node --test src/features/checkout/checkoutEngraving.test.mjs",
     "validate:commits": "node scripts/ci/validate-task-commits.mts",
     "test:cart-order": "node --test src/features/cart/tests/cartOrder.test.mjs",
     "test:cart-sync": "node --test src/features/cart/tests/cartSync.test.mjs",
     "test:admin-gallery": "node --test src/features/admin-products/productGallery.test.mjs",
-    "test": "npm run test:roles && npm run test:profile && npm run test:ci && npm run test:checkout && npm run test:checkout-engraving && npm run test:cart-order && npm run test:cart-sync && npm run test:admin-gallery",
+    "test": "npm run test:roles && npm run test:profile && npm run test:ci && npm run test:checkout && npm run test:checkout-engraving && npm run test:checkout-payment && npm run test:cart-order && npm run test:cart-sync && npm run test:admin-gallery",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -29,6 +30,7 @@
     "next": "16.3.8",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "stripe": "^23.1.0",
     "tailwind-merge": "^3.7.0"
   },
   "devDependencies": {
