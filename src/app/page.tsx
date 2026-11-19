@@ -1,5 +1,6 @@
 import { Suspense, cache } from "react";
 import HomeView from "@/features/home/HomeView";
+import { HomeBanner } from "@/features/home/HomeBanner";
 import { HomeHowItWorks } from "@/features/home/HomeHowItWorks";
 import { HomeSupport } from "@/features/home/HomeSupport";
 import { HomeFeaturedCategories } from "@/features/home/HomeFeaturedCategories";
@@ -44,6 +45,7 @@ export default function HomePage() {
       <Suspense fallback={<HomeView selections={[]} loading />}>
         <HomeCatalog />
       </Suspense>
+      <HomeBanner />
       <HomeHowItWorks />
       <HomeSupport />
       <Suspense fallback={<HomeFeaturedCategories categories={[]} loading />}>
