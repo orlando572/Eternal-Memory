@@ -213,6 +213,8 @@
 .admin-editor .admin-review-message { flex: 1 1 240px; }
 .admin-image-reference { display: flex; align-items: center; gap: 9px; color: #5c5651; font-size: 12px; }
 .admin-image-reference input { accent-color: #a6533b; width: 17px; height: 17px; }
+.admin-field label.admin-featured-field { display: inline-flex; align-items: center; gap: 9px; margin-bottom: 0; font-size: 13px; cursor: pointer; }
+.admin-featured-field input { accent-color: #a6533b; width: 17px; height: 17px; }
 .admin-file-input { display: none; }
 .admin-more-actions { position: relative; color: #71594c; font-size: 12px; }
 .admin-more-actions summary { cursor: pointer; padding: 13px 16px; border-radius: 4px; }

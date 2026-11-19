@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createCatalogClient } from "@/lib/supabase/catalog";
-import { escapeCatalogSearch, isCatalogSlug, normalizeCatalogParams } from "@/features/catalogo/lib/catalogParams";
+import { CATALOG_DEFAULT_SORT, escapeCatalogSearch, isCatalogSlug, normalizeCatalogParams, usesCatalogPrice } from "@/features/catalogo/lib/catalogParams";
 import type { CatalogCategory, CatalogFilters, CatalogPage, CatalogProduct, CatalogSearchParams } from "@/features/catalogo/types/catalog";
 
 type CatalogClient = ReturnType<typeof createCatalogClient>;
@@ -36,6 +36,8 @@ const PRODUCT_SELECT = `
   product_images(id,external_url,storage_path,alt_text,is_reference,sort_order)
 `;
 
+const PRICE_FIELD = "price_from_pen";
+
 export class CatalogUnavailableError extends Error {
   constructor() {
     super("El catálogo no está disponible en este momento. Inténtalo de nuevo.");
@@ -53,7 +55,25 @@ function publicProducts(client: CatalogClient, filters?: CatalogFilters, head = 
 
   if (filters?.categorySlug) request = request.eq("categories.slug", filters.categorySlug);
   if (filters?.query) request = request.regexIMatch("name", escapeCatalogSearch(filters.query));
+  // `price_from_pen` is the computed field from 20261118230000_catalog_price_sort.sql.
+  if (filters && filters.minPrice !== null) request = request.gte(PRICE_FIELD, filters.minPrice);
+  if (filters && filters.maxPrice !== null) request = request.lte(PRICE_FIELD, filters.maxPrice);
   return request;
+}
+
+function catalogPageRequest(client: CatalogClient, filters: CatalogFilters, start: number) {
+  let request = publicProducts(client, filters);
+  if (filters.sort === "precio-asc" || filters.sort === "precio-desc") {
+    // Products without active variants have no price and always go last.
+    request = request.order(PRICE_FIELD, { ascending: filters.sort === "precio-asc", nullsFirst: false });
+  }
+  // "relevancia" keeps the historical order; "nombre" makes it explicit.
+  return request.order("name").order("id").range(start, start + filters.pageSize - 1);
+}
+
+// Until the migration is applied PostgREST answers 42703 for the unknown field.
+function isMissingPriceField(error: { code?: string; message?: string } | null): boolean {
+  return error?.code === "42703" && Boolean(error.message?.includes(PRICE_FIELD));
 }
 
 function comparePosition(a: { sort_order: number; id: string }, b: { sort_order: number; id: string }) {
@@ -113,11 +133,20 @@ export async function listCatalogCategories(): Promise<CatalogCategory[]> {
 }
 
 export async function listCatalogProducts(params: CatalogSearchParams = {}): Promise<CatalogPage> {
-  const filters = normalizeCatalogParams(params);
+  const requested = normalizeCatalogParams(params);
   return readCatalog(async (client) => {
-    const start = (filters.page - 1) * filters.pageSize;
-    const { data, error, count } = await publicProducts(client, filters)
-      .order("name").order("id").range(start, start + filters.pageSize - 1);
+    const start = (requested.page - 1) * requested.pageSize;
+    let filters = requested;
+    let priceFiltersUnavailable = false;
+    let { data, error, count } = await catalogPageRequest(client, filters, start);
+
+    // Without the price migration, serve the default order and no price range
+    // instead of failing; the view explains that price options are unavailable.
+    if (usesCatalogPrice(filters) && isMissingPriceField(error)) {
+      filters = { ...filters, sort: CATALOG_DEFAULT_SORT, minPrice: null, maxPrice: null };
+      priceFiltersUnavailable = true;
+      ({ data, error, count } = await catalogPageRequest(client, filters, start));
+    }
 
     // PostgREST may reject a range beyond the last row. Confirm the total using
     // identical filters before returning an empty page instead of a server error.
@@ -126,7 +155,7 @@ export async function listCatalogProducts(params: CatalogSearchParams = {}): Pro
       if (totalResult.error || totalResult.count === null || start < totalResult.count) {
         throw new CatalogUnavailableError();
       }
-      return { products: [], filters, total: totalResult.count, totalPages: Math.ceil(totalResult.count / filters.pageSize) };
+      return { products: [], filters, total: totalResult.count, totalPages: Math.ceil(totalResult.count / filters.pageSize), priceFiltersUnavailable };
     }
     if (error || data === null || count === null) throw new CatalogUnavailableError();
     return {
@@ -134,6 +163,7 @@ export async function listCatalogProducts(params: CatalogSearchParams = {}): Pro
       filters,
       total: count,
       totalPages: Math.ceil(count / filters.pageSize),
+      priceFiltersUnavailable,
     };
   });
 }
@@ -144,6 +174,39 @@ export async function getCatalogProduct(slug: string): Promise<CatalogProduct | 
     const { data, error } = await publicProducts(client).eq("slug", slug).maybeSingle();
     if (error) throw new CatalogUnavailableError();
     return data ? mapProduct(data as unknown as ProductRow, client) : null;
+  });
+}
+
+// Published products of the same active category, excluding the current one.
+export async function listRelatedCatalogProducts(product: Pick<CatalogProduct, "id" | "category">, limit: number): Promise<CatalogProduct[]> {
+  if (!isCatalogSlug(product.category.slug) || limit < 1) return [];
+  return readCatalog(async (client) => {
+    const { data, error } = await publicProducts(client, { query: "", categorySlug: product.category.slug, sort: CATALOG_DEFAULT_SORT, minPrice: null, maxPrice: null, page: 1, pageSize: limit })
+      .neq("id", product.id).order("name").order("id").limit(limit);
+    if (error || !data) throw new CatalogUnavailableError();
+    return (data as unknown as ProductRow[]).map((row) => mapProduct(row, client));
+  });
+}
+
+// Home page selection: featured products first (TSK-38), then by name.
+export async function listHomeCatalogProducts(categorySlug: string, limit: number): Promise<CatalogProduct[]> {
+  if (!isCatalogSlug(categorySlug) || limit < 1) return [];
+  return readCatalog(async (client) => {
+    const { data, error } = await publicProducts(client, { query: "", categorySlug, sort: CATALOG_DEFAULT_SORT, minPrice: null, maxPrice: null, page: 1, pageSize: limit })
+      .order("is_featured", { ascending: false }).order("name").order("id").limit(limit);
+    if (error || !data) throw new CatalogUnavailableError();
+    return (data as unknown as ProductRow[]).map((row) => mapProduct(row, client));
+  });
+}
+
+// Slugs for the sitemap: the same published products of active categories as
+// the catalog, without loading variants or images.
+export async function listCatalogSitemapProducts(): Promise<{ slug: string; updatedAt: string | null }[]> {
+  return readCatalog(async (client) => {
+    const { data, error } = await client.from("products").select("slug,updated_at,categories!inner(id)")
+      .eq("status", "published").eq("categories.is_active", true).order("name").order("id");
+    if (error || !data) throw new CatalogUnavailableError();
+    return data.map((row) => ({ slug: row.slug, updatedAt: row.updated_at ?? null }));
   });
 }
 

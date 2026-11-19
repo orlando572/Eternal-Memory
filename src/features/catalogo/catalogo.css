@@ -1,0 +1,28 @@
+/* TSK-36: catalog order, price range and active filter summary. */
+.catalog-refine { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 20px 32px; margin-bottom: 28px; font-family: "Eternal Sans", sans-serif; }
+.catalog-price { min-width: 0; }
+.catalog-price fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.catalog-refine-title { margin-bottom: 8px; padding: 0; color: var(--ink); font: 14px "Eternal Sans", sans-serif; }
+.catalog-price-fields { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 12px; }
+.catalog-price-fields>div { width: 150px; }
+.catalog-refine label { display: block; margin-bottom: 6px; color: #59514c; font: 13px "Eternal Sans", sans-serif; }
+.catalog-sort label { color: var(--ink); font-size: 14px; margin-bottom: 8px; }
+.catalog-price-fields>button { min-height: 44px; font-family: "Eternal Sans", sans-serif; }
+.catalog-price-hint { max-width: 520px; margin: 8px 0 0; color: #655e5a; font: 12px/1.45 "Eternal Sans", sans-serif; }
+.catalog-price-error { margin: 6px 0 0; color: #9a382a; font: 13px/1.45 "Eternal Sans", sans-serif; }
+.catalog-sort { width: min(100%, 260px); }
+.catalog-sort select { cursor: pointer; }
+.catalog-price-notice { margin: 0 0 24px; padding: 11px 14px; border-left: 3px solid #a9814c; background: #f5e8d7; color: #54473c; font: 13px/1.5 "Eternal Sans", sans-serif; }
+.catalog-active-filters { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-top: 14px; }
+.catalog-active-filters .catalog-navigation-status { margin: 0; overflow-wrap: anywhere; }
+.catalog-active-filters>button { min-height: 40px; font-family: "Eternal Sans", sans-serif; }
+
+@media (max-width: 740px) {
+  .catalog-refine { flex-direction: column; align-items: stretch; gap: 18px; }
+  .catalog-price-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .catalog-price-fields>div { width: auto; }
+  .catalog-price-fields>button { grid-column: 1 / -1; }
+  .catalog-refine input, .catalog-refine select { font-size: 16px; }
+  .catalog-sort { width: 100%; }
+  .catalog-active-filters>button { flex: 1 1 100%; }
+}

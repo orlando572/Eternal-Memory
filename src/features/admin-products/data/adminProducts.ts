@@ -34,10 +34,11 @@ export interface AdminProductDraft {
   category: string;
   description: string;
   status: ProductStatus;
+  isFeatured: boolean;
   variants: AdminVariantDraft[];
   images?: AdminProductImage[];
 }
 
 export function createEmptyProduct(): AdminProductDraft {
-  return { id: "", slug: "", name: "", categoryId: "", category: "", description: "", status: "draft", variants: [] };
+  return { id: "", slug: "", name: "", categoryId: "", category: "", description: "", status: "draft", isFeatured: false, variants: [] };
 }

@@ -1,0 +1,25 @@
+/* Product page additions: breadcrumb, shipping/engraving block and related products. */
+.detail-breadcrumb { margin-bottom: 30px; color: #655e5a; font: 13px/1.5 "Eternal Sans", sans-serif; }
+.detail-breadcrumb ol { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 9px; margin: 0; padding: 0; list-style: none; }
+.detail-breadcrumb li { display: inline-flex; align-items: center; gap: 9px; min-width: 0; max-width: 100%; }
+.detail-breadcrumb li svg { flex: none; color: #8a7f78; }
+.detail-breadcrumb a { color: var(--clay); text-decoration: none; text-underline-offset: 4px; }
+.detail-breadcrumb a:hover { text-decoration: underline; }
+.detail-breadcrumb [aria-current="page"] { color: #4d4742; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.detail-service { margin: -6px 0 28px; padding: 14px 16px; background: #f8f0ed; border: 1px solid #e2d3c9; border-radius: 6px; }
+.detail-service dl { display: grid; gap: 12px; margin: 0; }
+.detail-service dl>div { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 12px; }
+.detail-service dt { display: inline-flex; align-items: flex-start; gap: 8px; color: #2d2926; font: 14px/1.55 "Eternal Sans", sans-serif; }
+.detail-service dt svg { flex: none; margin-top: 2px; color: #5c5651; }
+.detail-service dd { margin: 0; color: #5c5651; font: 14px/1.55 "Eternal Sans", sans-serif; }
+
+.detail-related { margin-top: 76px; padding-top: 42px; border-top: 1px solid #d9c9be; }
+.detail-related h2 { margin: 0 0 26px; color: var(--ink); font: 400 clamp(30px, 2.6vw, 40px)/1.08 "Eternal Display", serif; letter-spacing: -.035em; }
+
+@media (max-width: 740px) {
+  .detail-breadcrumb { margin-bottom: 22px; }
+  .detail-service dl>div { grid-template-columns: minmax(0, 1fr); gap: 3px; }
+  .detail-related { margin-top: 52px; padding-top: 32px; }
+  .detail-related h2 { font-size: 30px; margin-bottom: 20px; }
+}
