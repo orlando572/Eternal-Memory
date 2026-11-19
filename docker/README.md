@@ -35,7 +35,7 @@ En Supabase, las tablas `storage.buckets` y `storage.objects` las crea el servic
 
 ## Datos de prueba
 
-Cualquier archivo `docker/db/NN-nombre.sql` (empieza por un número) se aplica después de las migraciones, en orden. Lo usarán los seeders de TSK-45 y TSK-49.
+Cualquier archivo `docker/db/NN-nombre.sql` (empieza por un número) se aplica después de las migraciones, en orden: primero `10-catalogo.sql` (TSK-45) y después `20-clientes-pedidos.sql` (TSK-49).
 
 ### Catálogo y administración — `10-catalogo.sql` (TSK-45)
 
@@ -57,6 +57,31 @@ docker compose exec db psql -U postgres -c "select count(*) from public.products
 ```
 
 Debe devolver 48. El script se puede repetir sin duplicar nada.
+
+### Clientes, tarifas y pedidos — `20-clientes-pedidos.sql` (TSK-49)
+
+Necesita los productos con existencias y el administrador de `10-catalogo.sql`, por eso se aplica después.
+
+- **Dos clientes de prueba**, con su perfil:
+
+| Correo | Contraseña |
+| --- | --- |
+| `cliente1@eternal-memory.local` | `EternalCliente2026!` |
+| `cliente2@eternal-memory.local` | `EternalCliente2026!` |
+
+- **Tarifas de envío activas.** Si ya tienen precio no se cambian; solo se activan (S/ 10 en la provincia de Arequipa y S/ 25 en el resto del Perú, si alguna no tuviera precio).
+- **Cuatro pedidos de prueba**, cada uno con su historial de estados: uno `pending_payment` y uno `paid` del cliente 1, y uno `processing` y uno `completed` del cliente 2. Usan productos y precios del catálogo de muestra, con dirección y teléfono ficticios.
+- **Existencias coherentes:** el pedido pendiente reserva sus unidades y los pagados las descuentan del inventario. El pedido pendiente conserva su reserva años, para que el vencimiento automático no lo cancele.
+
+Estas credenciales son solo de prueba y solo existen en la base de datos local. Todos los datos son ficticios: no son ventas ni inventario reales.
+
+Comprobación:
+
+```bash
+docker compose exec db psql -U postgres -c "select status, count(*) from public.orders group by status;"
+```
+
+Debe mostrar una fila por estado: `pending_payment`, `paid`, `processing` y `completed`, cada una con 1. El script se puede repetir sin duplicar nada.
 
 ## Si algo falla
 
