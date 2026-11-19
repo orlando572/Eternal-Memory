@@ -58,21 +58,10 @@
 }
 
 .commerce-footer .footer-contact-list p a { padding: 0; font-size: inherit; line-height: inherit; }
-.commerce-footer .footer-legal button { padding: 4px 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; text-underline-offset: 5px; }
-.commerce-footer .footer-legal button:hover { color: #e1af9e; text-decoration: underline; }
-.commerce-footer .footer-legal button:focus-visible { outline: 2px solid #e1af9e; outline-offset: 5px; }
-.footer-legal-dialog { width: min(720px, calc(100% - 32px)); max-height: calc(100dvh - 64px); margin: auto; padding: 0; border: 1px solid #ded1c9; border-radius: 6px; background: #fffdfb; color: #171717; box-shadow: 0 24px 80px #0004; overscroll-behavior: contain; font-family: "Eternal Sans", sans-serif; }
-.footer-legal-dialog::backdrop { background: #17171799; }
-.footer-legal-dialog .footer-legal-dialog-header { position: sticky; top: 0; z-index: 1; display: flex; justify-content: space-between; align-items: center; padding: 16px 28px; border-bottom: 1px solid #e8dcd3; background: #fffdfb; }
-.footer-legal-dialog .footer-legal-dialog-header p { margin: 0; color: #a6533b; font-size: 12px; letter-spacing: .04em; }
-.footer-legal-dialog-header button { color: #5c5651; }
-.footer-legal-dialog-content { padding: 24px 32px 36px; }
-.footer-legal-dialog-content h2 { margin: 0 0 18px; font: 34px/1.2 "Eternal Display", serif; }
-.footer-legal-dialog-content h3 { margin: 26px 0 10px; font: 600 15px/1.4 "Eternal Sans", sans-serif; }
-.footer-legal-dialog .footer-legal-dialog-content p { margin: 0; color: #5c5651; font-size: 14px; line-height: 1.8; }
-@media (max-width: 600px) {
-  .footer-legal-dialog { max-height: calc(100dvh - 32px); }
-  .footer-legal-dialog .footer-legal-dialog-header { padding: 12px 20px; }
-  .footer-legal-dialog-content { padding: 24px 20px; }
-  .footer-legal-dialog-content h2 { font-size: 28px; }
-}
+
+.commerce-footer .footer-legal a { padding: 4px 0; color: inherit; text-underline-offset: 5px; }
+.commerce-footer .footer-legal a:hover { color: #e1af9e; text-decoration: underline; }
+.commerce-footer .footer-legal a:focus-visible { outline: 2px solid #e1af9e; outline-offset: 5px; }
+.commerce-footer .footer-info-links { display: flex; flex-wrap: wrap; gap: 2px 18px; margin-top: 16px; }
+.commerce-footer .footer-info-links a { padding: 7px 0; color: #c7bcb5; font-size: 13px; line-height: 1.6; text-underline-offset: 5px; }
+.commerce-footer .footer-info-links a:hover { color: #e1af9e; text-decoration: underline; }

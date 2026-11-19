@@ -23,6 +23,8 @@ export function SiteHeader() {
         </form>
         <div className="site-nav-links">
           <Link className="header-mobile-catalog" href="/catalogo">Catálogo</Link>
+          <Link className="header-info-link" href="/nosotros">Nosotros</Link>
+          <Link className="header-info-link" href="/contacto">Contacto</Link>
           <AccountNavigation />
           <CartTrigger />
           <HeaderCart />
