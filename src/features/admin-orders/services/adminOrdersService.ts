@@ -3,7 +3,7 @@ import "server-only";
 import { requireAdmin } from "@/features/auth/services/accessService";
 import { CheckoutError, isUuid } from "@/features/checkout/lib/validation";
 import {
-  ADMIN_ORDERS_PAGE_SIZE, buildOrderSearchFilter, limaDayRange, readAdminOrderFilters, toAdminOrderDetail, toAdminOrderSummary,
+  ADMIN_ORDER_SUMMARY_COLUMNS, ADMIN_ORDERS_PAGE_SIZE, buildOrderSearchFilter, limaDayRange, readAdminOrderFilters, toAdminOrderDetail, toAdminOrderSummary,
   type AdminOrderDetailRow, type AdminOrderSummaryRow,
 } from "@/features/admin-orders/lib/adminOrders";
 import type { AdminOrderDetail, AdminOrderList } from "@/features/admin-orders/types/adminOrders";
@@ -20,7 +20,7 @@ export async function listAdminOrders(params: URLSearchParams): Promise<AdminOrd
   const from = (filters.page - 1) * ADMIN_ORDERS_PAGE_SIZE;
   const client = await createClient();
   let query = client.from("orders")
-    .select("id,status,payment_status,created_at,total_pen,contact_name,contact_email,delivery_zone,order_items(quantity)", { count: "exact" });
+    .select(ADMIN_ORDER_SUMMARY_COLUMNS, { count: "exact" });
   if (filters.status) query = query.eq("status", filters.status);
   const range = limaDayRange(filters.from, filters.to);
   if (range.gte) query = query.gte("created_at", range.gte);

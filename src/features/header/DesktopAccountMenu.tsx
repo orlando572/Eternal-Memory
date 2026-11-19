@@ -62,7 +62,7 @@ export function DesktopAccountMenu({ state, role, signingOut, error, onSignOut, 
               <ul>
                 <li><Link href="/perfil" onClick={() => setOpen(false)}>Mi perfil</Link></li>
                 {role === "user" && <li><Link href="/perfil/historial" onClick={() => setOpen(false)}>Mis pedidos</Link></li>}
-                {role === "admin" && <li><Link href="/admin/productos" onClick={() => setOpen(false)}>Administración</Link></li>}
+                {role === "admin" && <li><Link href="/admin" onClick={() => setOpen(false)}>Administración</Link></li>}
               </ul>
               <LoadingButton busy={signingOut} className="header-signout" variant="ghost" type="button" disabled={signingOut}
                 onClick={() => void onSignOut()}>Cerrar sesión</LoadingButton>

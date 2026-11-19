@@ -29,7 +29,9 @@ const { getAdminReturnPath, getPostLoginPath } = loadSource("./lib/roleNavigatio
 const { readCurrentAccess } = loadSource("./services/accountAccessClient.ts", {});
 
 test("el administrador llega al panel y el usuario al catálogo", () => {
-  assert.equal(getPostLoginPath("admin"), "/admin/productos");
+  assert.equal(getPostLoginPath("admin"), "/admin");
+  assert.equal(getPostLoginPath("admin", "/admin"), "/admin");
+  assert.equal(getPostLoginPath("user", "/admin"), "/catalogo");
   assert.equal(getPostLoginPath("user"), "/catalogo");
   assert.equal(getPostLoginPath("user", "/admin/productos/nuevo"), "/catalogo");
   assert.equal(getPostLoginPath("admin", "/admin/productos/abc/editar?origen=lista"), "/admin/productos/abc/editar?origen=lista");
@@ -38,10 +40,10 @@ test("el administrador llega al panel y el usuario al catálogo", () => {
   assert.equal(getPostLoginPath("user", "/admin/pedidos"), "/catalogo");
 });
 
-for (const value of [undefined, ["/admin/productos"], "https://example.com/admin/productos", "//example.com/admin/productos", "/admin/productos-malicioso", "/admin/pedidos-malicioso", "/admin/pedidos/../../perfil", "/admin/productos/../../perfil", "/\\example.com/admin/productos", "javascript:alert(1)"]) {
+for (const value of [undefined, ["/admin/productos"], "https://example.com/admin/productos", "//example.com/admin/productos", "/admin-malicioso", "/admin/otra-seccion", "/admin/productos-malicioso", "/admin/pedidos-malicioso", "/admin/pedidos/../../perfil", "/admin/productos/../../perfil", "/\\example.com/admin/productos", "javascript:alert(1)"]) {
   test(`se rechaza un destino inválido: ${JSON.stringify(value)}`, () => {
     assert.equal(getAdminReturnPath(value), undefined);
-    assert.equal(getPostLoginPath("admin", value), "/admin/productos");
+    assert.equal(getPostLoginPath("admin", value), "/admin");
   });
 }
 
@@ -140,7 +142,7 @@ test("la navegación solo muestra Administración al administrador", () => {
   });
   for (const role of ["admin", "user"]) {
     const markup = renderToStaticMarkup(React.createElement(AccountLinks, { role, signingOut: false, onSignOut() {} }));
-    assert.equal(markup.includes('href="/admin/productos"'), role === "admin");
+    assert.equal(markup.includes('href="/admin"'), role === "admin");
     assert.match(markup, /Mi perfil/);
     assert.match(markup, /Cerrar sesión/);
   }
