@@ -21,12 +21,16 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # Next.js incrusta las variables NEXT_PUBLIC_* al compilar, por eso se pasan
-# como argumentos de construcción. SUPABASE_SECRET_KEY no se declara aquí:
-# se entrega al contenedor solo en tiempo de ejecución.
+# como argumentos de construcción. Las claves secretas (SUPABASE_SECRET_KEY,
+# STRIPE_*) no se declaran aquí: se entregan al contenedor solo al ejecutarlo.
+# NEXT_PUBLIC_SITE_URL es el dominio público para el sitemap y Open Graph; si
+# queda vacía, la aplicación usa la URL local.
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL \
-    NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY \
+    NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 
 RUN npm run build
 
