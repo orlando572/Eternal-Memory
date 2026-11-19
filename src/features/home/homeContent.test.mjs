@@ -73,18 +73,24 @@ test("las preguntas frecuentes tienen identificadores únicos y respuesta", () =
   }
 });
 
-test("el banner es una sola franja completa, con enlace interno e imagen existente", () => {
-  assert.equal(Array.isArray(homeBanner), false);
-  for (const text of [homeBanner.kicker, homeBanner.title, homeBanner.text, homeBanner.action.label]) {
-    assert.ok(text.trim().length > 0);
+test("el carrusel tiene diapositivas completas, con enlaces internos e imágenes existentes", () => {
+  const { slides } = homeBanner;
+  assert.ok(Array.isArray(slides) && slides.length >= 2 && slides.length <= 5);
+  assert.equal(new Set(slides.map((slide) => slide.id)).size, slides.length);
+  for (const slide of slides) {
+    for (const text of [slide.kicker, slide.title, slide.text, slide.action.label]) assert.ok(text.trim().length > 0, slide.id);
+    assert.match(slide.action.href, /^\/(?!\/)/, slide.id);
+    assert.ok(existsSync(new URL(`../../../public${slide.image.src}`, import.meta.url)), slide.image.src);
+    assert.ok(slide.image.width > 0 && slide.image.height > 0, slide.id);
   }
-  assert.match(homeBanner.action.href, /^\/(?!\/)/);
-  assert.ok(existsSync(new URL(`../../../public${homeBanner.image.src}`, import.meta.url)), homeBanner.image.src);
-  assert.ok(homeBanner.image.width > 0 && homeBanner.image.height > 0);
-  if (homeBanner.image.isReference) assert.match(homeBanner.referenceNote, /referencial/i);
+  assert.match(homeBanner.referenceNote, /referencial/i);
 });
 
-test("el banner no usa mensajes de presión comercial", () => {
+test("el carrusel avanza despacio", () => {
+  assert.ok(homeBanner.autoplayDelayMs >= 6000, `${homeBanner.autoplayDelayMs} ms`);
+});
+
+test("el carrusel no usa mensajes de presión comercial", () => {
   const pressure = [
     /oferta/i, /descuento/i, /solo hoy/i, /últimas unidades/i, /aprovecha/i,
     /por tiempo limitado/i, /no te lo pierdas/i, /urgente/i, /\d+\s*%/,
