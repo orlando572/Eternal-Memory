@@ -37,6 +37,27 @@ En Supabase, las tablas `storage.buckets` y `storage.objects` las crea el servic
 
 Cualquier archivo `docker/db/NN-nombre.sql` (empieza por un número) se aplica después de las migraciones, en orden. Lo usarán los seeders de TSK-45 y TSK-49.
 
+### Catálogo y administración — `10-catalogo.sql` (TSK-45)
+
+- **Publica los 48 productos de muestra** que crean las migraciones (urnas, ataúdes, relicarios y arreglos florales), sin cambiar sus nombres, opciones, precios ni imágenes. Las imágenes son referenciales: varias no representan el producto nombrado.
+- **Existencias de prueba:** 10 unidades por variante activa, para poder probar la ficha y el checkout en local. No son inventario real.
+- **Destacados:** dos productos por categoría (8 en total).
+- **Administrador de prueba** con rol `admin` en `staff_roles` y su perfil:
+
+| Correo | Contraseña |
+| --- | --- |
+| `admin@eternal-memory.local` | `EternalAdmin2026!` |
+
+Estas credenciales son solo de prueba y solo existen en la base de datos local. La contraseña se guarda cifrada con bcrypt. La tienda (`app`) no inicia sesión contra esta base, sino contra el Supabase del `.env`, así que este usuario sirve para probar en SQL las funciones de administración y como referencia para los pedidos de TSK-49.
+
+Comprobación:
+
+```bash
+docker compose exec db psql -U postgres -c "select count(*) from public.products where status = 'published';"
+```
+
+Debe devolver 48. El script se puede repetir sin duplicar nada.
+
 ## Si algo falla
 
 - **`db-migrate` termina con error:** `docker compose logs db-migrate` muestra la migración y la línea que falló. Cada archivo se ejecuta en una transacción, así que no queda a medias. Corrige y repite `docker compose up -d`: lo ya aplicado se omite.
