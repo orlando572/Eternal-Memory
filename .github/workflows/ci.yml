@@ -43,14 +43,8 @@ jobs:
       - name: Revisar código con ESLint
         run: npm run lint
 
-      - name: Ejecutar pruebas unitarias de roles
-        run: npm run test:roles
-
-      - name: Ejecutar pruebas unitarias del perfil
-        run: npm run test:profile
-
-      - name: Ejecutar pruebas del validador de commits
-        run: npm run test:ci
+      - name: Ejecutar todas las pruebas
+        run: npm test
 
       - name: Generar tipos de las rutas de Next.js
         run: npx --no-install next typegen
