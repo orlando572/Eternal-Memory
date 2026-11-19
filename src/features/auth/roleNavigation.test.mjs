@@ -33,9 +33,12 @@ test("el administrador llega al panel y el usuario al catálogo", () => {
   assert.equal(getPostLoginPath("user"), "/catalogo");
   assert.equal(getPostLoginPath("user", "/admin/productos/nuevo"), "/catalogo");
   assert.equal(getPostLoginPath("admin", "/admin/productos/abc/editar?origen=lista"), "/admin/productos/abc/editar?origen=lista");
+  assert.equal(getPostLoginPath("admin", "/admin/pedidos?estado=paid"), "/admin/pedidos?estado=paid");
+  assert.equal(getPostLoginPath("admin", "/admin/pedidos/abc"), "/admin/pedidos/abc");
+  assert.equal(getPostLoginPath("user", "/admin/pedidos"), "/catalogo");
 });
 
-for (const value of [undefined, ["/admin/productos"], "https://example.com/admin/productos", "//example.com/admin/productos", "/admin/productos-malicioso", "/admin/productos/../../perfil", "/\\example.com/admin/productos", "javascript:alert(1)"]) {
+for (const value of [undefined, ["/admin/productos"], "https://example.com/admin/productos", "//example.com/admin/productos", "/admin/productos-malicioso", "/admin/pedidos-malicioso", "/admin/pedidos/../../perfil", "/admin/productos/../../perfil", "/\\example.com/admin/productos", "javascript:alert(1)"]) {
   test(`se rechaza un destino inválido: ${JSON.stringify(value)}`, () => {
     assert.equal(getAdminReturnPath(value), undefined);
     assert.equal(getPostLoginPath("admin", value), "/admin/productos");

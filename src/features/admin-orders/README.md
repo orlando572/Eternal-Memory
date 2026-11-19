@@ -24,3 +24,28 @@ La regla vive en la migración `20261119040000_admin_change_order_status.sql` (f
 ## Verificación
 
 `npm run test:order-status` ejecuta 16 pruebas: la tabla de transiciones, que migración y TypeScript coinciden, y el servicio con una base de datos simulada. La función SQL **no se ha ejecutado contra una base de datos real**; la migración se aplica con `supabase db push` en coordinación con el equipo.
+
+# Panel de pedidos — TSK-16
+
+`/admin/pedidos` (pestaña «Pedidos» de `AdminShell`, junto a Productos) y `/admin/pedidos/[id]`. Son páginas de servidor: sin sesión llevan a `/login` y vuelven al panel; una cuenta sin rol de administrador ve un aviso. La lectura usa la **sesión del administrador con RLS activa** (`orders_owner_or_admin_select`), no la clave privilegiada, y `requireAdmin` se comprueba antes de cada consulta.
+
+## Listado
+
+Tabla con número, cliente (nombre y correo), fecha, zona de entrega, total, estado del pedido y estado del pago, del más reciente al más antiguo y de 20 en 20. Los filtros viven en la URL (formulario GET), así que se pueden compartir y funcionan sin JavaScript:
+
+| Parámetro | Valor |
+| --- | --- |
+| `q` | Número (`#1A2B3C4D` o parte inicial), nombre o correo. Sin `#`, un texto hexadecimal busca a la vez número, nombre y correo. |
+| `estado` | Uno de los estados del pedido. |
+| `desde`, `hasta` | `AAAA-MM-DD`, días completos en horario de Perú (UTC−5); un rango invertido se ordena. |
+| `pagina` | Desde 1; fuera de rango lleva a la última página. |
+
+El número visible son los 8 primeros caracteres del UUID (`shortOrderNumber`), por eso se busca como un rango de identificadores y no hace falta una columna nueva. Los comodines y los caracteres que delimitan el filtro de PostgREST se quitan del texto de búsqueda. Un valor inválido se ignora.
+
+## Detalle y cambios de estado
+
+Contacto, entrega y zona, líneas con el nombre a grabar, importes e historial con fecha, autor («Administración» o «Sistema») y motivo, que es de uso interno. El bloque «Atender el pedido» ofrece solo `allowedTransitions(estado)` de `lib/orderTransitions.ts`, pide confirmación y motivo cuando es obligatorio, y llama a `PATCH /api/admin/pedidos/[id]/estado`. Tras guardar, la página se vuelve a pedir al servidor (`router.refresh()`) y muestra el estado y el historial actualizados. Una sesión vencida (401), la falta de permisos (403), un pedido que cambió entretanto (409, que además recarga el estado) y la falta de motivo (422) muestran su propio mensaje.
+
+## Verificación del panel
+
+`npm run test:admin-orders` ejecuta 17 pruebas: lectura y saneamiento de filtros, rango de fechas de Lima, búsqueda por número como rango de UUID, enlaces, transiciones ofrecidas por estado y el servicio con una base de datos simulada (exige administrador, filtra, pagina, 404 con identificador inválido y no muestra errores SQL). No consultan Supabase.
