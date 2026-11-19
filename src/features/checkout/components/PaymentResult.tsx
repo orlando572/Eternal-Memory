@@ -87,7 +87,7 @@ export function PaymentResult({ orderId, canceledByUser }: { orderId: string; ca
         {view === "pending" && stalled && <Button type="button" onClick={checkAgain}><RefreshCw size={16} aria-hidden="true" />Comprobar de nuevo</Button>}
         {view === "canceled" && retry && <PayButton orderId={order.id}>Reintentar el pago</PayButton>}
         {(view === "canceled" || view === "expired") && <Button asChild variant="outline"><Link href="/catalogo">Volver al catálogo</Link></Button>}
-        {view !== "expired" && <Button asChild variant="outline"><Link href={orderHistoryHref()}>Ver mi pedido</Link></Button>}
+        {view !== "expired" && <Button asChild variant="outline"><Link href={orderHistoryHref(order.id)}>Ver mi pedido</Link></Button>}
       </div>
     </section>
     <CheckoutSummary calculating={false} quote={null} order={order} now={now} valid={false} busy={false} onConfirm={() => {}} />

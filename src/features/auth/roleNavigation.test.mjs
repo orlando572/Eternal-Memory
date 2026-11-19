@@ -191,12 +191,17 @@ test("la URL de Historial devuelve al administrador a su perfil y permanece disp
         ++profileReads;
         return { full_name: "Cuenta de ejemplo" };
       } },
+      "@/features/account-orders/services/accountOrdersService": { listAccountOrders: async () => ({ orders: [], page: 1, pageSize: 10, total: 0, totalPages: 1 }) },
+      "@/features/account-orders/components/OrderHistoryList": { OrderHistoryList: () => null },
+      "@/features/account-orders/lib/orderPresentation": { historyPageHref: () => "/perfil/historial" },
+      "@/features/account-orders/account-orders.css": {},
     });
+    const props = { searchParams: Promise.resolve({}) };
     if (role === "admin") {
-      await assert.rejects(page.default, { message: "REDIRECT /perfil" });
+      await assert.rejects(() => page.default(props), { message: "REDIRECT /perfil" });
       assert.equal(profileReads, 0);
     } else {
-      assert.equal((await page.default()).props.active, "history");
+      assert.equal((await page.default(props)).props.active, "history");
       assert.equal(profileReads, 1);
     }
   }
