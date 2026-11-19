@@ -75,6 +75,7 @@ function fixture(t, cart = [line]) {
       throw new Error("Esta prueba no debe crear pedidos");
     } },
     "@/features/checkout/components/CheckoutSummary": { CheckoutSummary: "aside" },
+    "@/features/checkout/components/PayButton": { PayButton: "button" },
   });
   function quote(body, price = currentOptions.products[0]?.customization?.unitSurchargePen ?? 0) {
     return {

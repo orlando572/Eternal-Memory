@@ -12,6 +12,7 @@
     "test:ci": "node --test scripts/ci/validate-task-commits.test.mjs",
     "test:checkout": "node --test src/features/checkout/checkoutRecovery.test.mjs",
     "test:checkout-payment": "node --test src/features/checkout/checkoutPayment.test.mjs",
+    "test:checkout-result": "node --test src/features/checkout/checkoutResult.test.mjs",
     "test:checkout-engraving": "node --test src/features/checkout/checkoutEngraving.test.mjs",
     "validate:commits": "node scripts/ci/validate-task-commits.mts",
     "test:cart-order": "node --test src/features/cart/tests/cartOrder.test.mjs",
@@ -22,7 +23,7 @@
     "test:catalog-params": "node --test src/features/catalogo/lib/catalogParams.test.mjs",
     "test:home": "node --test src/features/home/homeContent.test.mjs",
     "test:seo": "node --test src/features/seo/seo.test.mjs",
-    "test": "npm run test:roles && npm run test:profile && npm run test:ci && npm run test:checkout && npm run test:checkout-engraving && npm run test:checkout-payment && npm run test:cart-order && npm run test:cart-sync && npm run test:admin-gallery && npm run test:admin-products && npm run test:product-detail && npm run test:catalog-params && npm run test:home && npm run test:seo",
+    "test": "npm run test:roles && npm run test:profile && npm run test:ci && npm run test:checkout && npm run test:checkout-engraving && npm run test:checkout-payment && npm run test:checkout-result && npm run test:cart-order && npm run test:cart-sync && npm run test:admin-gallery && npm run test:admin-products && npm run test:product-detail && npm run test:catalog-params && npm run test:home && npm run test:seo",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

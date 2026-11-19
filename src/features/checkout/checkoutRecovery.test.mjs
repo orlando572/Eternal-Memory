@@ -134,6 +134,7 @@ function formFixture(t) {
       throw new client.CheckoutRequestError("Respuesta interrumpida");
     } },
     "@/features/checkout/components/CheckoutSummary": { CheckoutSummary: "aside" },
+    "@/features/checkout/components/PayButton": { PayButton: "button" },
   });
   const oldWindow = globalThis.window;
   const oldDocument = globalThis.document;
