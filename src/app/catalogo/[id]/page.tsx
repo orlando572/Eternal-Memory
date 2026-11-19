@@ -1,3 +1,5 @@
+import { cache } from "react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import ProductGallery from "@/features/products/components/ProductGallery";
 import ProductSelector from "@/features/products/components/ProductSelector";
@@ -6,15 +8,30 @@ import { ProductServiceInfo } from "@/features/products/components/ProductServic
 import { RelatedProducts } from "@/features/products/components/RelatedProducts";
 import { getCatalogProduct } from "@/features/catalogo/services/catalogService";
 import { getEngravingOption, getRelatedProducts, getShippingRates } from "@/features/products/services/productDetailService";
+import { productMetadata } from "@/features/seo/seo";
 import "@/features/products/product-detail.css";
 
 interface PageProps {
   params: Promise<{ id: string }>;
 }
 
+// Metadata and page share one catalog query per request.
+const loadProduct = cache(getCatalogProduct);
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id } = await params;
+  try {
+    const product = await loadProduct(id);
+    return product ? productMetadata(product) : { title: "Producto no encontrado", robots: { index: false } };
+  } catch {
+    // The page itself reports the failure through error.tsx.
+    return {};
+  }
+}
+
 export default async function DetalleProductoPage({ params }: PageProps) {
   const { id } = await params;
-  const product = await getCatalogProduct(id);
+  const product = await loadProduct(id);
 
   if (!product) {
     notFound();
