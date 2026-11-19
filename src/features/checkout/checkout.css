@@ -79,3 +79,11 @@
   .checkout-review-action > button { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { .checkout-page * { scroll-behavior: auto; transition: none; } }
+
+/* Resultado del pago (TSK-12) */
+.checkout-result { align-items: start; }
+.checkout-result .checkout-receipt { margin-bottom: 0; }
+.checkout-result .checkout-receipt h1 { font: 400 32px/1.25 "Eternal Display", serif; margin: 14px 0; }
+.checkout-receipt .loading-indicator { vertical-align: -3px; margin-right: 6px; }
+.checkout-actions { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px; margin-top: 22px; }
+.checkout-pay { margin: 0; }
