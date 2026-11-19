@@ -55,13 +55,15 @@ test("la reserva descrita coincide con los 30 minutos del checkout", () => {
 test("el contacto usa solo los datos del pie de página", () => {
   assert.equal(homeContact.contact, footer.footerContact);
   const contactAnswer = homeFaq.items.find((item) => item.id === "contacto").answer;
-  assert.ok(contactAnswer.includes(footer.footerContact.email));
   assert.ok(contactAnswer.includes(footer.footerContact.phone));
+  assert.match(contactAnswer, /página de contacto/);
   assert.match(contactAnswer, /lunes a sábado, de 9:00 a 19:00/);
   const emails = sectionTexts.flatMap((text) => text.match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g) ?? []);
+  assert.deepEqual(emails, [], "la portada no publica ningún correo");
   const phones = sectionTexts.flatMap((text) => text.match(/\+\d[\d ]{6,}\d/g) ?? []);
-  assert.ok(emails.every((email) => email === footer.footerContact.email));
-  assert.ok(phones.every((phone) => phone === footer.footerContact.phone));
+  // El teléfono aparece con espacios en pantalla y sin ellos en el enlace `tel:`.
+  const digits = (value) => value.replace(/\s/g, "");
+  assert.ok(phones.length > 0 && phones.every((phone) => digits(phone) === digits(footer.footerContact.phone)));
 });
 
 test("las preguntas frecuentes tienen identificadores únicos y respuesta", () => {

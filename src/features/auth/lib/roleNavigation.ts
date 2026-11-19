@@ -1,6 +1,7 @@
 import type { AccountRole } from "@/features/auth/types/access";
 
 const navigationOrigin = "https://eternal-memory.local";
+const adminHome = "/admin";
 const adminSections = ["/admin/productos", "/admin/pedidos"];
 
 export function getAdminReturnPath(value: unknown): string | undefined {
@@ -10,7 +11,7 @@ export function getAdminReturnPath(value: unknown): string | undefined {
     const destination = new URL(value, navigationOrigin);
     if (
       destination.origin === navigationOrigin &&
-      adminSections.some((section) => destination.pathname === section || destination.pathname.startsWith(`${section}/`))
+      (destination.pathname === adminHome || adminSections.some((section) => destination.pathname === section || destination.pathname.startsWith(`${section}/`)))
     ) {
       return `${destination.pathname}${destination.search}${destination.hash}`;
     }
@@ -22,6 +23,6 @@ export function getAdminReturnPath(value: unknown): string | undefined {
 
 export function getPostLoginPath(role: AccountRole, returnTo?: string): string {
   if (returnTo === "/checkout") return "/checkout";
-  if (role === "admin") return getAdminReturnPath(returnTo) ?? "/admin/productos";
+  if (role === "admin") return getAdminReturnPath(returnTo) ?? adminHome;
   return "/catalogo";
 }

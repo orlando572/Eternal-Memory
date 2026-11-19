@@ -80,11 +80,16 @@ test("el sitemap lista portada, catálogo, categorías y los productos recibidos
     "https://eternal.example/",
     "https://eternal.example/catalogo",
     "https://eternal.example/catalogo?categoria=urnas",
+    "https://eternal.example/nosotros",
+    "https://eternal.example/contacto",
+    "https://eternal.example/envios",
+    "https://eternal.example/privacidad",
+    "https://eternal.example/terminos",
     "https://eternal.example/catalogo/urna-serenidad",
     "https://eternal.example/catalogo/ataud-roble",
   ]);
-  assert.equal(entries[3].lastModified, "2026-11-18T00:00:00Z");
-  assert.equal("lastModified" in entries[4], false);
+  assert.equal(entries[8].lastModified, "2026-11-18T00:00:00Z");
+  assert.equal("lastModified" in entries[9], false);
 });
 
 test("robots excluye las zonas privadas y enlaza el sitemap", () => {
