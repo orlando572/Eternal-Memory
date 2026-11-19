@@ -60,6 +60,7 @@ test("el contacto usa solo los datos del pie de página", () => {
   assert.match(contactAnswer, /lunes a sábado, de 9:00 a 19:00/);
   const emails = sectionTexts.flatMap((text) => text.match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g) ?? []);
   assert.deepEqual(emails, [], "la portada no publica ningún correo");
+  for (const text of sectionTexts) assert.doesNotMatch(text, /por correo|a nuestro correo|un correo/i, "la portada no ofrece el correo como canal de contacto");
   const phones = sectionTexts.flatMap((text) => text.match(/\+\d[\d ]{6,}\d/g) ?? []);
   // El teléfono aparece con espacios en pantalla y sin ellos en el enlace `tel:`.
   const digits = (value) => value.replace(/\s/g, "");

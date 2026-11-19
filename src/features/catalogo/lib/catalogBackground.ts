@@ -1,8 +1,8 @@
 const backgrounds: Record<string, string> = {
-  urnas: "/assets/catalogo/backgrounds/urnas.webp",
-  ataudes: "/assets/catalogo/backgrounds/ataudes.webp",
-  "arreglos-florales": "/assets/catalogo/backgrounds/arreglos-florales.webp",
-  relicarios: "/assets/catalogo/backgrounds/relicarios.webp",
+  urnas: "/assets/banners/categoria-urnas.webp",
+  ataudes: "/assets/banners/categoria-ataudes.webp",
+  "arreglos-florales": "/assets/banners/categoria-arreglos-florales.webp",
+  relicarios: "/assets/banners/categoria-relicarios.webp",
 };
 
 export function getCatalogBackground(categorySlug: string | null): string {
