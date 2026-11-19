@@ -43,7 +43,3 @@ Cualquier archivo `docker/db/NN-nombre.sql` (empieza por un número) se aplica d
 - **Empezar de cero:** `docker compose down -v` borra también el volumen `db-data`.
 - **El puerto está ocupado:** cambia `APP_PORT` o `DB_PORT` en `.env`.
 - **El script falla con `\r: command not found`:** el archivo `docker/db/apply-migrations.sh` debe tener saltos de línea LF. `.gitattributes` lo fuerza al clonar; si lo editaste en Windows, vuelve a guardarlo con LF.
-
-## Pendiente de verificar
-
-Este entorno se escribió sin poder ejecutarlo. Lo más incierto es que las migraciones, que usan `auth.users`, `auth.uid()`, `storage` y `pg_cron`, se apliquen sin errores sobre la imagen `supabase/postgres`.
