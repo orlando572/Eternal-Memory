@@ -35,6 +35,8 @@ jobs:
         run: npm ci
 
       - name: Validar referencias TSK de los commits del PR
+        # En el PR de release (develop → main) los commits ya se validaron al entrar en develop.
+        if: github.head_ref != 'develop'
         run: npm run validate:commits
         env:
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
