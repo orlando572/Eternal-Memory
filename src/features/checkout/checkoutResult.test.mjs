@@ -63,3 +63,7 @@ test("el sondeo es corto y tiene un límite de duración", () => {
   assert.ok(result.POLL_INTERVAL_MS >= 1_000 && result.POLL_INTERVAL_MS <= 10_000);
   assert.ok(result.POLL_MAX_MS > result.POLL_INTERVAL_MS);
 });
+
+test("«Ver mi pedido» lleva al detalle del pedido en el perfil", () => {
+  assert.equal(result.orderHistoryHref("96436d50-a677-446c-88b9-98771ed7ef08"), "/perfil/historial/96436d50-a677-446c-88b9-98771ed7ef08");
+});
