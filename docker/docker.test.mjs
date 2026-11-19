@@ -69,6 +69,7 @@ test("la plantilla se versiona, .env no, y el script de contenedor conserva los 
   assert.match(gitignore, /^!\.env\.example$/m);
   assert.ok(gitignore.indexOf("!.env.example") > gitignore.indexOf(".env*"), "la excepción va después de la regla general");
   assert.match(read(".gitattributes"), /^\*\.sh text eol=lf$/m);
+  assert.match(read(".gitattributes"), /^docker\/db\/\*\.sql text eol=lf$/m, "los seeders SQL también conservan LF, aunque Git en Windows los convierta");
   assert.ok(!script.includes(0x0d), "apply-migrations.sh no debe tener retornos de carro (CRLF)");
 });
 
