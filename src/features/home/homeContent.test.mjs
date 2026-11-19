@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import ts from "typescript";
 
 function loadSource(path, modules = {}) {
@@ -18,7 +18,7 @@ function loadSource(path, modules = {}) {
 
 const footer = loadSource("../footer/footerContent.ts");
 const home = loadSource("./homeContent.ts", { "@/features/footer/footerContent": footer });
-const { homeHowItWorks, homeSupport, homeFeaturedCategories, homeFaq, homeContact } = home;
+const { homeHowItWorks, homeSupport, homeFeaturedCategories, homeFaq, homeContact, homeBanner } = home;
 
 function collectText(value) {
   if (typeof value === "string") return [value];
@@ -27,7 +27,7 @@ function collectText(value) {
   return [];
 }
 
-const sectionTexts = collectText([homeHowItWorks, homeSupport, homeFeaturedCategories, homeFaq, homeContact]);
+const sectionTexts = collectText([homeHowItWorks, homeSupport, homeFeaturedCategories, homeFaq, homeContact, homeBanner]);
 
 test("las secciones no prometen plazos, atención continua, stock ni garantías", () => {
   const forbidden = [
@@ -70,5 +70,32 @@ test("las preguntas frecuentes tienen identificadores únicos y respuesta", () =
   for (const item of homeFaq.items) {
     assert.ok(item.question.trim().endsWith("?"));
     assert.ok(item.answer.trim().length > 0);
+  }
+});
+
+test("el carrusel tiene diapositivas completas, con enlaces internos e imágenes existentes", () => {
+  const { slides } = homeBanner;
+  assert.ok(Array.isArray(slides) && slides.length >= 2 && slides.length <= 5);
+  assert.equal(new Set(slides.map((slide) => slide.id)).size, slides.length);
+  for (const slide of slides) {
+    for (const text of [slide.kicker, slide.title, slide.text, slide.action.label]) assert.ok(text.trim().length > 0, slide.id);
+    assert.match(slide.action.href, /^\/(?!\/)/, slide.id);
+    assert.ok(existsSync(new URL(`../../../public${slide.image.src}`, import.meta.url)), slide.image.src);
+    assert.ok(slide.image.width > 0 && slide.image.height > 0, slide.id);
+  }
+  assert.match(homeBanner.referenceNote, /referencial/i);
+});
+
+test("el carrusel avanza despacio", () => {
+  assert.ok(homeBanner.autoplayDelayMs >= 6000, `${homeBanner.autoplayDelayMs} ms`);
+});
+
+test("el carrusel no usa mensajes de presión comercial", () => {
+  const pressure = [
+    /oferta/i, /descuento/i, /solo hoy/i, /últimas unidades/i, /aprovecha/i,
+    /por tiempo limitado/i, /no te lo pierdas/i, /urgente/i, /\d+\s*%/,
+  ];
+  for (const text of collectText(homeBanner)) {
+    for (const pattern of pressure) assert.doesNotMatch(text, pattern, `«${text}» contiene ${pattern}`);
   }
 });

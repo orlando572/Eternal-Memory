@@ -196,3 +196,53 @@ export const homeContact = {
   scheduleLabel: "Horario de atención",
   contact: footerContact,
 };
+
+// Carrusel informativo bajo la rejilla de productos (TSK-34). Para cambiar los
+// mensajes basta con editar `slides`; el componente no tiene textos propios.
+// Cada imagen debe existir en `public/`; si representa un producto, márcala como
+// referencial. `position` ajusta el recorte (valor de CSS object-position).
+export type HomeBannerSlide = {
+  id: string;
+  kicker: string;
+  title: string;
+  text: string;
+  action: { label: string; href: string };
+  image: { src: string; width: number; height: number; alt: string; isReference: boolean; position?: string };
+};
+
+const bannerSlides: HomeBannerSlide[] = [
+  {
+    id: "grabado",
+    kicker: "Grabado opcional",
+    title: "Un homenaje con su nombre",
+    text: "En las urnas que lo admiten puedes grabar el nombre de la persona. Verás el recargo y el límite de caracteres antes de confirmar tu pedido.",
+    action: { label: "Ver urnas", href: "/catalogo?categoria=urnas" },
+    image: { src: "/assets/plates/product-marble-photo.png", width: 1622, height: 969, alt: "", isReference: true },
+  },
+  {
+    id: "envio",
+    kicker: "Envío según destino",
+    title: "Entregas en Arequipa y el resto del Perú",
+    text: "La tarifa depende de si la entrega es en la provincia de Arequipa o en el resto del Perú. Verás el costo del envío antes de confirmar.",
+    action: { label: "Ver preguntas frecuentes", href: "/#home-faq-title" },
+    image: { src: "/assets/catalogo/backgrounds/arreglos-florales.webp", width: 3456, height: 724, alt: "", isReference: false, position: "right center" },
+  },
+  {
+    id: "orientacion",
+    kicker: "Orientación",
+    title: "Te orientamos en nuestro horario",
+    text: `Escríbenos por correo o WhatsApp si tienes dudas sobre productos, grabado o entrega. Nuestro horario de atención es de ${attentionHours}.`,
+    action: { label: "Ir a contacto", href: "/#home-contact-title" },
+    image: { src: "/assets/plates/patio-view.png", width: 1254, height: 1254, alt: "", isReference: false },
+  },
+];
+
+export const homeBanner = {
+  label: "Mensajes de Eternal Memory",
+  // Avance automático lento, en milisegundos.
+  autoplayDelayMs: 8000,
+  referenceNote: "Imagen referencial",
+  previousLabel: "Mensaje anterior",
+  nextLabel: "Mensaje siguiente",
+  slides: bannerSlides,
+};
