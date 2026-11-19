@@ -15,7 +15,7 @@ export function AccountLinks({ role, signingOut, onSignOut }: AccountLinksProps)
   return (
     <>
       {role === "admin" && (
-        <Link href="/admin/productos" className="site-account-admin">
+        <Link href="/admin" className="site-account-admin">
           <LayoutDashboard size={16} aria-hidden="true" /> <span>Administración</span>
         </Link>
       )}

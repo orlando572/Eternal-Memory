@@ -9,6 +9,8 @@ export const ADMIN_ORDERS_PAGE_SIZE = 20;
 export const ADMIN_ORDERS_MAX_PAGE = 100_000;
 export const ADMIN_SEARCH_MAX_LENGTH = 80;
 export const ADMIN_ORDERS_PATH = "/admin/pedidos";
+/** Columnas de una fila del listado; las comparte el resumen del administrador (TSK-32). */
+export const ADMIN_ORDER_SUMMARY_COLUMNS = "id,status,payment_status,created_at,total_pen,contact_name,contact_email,delivery_zone,order_items(quantity)";
 
 /** Perú no cambia de horario: el día local empieza siempre a las 00:00 de UTC−5. */
 const LIMA_OFFSET = "-05:00";
