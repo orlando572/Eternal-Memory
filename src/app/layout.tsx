@@ -3,7 +3,9 @@ import "./globals.css";
 import "@/features/loading/loading.css";
 import { CartProvider } from "@/features/cart/context/CartContext";
 import CartDrawer from "@/features/cart/components/CartDrawer";
+import { WhatsAppFloat } from "@/features/contact-float/components/WhatsAppFloat";
 import { SiteFooter } from "@/features/footer/SiteFooter";
+import { footerContact } from "@/features/footer/footerContent";
 import { SiteHeader } from "@/features/header/SiteHeader";
 import { SITE_DESCRIPTION, SITE_LOCALE, SITE_NAME, SITE_TITLE, getSiteUrl } from "@/features/seo/seo";
 
@@ -25,6 +27,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <div id="site-content">{children}</div>
           <CartDrawer />
           <SiteFooter />
+          <WhatsAppFloat whatsappUrl={footerContact.whatsappUrl} phone={footerContact.phone} />
         </CartProvider>
       </body>
     </html>

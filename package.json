@@ -19,6 +19,7 @@
     "test:admin-summary": "node --test src/features/admin-summary/adminSummary.test.mjs",
     "test:order-history": "node --test src/features/account-orders/orderHistory.test.mjs",
     "test:purchase-journey": "node --test src/features/checkout/purchaseJourney.test.mjs",
+    "test:contact-float": "node --test src/features/contact-float/contactFloat.test.mjs",
     "test:site": "node --test src/features/site/site.test.mjs",
     "test:checkout-engraving": "node --test src/features/checkout/checkoutEngraving.test.mjs",
     "validate:commits": "node scripts/ci/validate-task-commits.mts",
@@ -30,7 +31,7 @@
     "test:catalog-params": "node --test src/features/catalogo/lib/catalogParams.test.mjs",
     "test:home": "node --test src/features/home/homeContent.test.mjs",
     "test:seo": "node --test src/features/seo/seo.test.mjs",
-    "test": "npm run test:roles && npm run test:profile && npm run test:ci && npm run test:checkout && npm run test:checkout-engraving && npm run test:checkout-payment && npm run test:checkout-result && npm run test:account-orders && npm run test:order-history && npm run test:order-status && npm run test:admin-orders && npm run test:admin-summary && npm run test:purchase-journey && npm run test:site && npm run test:cart-order && npm run test:cart-sync && npm run test:admin-gallery && npm run test:admin-products && npm run test:product-detail && npm run test:catalog-params && npm run test:home && npm run test:seo",
+    "test": "npm run test:roles && npm run test:profile && npm run test:ci && npm run test:checkout && npm run test:checkout-engraving && npm run test:checkout-payment && npm run test:checkout-result && npm run test:account-orders && npm run test:order-history && npm run test:order-status && npm run test:admin-orders && npm run test:admin-summary && npm run test:purchase-journey && npm run test:site && npm run test:contact-float && npm run test:cart-order && npm run test:cart-sync && npm run test:admin-gallery && npm run test:admin-products && npm run test:product-detail && npm run test:catalog-params && npm run test:home && npm run test:seo",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

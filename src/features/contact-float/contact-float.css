@@ -1,0 +1,9 @@
+/* Botón flotante de WhatsApp (TSK-35). Por debajo del carrito lateral (z-index 50) y por encima de la barra «Añadir» (30). */
+.whatsapp-float { position: fixed; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); z-index: 40; display: grid; place-items: center; width: 52px; height: 52px; border-radius: 9999px; background: var(--clay); color: #fff; box-shadow: 0 6px 20px rgba(76, 48, 35, .28); transition: background-color .15s; }
+.whatsapp-float:hover { background: #8f452e; }
+.whatsapp-float:focus-visible { outline: 3px solid #171717; outline-offset: 3px; box-shadow: 0 0 0 6px #fff; }
+/* En móvil, la ficha de producto tiene una barra fija con «Añadir al carrito»: el botón se sube para no taparla. */
+@media (max-width: 740px) {
+  body:has(.detail-mobile-sticky-add) .whatsapp-float { bottom: calc(84px + env(safe-area-inset-bottom)); }
+}
+@media (prefers-reduced-motion: reduce) { .whatsapp-float { transition: none; } }
