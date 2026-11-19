@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import ts from "typescript";
 
 function loadSource(path, modules = {}) {
@@ -18,7 +18,7 @@ function loadSource(path, modules = {}) {
 
 const footer = loadSource("../footer/footerContent.ts");
 const home = loadSource("./homeContent.ts", { "@/features/footer/footerContent": footer });
-const { homeHowItWorks, homeSupport, homeFeaturedCategories, homeFaq, homeContact } = home;
+const { homeHowItWorks, homeSupport, homeFeaturedCategories, homeFaq, homeContact, homeBanner } = home;
 
 function collectText(value) {
   if (typeof value === "string") return [value];
@@ -27,7 +27,7 @@ function collectText(value) {
   return [];
 }
 
-const sectionTexts = collectText([homeHowItWorks, homeSupport, homeFeaturedCategories, homeFaq, homeContact]);
+const sectionTexts = collectText([homeHowItWorks, homeSupport, homeFeaturedCategories, homeFaq, homeContact, homeBanner]);
 
 test("las secciones no prometen plazos, atención continua, stock ni garantías", () => {
   const forbidden = [
@@ -70,5 +70,26 @@ test("las preguntas frecuentes tienen identificadores únicos y respuesta", () =
   for (const item of homeFaq.items) {
     assert.ok(item.question.trim().endsWith("?"));
     assert.ok(item.answer.trim().length > 0);
+  }
+});
+
+test("el banner es una sola franja completa, con enlace interno e imagen existente", () => {
+  assert.equal(Array.isArray(homeBanner), false);
+  for (const text of [homeBanner.kicker, homeBanner.title, homeBanner.text, homeBanner.action.label]) {
+    assert.ok(text.trim().length > 0);
+  }
+  assert.match(homeBanner.action.href, /^\/(?!\/)/);
+  assert.ok(existsSync(new URL(`../../../public${homeBanner.image.src}`, import.meta.url)), homeBanner.image.src);
+  assert.ok(homeBanner.image.width > 0 && homeBanner.image.height > 0);
+  if (homeBanner.image.isReference) assert.match(homeBanner.referenceNote, /referencial/i);
+});
+
+test("el banner no usa mensajes de presión comercial", () => {
+  const pressure = [
+    /oferta/i, /descuento/i, /solo hoy/i, /últimas unidades/i, /aprovecha/i,
+    /por tiempo limitado/i, /no te lo pierdas/i, /urgente/i, /\d+\s*%/,
+  ];
+  for (const text of collectText(homeBanner)) {
+    for (const pattern of pressure) assert.doesNotMatch(text, pattern, `«${text}» contiene ${pattern}`);
   }
 });

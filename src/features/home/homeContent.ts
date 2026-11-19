@@ -196,3 +196,15 @@ export const homeContact = {
   scheduleLabel: "Horario de atención",
   contact: footerContact,
 };
+
+// Franja informativa bajo la rejilla de productos (TSK-34). Es un único mensaje,
+// sin rotación: para cambiarlo basta con editar este objeto. La imagen debe
+// existir en `public/`; si representa un producto, márcala como referencial.
+export const homeBanner = {
+  kicker: "Grabado opcional",
+  title: "Un homenaje con su nombre",
+  text: "En las urnas que lo admiten puedes grabar el nombre de la persona. Verás el recargo y el límite de caracteres antes de confirmar tu pedido.",
+  action: { label: "Ver urnas", href: "/catalogo?categoria=urnas" },
+  image: { src: "/assets/plates/product-marble-photo.png", width: 1622, height: 969, alt: "", isReference: true },
+  referenceNote: "Imagen referencial",
+};
