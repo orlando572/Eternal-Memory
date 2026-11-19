@@ -78,6 +78,9 @@ export const homeHowItWorks = {
   kicker: "Cómo funciona",
   title: "Un pedido, paso a paso",
   intro: "Puedes detenerte en cualquier momento. Antes de confirmar verás siempre el resumen completo.",
+  // Foto de producto: se marca como referencial.
+  image: { src: "/assets/banners/como-funciona.webp", width: 800, height: 800, alt: "", isReference: true },
+  referenceNote: "Imagen referencial",
   steps: [
     {
       icon: "explore" as HomeStepIcon,
@@ -125,7 +128,7 @@ export const homeSupport = {
     {
       icon: "contact" as HomeSupportIcon,
       title: "Orientación en nuestro horario",
-      text: `Escríbenos por correo o WhatsApp. Nuestro horario de atención es de ${attentionHours}.`,
+      text: `Escríbenos por WhatsApp o llámanos. Nuestro horario de atención es de ${attentionHours}.`,
     },
   ],
 };
@@ -157,7 +160,7 @@ export const homeFaq = {
     {
       id: "pago",
       question: "¿Qué medios de pago aceptan?",
-      answer: "Por ahora el pago en línea no está habilitado. Si tienes un pedido pendiente o una duda sobre el pago, comunícate con nosotros por correo o WhatsApp.",
+      answer: "Por ahora el pago en línea no está habilitado. Si tienes un pedido pendiente o una duda sobre el pago, comunícate con nosotros por WhatsApp o por teléfono.",
     },
     {
       id: "grabado",
@@ -231,9 +234,9 @@ const bannerSlides: HomeBannerSlide[] = [
     id: "orientacion",
     kicker: "Orientación",
     title: "Te orientamos en nuestro horario",
-    text: `Escríbenos por correo o WhatsApp si tienes dudas sobre productos, grabado o entrega. Nuestro horario de atención es de ${attentionHours}.`,
+    text: `Escríbenos por WhatsApp o llámanos si tienes dudas sobre productos, grabado o entrega. Nuestro horario de atención es de ${attentionHours}.`,
     action: { label: "Ir a contacto", href: "/#home-contact-title" },
-    image: { src: "/assets/plates/patio-view.png", width: 1254, height: 1254, alt: "", isReference: false },
+    image: { src: "/assets/banners/banner-escritorio.webp", width: 1600, height: 600, alt: "", isReference: false },
   },
 ];
 

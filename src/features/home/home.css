@@ -160,3 +160,16 @@
   .home-banner .home-banner-title { font-size: 34px; }
   .home-banner .home-banner-action { width: 100%; }
 }
+
+/* «Cómo funciona» con imagen (TSK-40): imagen a un lado y los pasos en dos columnas. */
+.home-how-layout { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: clamp(28px, 3.5vw, 56px); align-items: start; margin-top: 44px; }
+.home-how-image { position: relative; overflow: hidden; aspect-ratio: 1; border-radius: 6px; background: #f7f0eb; }
+.home-how-image img { width: 100%; height: 100%; object-fit: cover; }
+.home-how-layout .home-steps { margin-top: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 900px) {
+  .home-how-layout { grid-template-columns: minmax(0, 1fr); margin-top: 32px; }
+  .home-how-image { aspect-ratio: 16 / 9; }
+}
+@media (max-width: 600px) {
+  .home-how-layout .home-steps { grid-template-columns: minmax(0, 1fr); }
+}
