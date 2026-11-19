@@ -80,7 +80,27 @@ test("el aplicador usa transacciones, omite lo ya aplicado y respeta el orden", 
   assert.match(text, /--single-transaction/);
   assert.match(text, /local_dev\.applied_scripts/);
   assert.match(text, /ls \/migrations\/\*\.sql \| sort/);
+  assert.ok(text.indexOf("/seeds/bootstrap/*.sql") < text.indexOf("/migrations/*.sql"), "las piezas de Supabase van antes de las migraciones");
   assert.ok(text.indexOf("/migrations/*.sql") < text.indexOf("/seeds/[0-9]*.sql"), "migraciones antes que datos de prueba");
+  assert.match(text, /apply supabase_admin "\$file" "bootstrap\/"/, "las piezas de Supabase se aplican como supabase_admin");
+  assert.match(text, /apply postgres "\$file" ""/, "las migraciones se aplican como postgres");
   assert.match(compose, /\.\/supabase\/migrations:\/migrations:ro/);
   assert.match(compose, /\.\/docker\/db:\/seeds:ro/);
+});
+
+test("el arranque crea las tablas de Storage que usan las migraciones, que la imagen no trae", () => {
+  const bootstrap = read("docker/db/bootstrap/10-storage.sql");
+  const migrations = readdirSync(new URL("../supabase/migrations/", import.meta.url)).filter((file) => file.endsWith(".sql"));
+  const used = new Set();
+  for (const file of migrations) for (const match of read(`supabase/migrations/${file}`).matchAll(/\bstorage\.([a-z_]+)/g)) used.add(match[1]);
+  assert.ok(used.has("buckets") && used.has("objects"), "las migraciones usan storage.buckets y storage.objects");
+  for (const table of used) assert.match(bootstrap, new RegExp(`create table if not exists storage\\.${table}\\b`), `falta storage.${table}`);
+  // Columnas que las migraciones leen o escriben.
+  const buckets = bootstrap.slice(bootstrap.indexOf("create table if not exists storage.buckets"), bootstrap.indexOf("create table if not exists storage.objects"));
+  for (const column of ["id text primary key", "name text", "public boolean", "file_size_limit bigint", "allowed_mime_types text[]"]) assert.ok(buckets.includes(column), column);
+  const objects = bootstrap.slice(bootstrap.indexOf("create table if not exists storage.objects"));
+  for (const column of ["bucket_id text", "name text"]) assert.ok(objects.includes(column), column);
+  // Las migraciones crean políticas sobre storage.objects: `postgres` debe ser su dueño.
+  assert.match(bootstrap, /alter table storage\.objects owner to postgres/);
+  assert.match(bootstrap, /enable row level security/);
 });

@@ -6,7 +6,7 @@
 | --- | --- |
 | `app` | La tienda, construida con el `Dockerfile` (TSK-43). Habla con Supabase por su API, con los valores de `NEXT_PUBLIC_SUPABASE_*` y `SUPABASE_SECRET_KEY` del `.env`. **No** usa la base de datos local. |
 | `db` | PostgreSQL con los esquemas de Supabase (`auth`, `storage`), imagen `supabase/postgres`. Sirve para probar las migraciones y los datos de prueba en local. En producción se usa Supabase gestionado. |
-| `db-migrate` | Aplica las migraciones y los datos de prueba y termina. Aparece como `Exited (0)` en `docker compose ps -a`: es lo esperado. |
+| `db-migrate` | Prepara la base de datos y termina: primero crea las tablas de Storage que la imagen no trae (`docker/db/bootstrap/`), luego aplica las migraciones y por último los datos de prueba. Aparece como `Exited (0)` en `docker compose ps -a`: es lo esperado. |
 
 ## Uso
 
@@ -21,13 +21,17 @@ Con los valores de ejemplo de `.env.example`, la tienda abre en http://localhost
 ## Qué debe verse
 
 - `docker compose ps`: `app` y `db` en estado `healthy`.
-- `docker compose logs db-migrate`: una línea `Aplicando: <archivo>` por migración y, al final, `Base de datos lista.`
+- `docker compose logs db-migrate`: primero `Aplicando: bootstrap/10-storage.sql (como supabase_admin)`, luego una línea `Aplicando: <archivo> (como postgres)` por migración y, al final, `Base de datos lista.`
 - La tienda responde en http://localhost:3000.
 - Las tablas existen:
 
 ```bash
 docker compose exec db psql -U postgres -c "select count(*) from public.products;"
 ```
+
+## Por qué hay un paso previo
+
+En Supabase, las tablas `storage.buckets` y `storage.objects` las crea el servicio Storage, que este compose no incluye, y la imagen `supabase/postgres` no las trae. Las migraciones las usan (el bucket `product-images` y sus políticas), así que `docker/db/bootstrap/10-storage.sql` crea solo esas dos tablas, con las columnas que las migraciones necesitan, antes de aplicarlas. Lo detectó la primera prueba en un equipo con Docker.
 
 ## Datos de prueba
 
