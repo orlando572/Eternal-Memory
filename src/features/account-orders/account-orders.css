@@ -1,0 +1,57 @@
+/* Historial y detalle de pedidos (TSK-14), con la identidad «Patio de luz» */
+.orders-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.order-card { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 10px 24px; padding: 20px 22px; border: 1px solid #ded1c9; border-radius: 6px; background: #fffdfb; color: var(--ink); text-decoration: none; transition: border-color .15s, background-color .15s; }
+.order-card:hover { border-color: var(--clay); background: #fff; }
+.order-card-number { margin: 0 0 4px; font: 400 20px/1.2 "Eternal Serif", serif; overflow-wrap: anywhere; }
+.order-card-date { margin: 0; color: var(--muted); font: 13px/1.5 "Eternal Sans", sans-serif; }
+.order-card-facts { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 0; }
+.order-card-facts > div { min-width: 0; }
+.order-card-facts dt { color: var(--muted); font: 12px/1.4 "Eternal Sans", sans-serif; }
+.order-card-facts dd { margin: 2px 0 0; font: 14px/1.5 "Eternal Sans", sans-serif; }
+.order-card-total { font: 400 20px/1.2 "Eternal Serif", serif !important; }
+.order-card-more { grid-column: 1 / -1; display: inline-flex; align-items: center; gap: 6px; color: var(--clay); font: 14px "Eternal Sans", sans-serif; }
+.order-card:hover .order-card-more { text-decoration: underline; text-underline-offset: 4px; }
+
+.order-status { display: inline-block; padding: 3px 10px; border-radius: 9999px; font: 13px/1.5 "Eternal Sans", sans-serif; }
+.order-status-ok { background: #e6efe2; color: #2b5226; }
+.order-status-pending { background: #f7e9d3; color: #6f430c; }
+.order-status-canceled { background: #f3dfda; color: #84312a; }
+.order-status-review { background: #e5e4ee; color: #38375f; }
+
+.orders-pagination { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; margin-top: 22px; font: 14px "Eternal Sans", sans-serif; }
+.orders-pagination p { margin: 0; color: var(--muted); }
+.orders-pagination a { display: inline-flex; align-items: center; gap: 6px; color: var(--clay); text-underline-offset: 4px; }
+.orders-pagination a:last-child { justify-self: end; }
+
+.orders-empty { padding: 30px 26px; border: 1px dashed #d4c3b8; border-radius: 6px; background: #fffdfb; }
+.orders-empty h3 { margin: 0 0 8px; font: 400 24px/1.2 "Eternal Serif", serif; color: var(--ink); }
+.orders-empty p { margin: 0 0 18px; color: var(--muted); font: 14px/1.6 "Eternal Sans", sans-serif; }
+.orders-empty a[data-slot=button] { color: #fff; }
+.orders-error { padding: 18px 20px; border: 1px solid #d9c9be; border-radius: 4px; background: #fffaf6; font: 14px/1.7 "Eternal Sans", sans-serif; }
+.orders-error p { margin: 0 0 8px; }
+
+.order-detail { display: grid; gap: 28px; }
+.order-detail-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px 28px; padding-bottom: 20px; border-bottom: 1px solid #ded1c9; }
+.order-detail h4 { margin: 0 0 12px; font: 400 20px/1.2 "Eternal Serif", serif; color: var(--ink); }
+.order-detail p { margin: 0 0 4px; color: var(--muted); font: 14px/1.6 "Eternal Sans", sans-serif; }
+.order-lines { list-style: none; margin: 0; padding: 0; }
+.order-lines li { display: flex; justify-content: space-between; gap: 18px; padding: 12px 0; border-bottom: 1px solid #eadfd8; }
+.order-line-name { color: var(--ink) !important; font-size: 15px !important; }
+.order-line-total { color: var(--ink) !important; white-space: nowrap; }
+.order-totals { margin: 14px 0 0 auto; max-width: 340px; font: 14px "Eternal Sans", sans-serif; }
+.order-totals > div { display: flex; justify-content: space-between; gap: 18px; padding: 4px 0; }
+.order-totals dd { margin: 0; }
+.order-totals-total { margin-top: 6px; padding-top: 10px !important; border-top: 1px solid #ded1c9; font-weight: 600; }
+
+.order-timeline { list-style: none; margin: 0; padding: 0 0 0 18px; border-left: 2px solid #ded1c9; display: grid; gap: 16px; }
+.order-timeline li { position: relative; }
+.order-timeline li::before { content: ""; position: absolute; left: -25px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--clay); box-shadow: 0 0 0 3px #fffdfb; }
+.order-timeline-status { color: var(--ink) !important; font-size: 15px !important; margin: 0 !important; }
+.order-timeline time { color: var(--muted); font: 13px/1.5 "Eternal Sans", sans-serif; }
+
+@media (max-width: 640px) {
+  .order-card { grid-template-columns: minmax(0, 1fr); padding: 16px; }
+  .order-card-facts { gap: 8px 22px; }
+  .order-totals { max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) { .order-card { transition: none; } }

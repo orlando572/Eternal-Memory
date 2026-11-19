@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/features/loading/LoadingButton";
 import { AuthLayout } from "@/features/auth/components/AuthLayout";
 import { requestPasswordReset } from "@/services/authService";
 
@@ -41,10 +41,10 @@ export default function RecoverPasswordPage() {
         <form onSubmit={handleSubmit}>
           <label htmlFor="recovery-email">Correo electrónico</label>
           <input id="recovery-email" type="email" autoComplete="email" required maxLength={254} value={email} onChange={(event) => setEmail(event.target.value)} placeholder="tu@correo.com" />
-          <Button type="submit" disabled={pending}>
-            {pending ? "Enviando enlace…" : "Enviar enlace"}
+          <LoadingButton busy={pending} type="submit" disabled={pending}>
+            Enviar enlace
             <ArrowRight size={18} aria-hidden="true" />
-          </Button>
+          </LoadingButton>
         </form>
       )}
       <p className="auth-switch"><Link href="/login">Volver a iniciar sesión</Link></p>

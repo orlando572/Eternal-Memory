@@ -1,0 +1,131 @@
+name: Entrega continua
+
+# Construye la imagen Docker de la aplicación y la publica en GitHub Container
+# Registry (GHCR). En los pull requests solo se construye, sin publicar, para
+# comprobar el Dockerfile antes de llegar a main.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  pull_request:
+    branches: [develop, main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: cd-${{ github.ref }}
+  # En los PR basta la última construcción; en main no se cancela una publicación.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  IMAGE: ghcr.io/orlando572/eternal-memory
+
+jobs:
+  build-and-publish:
+    name: build-and-publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - name: Preparar variables públicas de compilación
+        id: build-env
+        env:
+          SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+          PUBLISH: ${{ github.event_name != 'pull_request' }}
+        run: |
+          # Next.js incrusta estos valores en la imagen: sin ellos no conecta a Supabase.
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            if [ "$PUBLISH" = "true" ]; then
+              echo "::error::Faltan las Variables NEXT_PUBLIC_SUPABASE_URL y NEXT_PUBLIC_SUPABASE_ANON_KEY en Settings > Secrets and variables > Actions > Variables."
+              exit 1
+            fi
+            echo "::notice::Sin Variables de Supabase: el PR se compila con valores ficticios, como en el CI."
+            SUPABASE_URL="http://127.0.0.1:54321"
+            SUPABASE_ANON_KEY="ci-public-placeholder"
+          fi
+          if [ -z "$SITE_URL" ]; then
+            echo "::notice::Sin NEXT_PUBLIC_SITE_URL: el sitemap y Open Graph usarán la URL local."
+          fi
+          {
+            echo "supabase-url=$SUPABASE_URL"
+            echo "supabase-anon-key=$SUPABASE_ANON_KEY"
+            echo "site-url=$SITE_URL"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Preparar Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Iniciar sesión en GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Calcular etiquetas de la imagen
+        id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,prefix=sha-,format=short
+
+      - name: Construir y publicar la imagen
+        id: build
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            NEXT_PUBLIC_SUPABASE_URL=${{ steps.build-env.outputs.supabase-url }}
+            NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ steps.build-env.outputs.supabase-anon-key }}
+            NEXT_PUBLIC_SITE_URL=${{ steps.build-env.outputs.site-url }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Desplegar en Render
+        # Solo tras publicar desde main, y solo si existe el secret con el Deploy Hook.
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$RENDER_DEPLOY_HOOK_URL" ]; then
+            echo "::notice::Sin el secret RENDER_DEPLOY_HOOK_URL: no se avisa a Render."
+            exit 0
+          fi
+          curl --fail --silent --show-error --output /dev/null -X POST "$RENDER_DEPLOY_HOOK_URL"
+          echo "Render recibió la orden de desplegar la nueva imagen."
+
+      - name: Resumen
+        env:
+          TAGS: ${{ steps.meta.outputs.tags }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+          PUBLISHED: ${{ github.event_name != 'pull_request' }}
+        run: |
+          {
+            if [ "$PUBLISHED" = "true" ]; then
+              echo "### Imagen publicada en GHCR"
+            else
+              echo "### Imagen construida (sin publicar, pull request)"
+            fi
+            echo
+            echo "Etiquetas:"
+            echo
+            printf '%s\n' "$TAGS" | sed '/^$/d; s/^/- `/; s/$/`/'
+            echo
+            echo "Digest: \`$DIGEST\`"
+          } >> "$GITHUB_STEP_SUMMARY"

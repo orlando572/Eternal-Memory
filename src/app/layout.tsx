@@ -1,38 +1,33 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import Link from "next/link";
 import "./globals.css";
+import "@/features/loading/loading.css";
 import { CartProvider } from "@/features/cart/context/CartContext";
 import CartDrawer from "@/features/cart/components/CartDrawer";
-import CartTrigger from "@/features/cart/components/CartTrigger";
-import { AccountNavigation } from "@/features/auth/components/AccountNavigation";
+import { WhatsAppFloat } from "@/features/contact-float/components/WhatsAppFloat";
+import { SiteFooter } from "@/features/footer/SiteFooter";
+import { footerContact } from "@/features/footer/footerContent";
+import { SiteHeader } from "@/features/header/SiteHeader";
+import { SITE_DESCRIPTION, SITE_LOCALE, SITE_NAME, SITE_TITLE, getSiteUrl } from "@/features/seo/seo";
 
 export const metadata: Metadata = {
-  title: "Eternal Memory — Productos funerarios",
-  description: "Un catálogo de productos funerarios para elegir con calma.",
+  metadataBase: new URL(getSiteUrl()),
+  title: { default: SITE_TITLE, template: `%s · ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  // Without `images`: src/app/opengraph-image.tsx provides the default picture.
+  openGraph: { type: "website", siteName: SITE_NAME, locale: SITE_LOCALE },
+  twitter: { card: "summary_large_image" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="es">
+    <html lang="es" data-scroll-behavior="smooth">
       <body>
         <CartProvider>
-          <nav className="site-nav" aria-label="Navegación principal">
-            <Link href="/" className="site-brand" aria-label="Eternal Memory, inicio">
-              <Image src="/assets/plates/logo.png" alt="Eternal Memory" width={307} height={58} priority />
-            </Link>
-            <div className="site-nav-links">
-              <Link href="/catalogo">Catálogo</Link>
-              <AccountNavigation />
-              <CartTrigger />
-            </div>
-          </nav>
+          <SiteHeader />
           <div id="site-content">{children}</div>
           <CartDrawer />
-          <footer className="site-footer">
-            <div><strong>Eternal Memory</strong><p>Productos funerarios para elegir con calma.</p></div>
-            <div><Link href="/catalogo">Catálogo</Link><Link href="/login">Acceso</Link></div>
-          </footer>
+          <SiteFooter />
+          <WhatsAppFloat whatsappUrl={footerContact.whatsappUrl} phone={footerContact.phone} />
         </CartProvider>
       </body>
     </html>

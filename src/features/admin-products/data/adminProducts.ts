@@ -17,6 +17,14 @@ export interface AdminVariantDraft {
   isActive: boolean;
 }
 
+export interface AdminProductImage {
+  id: string;
+  storagePath: string | null;
+  externalUrl: string | null;
+  altText: string;
+  isReference: boolean;
+}
+
 export interface AdminProductDraft {
   id: string;
   updatedAt?: string;
@@ -26,9 +34,11 @@ export interface AdminProductDraft {
   category: string;
   description: string;
   status: ProductStatus;
+  isFeatured: boolean;
   variants: AdminVariantDraft[];
+  images?: AdminProductImage[];
 }
 
 export function createEmptyProduct(): AdminProductDraft {
-  return { id: "", slug: "", name: "", categoryId: "", category: "", description: "", status: "draft", variants: [] };
+  return { id: "", slug: "", name: "", categoryId: "", category: "", description: "", status: "draft", isFeatured: false, variants: [] };
 }

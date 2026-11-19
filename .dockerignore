@@ -1,0 +1,32 @@
+# Dependencias y compilaciones locales: se generan dentro de la imagen.
+node_modules
+.next
+out
+build
+coverage
+*.tsbuildinfo
+next-env.d.ts
+npm-debug.log*
+
+# Control de versiones y CI
+.git
+.github
+
+# Variables de entorno y credenciales: nunca dentro de la imagen.
+.env*
+*.pem
+
+# Material local que no forma parte de la aplicación
+*.deb
+docs
+supabase/.temp
+.agents
+.codex
+.impeccable
+.vercel
+.DS_Store
+
+# Archivos de Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml

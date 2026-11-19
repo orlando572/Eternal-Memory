@@ -1,0 +1,3 @@
+# Los scripts que se ejecutan dentro de contenedores Linux deben terminar sus líneas con LF,
+# aunque Git en Windows convierta los demás archivos a CRLF.
+*.sh text eol=lf

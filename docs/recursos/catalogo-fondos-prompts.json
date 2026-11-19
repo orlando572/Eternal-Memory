@@ -1,0 +1,35 @@
+{
+  "method": "Built-in image_gen",
+  "purpose": "Fondos ambientales del encabezado del catálogo",
+  "prompts": [
+    {
+      "slug": "todos",
+      "prompt": "Use case: photorealistic-natural. Create one production website background image, landscape panoramic 3:1 composition, ideally 1920x640 pixels. This is the ALL PRODUCTS header background for Eternal Memory, a calm warm memorial ecommerce with editorial serif dark text over the LEFT and CENTER 75% of the image. Photograph pale warm ivory limestone with very delicate natural mineral detail, a subtle suggestion of a stone architectural edge only at the far right, soft natural sidelight, cream and pale sand palette, serene refined daylight. The whole left 75% must be nearly uniform pale ivory, very low contrast, no dark shapes or shadows where text goes. Rightmost 25% may show gentle depth and material shadow. Seamless atmospheric background rather than a showroom scene. No stucco/plaster texture, no visible products, no urns, no coffins, no people, no letters, no typography, no logos, no border, no collage. Keep middle vertical band especially clean as browser background cover will crop top and bottom."
+    },
+    {
+      "slug": "urnas",
+      "prompt": "Use case: photorealistic-natural. Generate one production website header BACKGROUND, wide panoramic 3:1 around 1920x640. Part of a coordinated series for Eternal Memory memorial ecommerce, warm ivory, pale sand, very soft natural side light, elegant quiet material study. Existing dark title and description are over the LEFT and CENTER 75%, so this whole area must remain pale, low contrast, almost uniform with subtle delicate material only. Put decorative details only in far RIGHT 25%. No typography, text, logos, frames, people, literal products, urns, coffins, jewellery, or collage. Keep the central vertical band clean for center/cover cropping. Scene: subtle pale matte ceramic surface merging tonally into smooth honed ivory limestone. On the far right a gentle curved ceramic surface edge creates a soft sculptural shadow, purely abstract, no identifiable vessel or object. Palette warm bone and chalk, understated tactile fine grain, NO plaster/stucco. Distinct from an architectural stone background."
+    },
+    {
+      "slug": "ataudes",
+      "prompt": "Use case: photorealistic-natural. Generate one production website header BACKGROUND, wide panoramic 3:1 around 1920x640. Part of a coordinated series for Eternal Memory memorial ecommerce, warm ivory, pale sand, very soft natural side light, elegant quiet material study. Existing dark title and description are over the LEFT and CENTER 75%, so this whole area must remain pale, low contrast, almost uniform with subtle delicate material only. Put decorative details only in far RIGHT 25%. No typography, text, logos, frames, people, literal products, urns, coffins, jewellery, or collage. Keep the central vertical band clean for center/cover cropping. Scene: finely finished pale natural oak surface with refined long delicate horizontal wood grain. Very pale limed oak left and center, slightly warmer honey oak grain and gentle sidelight toward far right. No furniture, planks with strong seams, knots or dark stripes. Clearly WOOD, not plaster, restrained, sophisticated and respectful."
+    },
+    {
+      "slug": "arreglos-florales",
+      "prompt": "Use case: photorealistic-natural. Generate one production website header BACKGROUND, wide panoramic 3:1 around 1920x640. Part of a coordinated series for Eternal Memory memorial ecommerce, warm ivory, pale sand, very soft natural side light, elegant quiet material study. Existing dark title and description are over the LEFT and CENTER 75%, so this whole area must remain pale, low contrast, almost uniform with subtle delicate material only. Put decorative details only in far RIGHT 25%. No typography, text, logos, frames, people, literal products, urns, coffins, jewellery, or collage. Keep the central vertical band clean for center/cover cropping. Scene: soft warm white background occupying left and center 75%. Far right only: an airy small cluster of soft-focus white flowers and muted sage eucalyptus foliage, cropped at edge, ethereal naturally photographed detail. Very subtle soft focus botanical shadow at right. No vase, no bouquet product, no flowers or leaves over left 75%, no saturated green, avoid strong contrasts."
+    },
+    {
+      "slug": "relicarios",
+      "prompt": "Use case: photorealistic-natural. Generate one production website header BACKGROUND, wide panoramic 3:1 around 1920x640. Part of a coordinated series for Eternal Memory memorial ecommerce, warm ivory, pale sand, very soft natural side light, elegant quiet material study. Existing dark title and description are over the LEFT and CENTER 75%, so this whole area must remain pale, low contrast, almost uniform with subtle delicate material only. Put decorative details only in far RIGHT 25%. No typography, text, logos, frames, people, literal products, urns, coffins, jewellery, or collage. Keep the central vertical band clean for center/cover cropping. Scene: pale warm ivory silk fabric with very shallow elegant folds; left and center 75% nearly flat cream silk with subtle weave only; far right has gentle folds and a delicate champagne metallic glint of reflected light along one fold. Abstract fabric study, no jewellery, chains or pendants, no objects, no dark creases. Soft pearl and champagne palette."
+    }
+  ],
+  "postprocessing": {
+    "sourceResolution": "2172x724",
+    "outputResolution": "3456x724",
+    "leftCanvasExtensionPixels": 1284,
+    "extensionMethod": "mirror of the existing quiet texture",
+    "format": "WebP",
+    "quality": 92,
+    "resampling": false
+  }
+}

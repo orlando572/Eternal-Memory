@@ -1,0 +1,92 @@
+# Entorno local de Eternal Memory (TSK-44): la tienda y una base de datos con un solo comando.
+#
+#   cp .env.example .env
+#   docker compose up -d --build
+#   docker compose ps
+#
+# `app` es la tienda, construida con el Dockerfile (TSK-43). Habla con Supabase por su API, no con
+# esta base de datos: usa los valores de NEXT_PUBLIC_SUPABASE_* y SUPABASE_SECRET_KEY del `.env`.
+# `db` es un PostgreSQL con los esquemas de Supabase (`auth`, `storage`) para probar las
+# migraciones y los datos de prueba en local; en producción se usa Supabase gestionado.
+# `db-migrate` aplica las migraciones y los datos de prueba y termina (no se queda en ejecución).
+
+name: eternal-memory
+
+services:
+  app:
+    build:
+      context: .
+      args:
+        # Next.js incrusta las variables NEXT_PUBLIC_* al compilar: se pasan como argumentos.
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:?Define NEXT_PUBLIC_SUPABASE_URL en el archivo .env}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:?Define NEXT_PUBLIC_SUPABASE_ANON_KEY en el archivo .env}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
+    image: eternal-memory:local
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      # Claves privadas: solo se entregan al contenedor al ejecutarlo, nunca a la imagen.
+      SUPABASE_SECRET_KEY: ${SUPABASE_SECRET_KEY:-}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+    # El Dockerfile ya define el HEALTHCHECK de la tienda (GET / en el puerto 3000).
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - eternal
+
+  db:
+    # La versión mayor coincide con `major_version` de supabase/config.toml.
+    image: supabase/postgres:17.12.0.001
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: /var/run/postgresql
+      PGPORT: "5432"
+      POSTGRES_PORT: "5432"
+      PGPASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      PGDATABASE: postgres
+      POSTGRES_DB: postgres
+      JWT_SECRET: ${DB_JWT_SECRET:-super-secret-jwt-token-with-at-least-32-characters-long}
+      JWT_EXP: "3600"
+    ports:
+      # Solo accesible desde este equipo.
+      - "127.0.0.1:${DB_PORT:-54322}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+    networks:
+      - eternal
+
+  db-migrate:
+    # Misma imagen que `db`, que ya trae el cliente `psql`.
+    image: supabase/postgres:17.12.0.001
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: postgres
+      PGPASSWORD: ${DB_PASSWORD:-postgres}
+      PGDATABASE: postgres
+    volumes:
+      - ./supabase/migrations:/migrations:ro
+      - ./docker/db:/seeds:ro
+    entrypoint: ["/bin/sh", "/seeds/apply-migrations.sh"]
+    restart: "no"
+    networks:
+      - eternal
+
+networks:
+  eternal:
+
+volumes:
+  db-data:

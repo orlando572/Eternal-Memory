@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { FormSkeleton, LoadingRegion } from "@/features/loading/Loading";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LoadingButton } from "@/features/loading/LoadingButton";
 import { updatePassword } from "@/services/authService";
 
 type RecoveryState = "checking" | "ready" | "invalid";
@@ -57,7 +58,7 @@ export function PasswordResetForm() {
     return (
       <>
         <h2 id="auth-panel-title">Comprobar enlace</h2>
-        <p className="auth-message" role="status">Comprobando el enlace de recuperación…</p>
+        <LoadingRegion label="Comprobando enlace de recuperación"><FormSkeleton fields={2} /></LoadingRegion>
       </>
     );
   }
@@ -96,10 +97,10 @@ export function PasswordResetForm() {
         <span id="reset-password-hint" className="auth-field-hint">Al menos 6 caracteres.</span>
         <label htmlFor="reset-confirmation">Confirma la contraseña</label>
         <input id="reset-confirmation" type="password" autoComplete="new-password" required minLength={6} value={confirmation} onChange={(event) => setConfirmation(event.target.value)} />
-        <Button type="submit" disabled={pending}>
-          {pending ? "Guardando contraseña…" : "Guardar contraseña"}
+        <LoadingButton busy={pending} type="submit" disabled={pending}>
+          Guardar contraseña
           <ArrowRight size={18} aria-hidden="true" />
-        </Button>
+        </LoadingButton>
       </form>
       <p className="auth-switch"><Link href="/login">Volver a iniciar sesión</Link></p>
     </>

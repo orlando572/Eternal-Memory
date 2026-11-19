@@ -24,9 +24,9 @@ La cobertura prevista es todo el Perú; la capacidad de atención y entrega por 
 
 ## Capabilities and Constraints
 
-- Implementado: catálogo con datos locales, fichas de producto, carrito persistido en `localStorage` y formulario de registro conectado a Supabase Auth.
-- Parcial o simulado: el inicio de sesión no autentica y el botón para finalizar el pedido solo muestra una alerta.
-- Planificado, sin implementación comprobada: checkout, pedidos, pago de prueba, perfiles y administración de catálogo e imágenes. `GESTION_PROYECTO.md` es un plan de trabajo, no evidencia de estas capacidades.
+- Implementado: catálogo leído de Supabase con categorías, búsqueda y paginación; fichas de producto; carrito persistido en `localStorage` con validación de precios y existencias en el servidor; registro, inicio de sesión, recuperación de contraseña y perfil con Supabase Auth; checkout que crea pedidos pendientes de pago con reserva y grabado opcional; administración de productos, variantes, imagen de portada y ajustes de grabado.
+- Parcial: el pedido queda pendiente de pago porque el pago en línea no está implementado; el historial de pedidos del perfil aún no muestra pedidos.
+- Planificado, sin implementación comprobada: pago de prueba, consulta de pedidos, panel de pedidos y galería de varias imágenes. Los documentos de `docs/planificacion/` son planes de trabajo, no evidencia de estas capacidades.
 - Pendiente de validar antes de ofrecerlo como servicio real: disponibilidad y stock, entrega en 24 horas, grabado incluido, cobertura efectiva en todo el Perú y atención por WhatsApp 24/7.
 
 ## Brand Commitments
@@ -35,7 +35,7 @@ El nombre del producto es Eternal Memory y el repositorio incluye su logo en `pu
 
 ## Evidence on Hand
 
-- `src/features/products/data/productsData.ts` contiene el catálogo de muestra y precios en soles; no demuestra inventario, precios vigentes ni disponibilidad real.
+- `supabase/migrations/20261020220720_sample_catalog_drafts.sql` carga el catálogo de muestra con precios en soles; no demuestra inventario, precios vigentes ni disponibilidad real.
 - `src/app/` contiene las rutas y el contenido actuales; algunas promesas visibles en sus textos siguen pendientes de validación operativa.
 - No hay en el repositorio testimonios, cifras de servicio ni pruebas de cobertura nacional que deban tratarse como evidencia comercial.
 

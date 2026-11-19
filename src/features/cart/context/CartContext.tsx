@@ -1,129 +1,242 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Product } from '@/features/products/data/productsData';
+import { createContext, useCallback, useContext, useEffect, useReducer } from "react";
+import { CART_MAX_LINES, CART_MAX_QUANTITY, type CartItem, type CartLine, type CartValidation } from "@/features/cart/types/cart";
+import { CART_STORAGE_KEY, readSavedCart } from "@/features/cart/lib/cartStorage";
 
-export interface CartItem extends Product {
-  selectedOption: string;
-  quantity: number;
+export type { CartItem } from "@/features/cart/types/cart";
+
+type State = {
+  cart: CartLine[];
+  isOpen: boolean;
+  initialized: boolean;
+  version: number;
+  validation: CartValidation | null;
+  error: string | null;
+  storageWarning: string | null;
+  mutationWarning: string | null;
+  priceChanges: string[];
+  persist: boolean;
+  snapshot?: string | null;
+};
+type Action =
+  | { type: "consume-order"; orderId: string; lines: { key: string; productId: string; variantId: string; quantity: number }[] }
+  | { type: "initialize" | "synchronize"; cart: CartLine[]; warning: string | null; snapshot?: string | null }
+  | { type: "persisted"; version: number; snapshot: string }
+  | { type: "add"; item: CartLine }
+  | { type: "quantity"; key: string; quantity: number }
+  | { type: "remove"; key: string }
+  | { type: "clear" | "open" | "close" | "refresh" }
+  | { type: "validated"; version: number; result: CartValidation }
+  | { type: "failed"; version: number; message: string }
+  | { type: "storage-warning"; message: string };
+
+const initialState: State = { cart: [], isOpen: false, initialized: false, version: 0, validation: null, error: null, storageWarning: null, mutationWarning: null, priceChanges: [], persist: false };
+
+function invalidate(state: State, cart = state.cart): State {
+  return { ...state, cart, persist: state.persist || cart !== state.cart, version: state.version + 1, validation: null, error: null, mutationWarning: null };
+}
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case "consume-order": return invalidate(state, state.cart.flatMap((item) => {
+      const ordered = action.lines.find((line) => line.key === item.key && line.productId === item.productId && line.variantId === item.variantId);
+      if (!ordered || item.consumedOrderIds?.includes(action.orderId)) return [item];
+      const quantity = item.quantity - ordered.quantity;
+      if (quantity <= 0) return [];
+      // Persist the receipt with the remaining units so recovery cannot deduct twice.
+      return [{ ...item, quantity, consumedOrderIds: [...(item.consumedOrderIds ?? []), action.orderId] }];
+    }));
+    case "synchronize":
+      if (action.snapshot === state.snapshot) return state;
+      return { ...invalidate(state, action.cart), initialized: true, snapshot: action.snapshot, storageWarning: action.warning, priceChanges: [], persist: false };
+    case "initialize": return { ...invalidate(state, action.cart), initialized: true, snapshot: action.snapshot, storageWarning: action.warning, priceChanges: [], persist: false };
+    case "persisted": return action.version === state.version ? { ...state, snapshot: action.snapshot, persist: false } : state;
+    case "open": return { ...invalidate(state), isOpen: true };
+    case "close": return { ...state, isOpen: false };
+    case "refresh": return invalidate(state);
+    case "clear": return invalidate(state, []);
+    case "remove": return invalidate(state, state.cart.filter((item) => item.key !== action.key));
+    case "quantity":
+      if (!Number.isInteger(action.quantity) || action.quantity < 1 || action.quantity > CART_MAX_QUANTITY) {
+        return { ...state, mutationWarning: "Introduce una cantidad entera entre 1 y 50." };
+      }
+      return invalidate(state, state.cart.map((item) => item.key === action.key ? { ...item, quantity: action.quantity } : item));
+    case "add": {
+      const existing = state.cart.find((item) => item.variantId && item.variantId === action.item.variantId && item.productId === action.item.productId && Number.isInteger(item.quantity) && item.quantity >= 1 && item.quantity <= CART_MAX_QUANTITY);
+      const quantity = (existing?.quantity ?? 0) + action.item.quantity;
+      if (!Number.isInteger(quantity) || quantity < 1 || quantity > CART_MAX_QUANTITY || (!existing && state.cart.length >= CART_MAX_LINES)) {
+        return { ...state, isOpen: true, mutationWarning: "El carrito admite 50 líneas y hasta 50 unidades por variante." };
+      }
+      const cart = existing ? state.cart.map((item) => item.key === existing.key ? { ...item, quantity } : item) : [...state.cart, action.item];
+      return { ...invalidate(state, cart), isOpen: true };
+    }
+    case "validated": {
+      if (action.version !== state.version) return state;
+      const changes = new Set(state.priceChanges);
+      const cart = state.cart.map((item) => {
+        const result = action.result.lines.find((line) => line.key === item.key);
+        if (!result) return item;
+        if (result.unitPricePen !== undefined && item.unitPricePen !== undefined && result.unitPricePen !== item.unitPricePen) changes.add(item.key);
+        return {
+          ...item,
+          ...(result.productId ? { productId: result.productId, productSlug: result.productSlug, nombre: result.name ?? item.nombre } : {}),
+          ...(result.variantId ? { id: result.variantId, variantId: result.variantId, selectedOption: result.option ?? item.selectedOption } : {}),
+          ...(result.unitPricePen !== undefined ? { unitPricePen: result.unitPricePen } : {}),
+        };
+      });
+      // Legacy selections may resolve to a variant already present in the cart.
+      const merged: CartLine[] = [];
+      const resolved = new Map<string, CartLine>();
+      for (const item of cart) {
+        const result = action.result.lines.find((line) => line.key === item.key);
+        const identity = result?.status === "valid" ? result.variantId : undefined;
+        const existing = identity ? resolved.get(identity) : undefined;
+        if (existing) existing.quantity += item.quantity;
+        else {
+          const copy = { ...item };
+          merged.push(copy);
+          if (identity) resolved.set(identity, copy);
+        }
+      }
+      if (merged.length !== cart.length) return { ...invalidate(state, merged), priceChanges: [...changes] };
+      return { ...state, cart, persist: true, validation: action.result, error: null, priceChanges: [...changes] };
+    }
+    case "failed": return action.version === state.version ? { ...state, validation: null, error: action.message } : state;
+    case "storage-warning": return { ...state, storageWarning: action.message };
+  }
 }
 
 interface CartContextType {
-  cart: CartItem[];
+  consumeOrder: (lines: { key: string; productId: string; variantId: string; quantity: number }[], orderId: string) => void;
+  cart: CartLine[];
   isOpen: boolean;
+  initialized: boolean;
+  validation: CartValidation | null;
+  error: string | null;
+  storageWarning: string | null;
+  mutationWarning: string | null;
+  priceChanges: string[];
   openCart: () => void;
   closeCart: () => void;
   addToCart: (item: CartItem) => void;
-  removeFromCart: (id: string, selectedOption: string) => void;
-  updateQuantity: (id: string, selectedOption: string, quantity: number) => void;
+  removeFromCart: (key: string) => void;
+  updateQuantity: (key: string, quantity: number) => void;
   clearCart: () => void;
+  retry: () => void;
   totalItems: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const LOCAL_STORAGE_KEY = 'eternal_memory_cart';
-
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [state, dispatch] = useReducer(reducer, initialState);
+
+  // Read the current value rather than an event's potentially superseded newValue.
+  const synchronize = useCallback(() => {
+    const saved = readSavedCart();
+    if (saved.snapshot === undefined) {
+      if (saved.warning) dispatch({ type: "storage-warning", message: saved.warning });
+      return;
+    }
+    dispatch({ type: "synchronize", ...saved });
+  }, []);
 
   // Cargar carrito guardado desde localStorage
   useEffect(() => {
     let active = true;
-    try {
-      const savedCart = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (savedCart) {
-        const parsedCart = JSON.parse(savedCart) as CartItem[];
-        queueMicrotask(() => {
-          if (active) setCart(parsedCart);
-        });
+    const saved = readSavedCart();
+    queueMicrotask(() => {
+      if (active) {
+        dispatch({ type: "initialize", ...saved });
       }
-    } catch (e) {
-      console.error('Error cargando el carrito desde localStorage', e);
-    } finally {
-      queueMicrotask(() => {
-        if (active) setIsInitialized(true);
-      });
-    }
+    });
     return () => { active = false; };
   }, []);
 
-  // Guardar en localStorage cuando el carrito cambie
+  // Never echo external snapshots or overwrite a more recent shared selection.
   useEffect(() => {
-    if (isInitialized) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cart));
-    }
-  }, [cart, isInitialized]);
-
-  const openCart = () => setIsOpen(true);
-  const closeCart = () => setIsOpen(false);
-
-  const addToCart = (newItem: CartItem) => {
-    setCart((prevCart) => {
-      const existingIndex = prevCart.findIndex(
-        (item) => item.id === newItem.id && item.selectedOption === newItem.selectedOption
-      );
-
-      if (existingIndex > -1) {
-        const updatedCart = [...prevCart];
-        updatedCart[existingIndex].quantity += newItem.quantity;
-        return updatedCart;
-      }
-
-      return [...prevCart, newItem];
-    });
-    openCart();
-  };
-
-  const removeFromCart = (id: string, selectedOption: string) => {
-    setCart((prevCart) =>
-      prevCart.filter((item) => !(item.id === id && item.selectedOption === selectedOption))
-    );
-  };
-
-  const updateQuantity = (id: string, selectedOption: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(id, selectedOption);
+    if (!state.initialized || !state.persist) return;
+    const current = readSavedCart();
+    if (current.snapshot === undefined) {
+      if (current.warning) dispatch({ type: "storage-warning", message: current.warning });
       return;
     }
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.id === id && item.selectedOption === selectedOption
-          ? { ...item, quantity }
-          : item
-      )
-    );
-  };
+    if (current.snapshot !== state.snapshot) {
+      dispatch({ type: "synchronize", ...current });
+      return;
+    }
+    try {
+      const saved = JSON.stringify(state.cart);
+      if (saved !== current.snapshot) {
+        localStorage.setItem(CART_STORAGE_KEY, saved);
+      }
+      dispatch({ type: "persisted", version: state.version, snapshot: saved });
+    }
+    catch { dispatch({ type: "storage-warning", message: "No se pudo guardar la selección en este navegador. Puede perderse al recargar." }); }
+  }, [state.cart, state.initialized, state.persist, state.snapshot, state.version]);
 
-  const clearCart = () => setCart([]);
+  useEffect(() => {
+    if (!state.initialized || state.cart.length === 0) return;
+    let active = true;
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15_000);
+    const version = state.version;
+    const lines = state.cart.map((item) => ({
+      key: item.key, productId: item.productId, variantId: item.variantId,
+      productSlug: item.productSlug, legacyId: item.id, selectedOption: item.selectedOption, quantity: item.quantity,
+    }));
+    void (async () => {
+      try {
+        const response = await fetch("/api/carrito/validar", { method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store", signal: controller.signal, body: JSON.stringify({ lines }) });
+        const result = await response.json();
+        if (!response.ok) throw new Error(typeof result.error === "string" ? result.error : "No se pudo validar el carrito.");
+        if (!Array.isArray(result.lines) || result.lines.length !== lines.length || !Number.isFinite(result.totalPen)) throw new Error("La respuesta del carrito no es válida.");
+        if (active) {
+          synchronize();
+          dispatch({ type: "validated", version, result });
+        }
+      } catch (error) {
+        if (active) dispatch({ type: "failed", version, message: error instanceof Error && error.name !== "AbortError" ? error.message : "No se pudo validar el carrito. Reintenta en un momento." });
+      } finally { clearTimeout(timer); }
+    })();
+    return () => { active = false; controller.abort(); clearTimeout(timer); };
+    // A validated response updates display metadata without changing the selection version.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.version, state.initialized, synchronize]);
 
-  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+  useEffect(() => {
+    const onFocus = () => { synchronize(); dispatch({ type: "refresh" }); };
+    const onVisible = () => { if (document.visibilityState === "visible") onFocus(); };
+    const onStorage = (event: StorageEvent) => {
+      if (event.storageArea === window.localStorage && (event.key === CART_STORAGE_KEY || event.key === null)) synchronize();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("focus", onFocus);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("focus", onFocus);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, [synchronize]);
 
-  return (
-    <CartContext.Provider
-      value={{
-        cart,
-        isOpen,
-        openCart,
-        closeCart,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        clearCart,
-        totalItems,
-      }}
-    >
-      {children}
-    </CartContext.Provider>
-  );
+  const changeCart = useCallback((action: Action) => { synchronize(); dispatch(action); }, [synchronize]);
+  const openCart = useCallback(() => changeCart({ type: "open" }), [changeCart]);
+  const closeCart = useCallback(() => dispatch({ type: "close" }), []);
+  const addToCart = useCallback((item: CartItem) => changeCart({ type: "add", item: { ...item, key: crypto.randomUUID() } }), [changeCart]);
+  const removeFromCart = useCallback((key: string) => changeCart({ type: "remove", key }), [changeCart]);
+  const updateQuantity = useCallback((key: string, quantity: number) => changeCart({ type: "quantity", key, quantity }), [changeCart]);
+  const clearCart = useCallback(() => changeCart({ type: "clear" }), [changeCart]);
+  const consumeOrder = useCallback((lines: { key: string; productId: string; variantId: string; quantity: number }[], orderId: string) => changeCart({ type: "consume-order", lines, orderId }), [changeCart]);
+  const retry = useCallback(() => changeCart({ type: "refresh" }), [changeCart]);
+  const totalItems = state.cart.reduce((total, item) => total + (Number.isSafeInteger(item.quantity) && item.quantity > 0 ? item.quantity : 0), 0);
+
+  return <CartContext.Provider value={{ ...state, openCart, closeCart, addToCart, removeFromCart, updateQuantity, clearCart, consumeOrder, retry, totalItems }}>{children}</CartContext.Provider>;
 }
 
 export function useCart() {
   const context = useContext(CartContext);
-  if (!context) {
-    throw new Error('useCart debe ser usado dentro de un CartProvider');
-  }
+  if (!context) throw new Error("useCart debe ser usado dentro de un CartProvider");
   return context;
 }
