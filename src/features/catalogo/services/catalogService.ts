@@ -199,6 +199,17 @@ export async function listHomeCatalogProducts(categorySlug: string, limit: numbe
   });
 }
 
+// Slugs for the sitemap: the same published products of active categories as
+// the catalog, without loading variants or images.
+export async function listCatalogSitemapProducts(): Promise<{ slug: string; updatedAt: string | null }[]> {
+  return readCatalog(async (client) => {
+    const { data, error } = await client.from("products").select("slug,updated_at,categories!inner(id)")
+      .eq("status", "published").eq("categories.is_active", true).order("name").order("id");
+    if (error || !data) throw new CatalogUnavailableError();
+    return data.map((row) => ({ slug: row.slug, updatedAt: row.updated_at ?? null }));
+  });
+}
+
 // Reuses the same public visibility rules as the catalog and product pages.
 export async function getCatalogProductsByIds(ids: string[]): Promise<CatalogProduct[]> {
   if (ids.length === 0) return [];
