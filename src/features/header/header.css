@@ -54,3 +54,7 @@
   .site-header button:focus-visible,
   .site-header a:focus-visible { outline: 2px solid #e1af9e; outline-offset: 3px; }
 }
+
+/* Enlaces informativos (TSK-20): solo en escritorio; en móvil están en el pie de página. */
+.site-header .header-info-link { display: none; }
+@media (min-width: 901px) { .site-header .header-info-link { display: inline; } }

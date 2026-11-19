@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { FooterLegal } from "./FooterLegal";
 import { footerContact } from "./footerContent";
 import { FooterIcon } from "@/features/footer/FooterIcon";
 import "@/features/footer/footer.css";
@@ -49,17 +48,24 @@ export function SiteFooter() {
           <h2 id="footer-support-title">Estamos para orientarte</h2>
           <p>Un espacio para resolver tus dudas y conocer las opciones a tu ritmo.</p>
           <ul className="footer-contact-list">
-            <li><FooterIcon name="mail" /><div><span>Correo electrónico</span><p><a href={`mailto:${footerContact.email}`}>{footerContact.email}</a></p></div></li>
             <li><FooterIcon name="message" /><div><span>WhatsApp</span><p><a href={footerContact.whatsappUrl} target="_blank" rel="noopener noreferrer" aria-label={`Escribir por WhatsApp al ${footerContact.phone}, abre una pestaña nueva`}>{footerContact.phone}</a></p></div></li>
             <li><FooterIcon name="clock" /><div><span>Horario de atención</span><p>{footerContact.schedule}</p></div></li>
             <li><FooterIcon name="location" /><div><span>Encuéntranos</span><p>{footerContact.location}</p></div></li>
           </ul>
+          <nav className="footer-info-links" aria-label="Información de la tienda">
+            <Link href="/nosotros">Nosotros</Link>
+            <Link href="/contacto">Contacto</Link>
+            <Link href="/envios">Envíos</Link>
+          </nav>
         </section>
       </div>
 
       <div className="footer-bottom">
         <p>© {new Date().getFullYear()} Eternal Memory. Todos los derechos reservados.</p>
-        <FooterLegal />
+        <nav className="footer-legal" aria-label="Información legal">
+          <Link href="/privacidad">Privacidad</Link>
+          <Link href="/terminos">Términos y condiciones</Link>
+        </nav>
         <p className="footer-currency">Perú <span aria-hidden="true">·</span> PEN · S/</p>
       </div>
     </footer>

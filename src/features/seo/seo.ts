@@ -35,6 +35,9 @@ export function metaDescription(text: string, fallback: string): string {
   return `${(lastSpace > 80 ? cut.slice(0, lastSpace) : cut).replace(/[\s,.;:]+$/, "")}…`;
 }
 
+// Páginas comerciales con contenido propio (TSK-20).
+export const STATIC_PAGES = ["/nosotros", "/contacto", "/envios", "/privacidad", "/terminos"] as const;
+
 export function productPath(slug: string): string {
   return `/catalogo/${slug}`;
 }
@@ -88,6 +91,7 @@ export function sitemapEntries(
     { url: `${siteUrl}/`, changeFrequency: "weekly", priority: 1 },
     { url: `${siteUrl}/catalogo`, changeFrequency: "daily", priority: 0.9 },
     ...categories.map((category) => ({ url: `${siteUrl}${categoryPath(category.slug)}`, changeFrequency: "weekly" as const, priority: 0.8 })),
+    ...STATIC_PAGES.map((path) => ({ url: `${siteUrl}${path}`, changeFrequency: "monthly" as const, priority: 0.5 })),
     ...products.map((product) => ({
       url: `${siteUrl}${productPath(product.slug)}`,
       ...(product.updatedAt ? { lastModified: product.updatedAt } : {}),

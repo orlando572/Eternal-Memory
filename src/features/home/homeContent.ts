@@ -182,7 +182,7 @@ export const homeFaq = {
     {
       id: "contacto",
       question: "¿Cómo puedo comunicarme con ustedes?",
-      answer: `Escríbenos a ${footerContact.email} o por WhatsApp al ${footerContact.phone}. Nuestro horario de atención es de ${attentionHours}.`,
+      answer: `Escríbenos por WhatsApp al ${footerContact.phone} o desde la página de contacto. Nuestro horario de atención es de ${attentionHours}.`,
     },
   ],
 };
@@ -192,7 +192,7 @@ export const homeContact = {
   title: "¿Prefieres conversar antes de elegir?",
   text: "Te ayudamos a resolver dudas sobre productos, opciones de grabado o la entrega, a tu ritmo.",
   whatsappLabel: "Escribir por WhatsApp",
-  emailLabel: "Enviar un correo",
+  contactPageLabel: "Ir a contacto",
   scheduleLabel: "Horario de atención",
   contact: footerContact,
 };

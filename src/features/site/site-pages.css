@@ -1,0 +1,40 @@
+/* Páginas comerciales (TSK-20), con la identidad «Patio de luz» */
+.info-page { background: #f7f0eb; color: var(--ink); }
+.info-page .shop-heading .info-kicker { max-width: none; margin: 0 0 4px; color: var(--clay); font: 600 12px/1.6 "Eternal Sans", sans-serif; letter-spacing: .13em; text-transform: uppercase; }
+.info-content { max-width: 960px; width: 92%; margin-inline: auto; padding: 36px 0 76px; display: grid; gap: 22px; }
+.info-sections { display: grid; gap: 18px; }
+.info-section { padding: 26px 28px; background: #fffdfb; border: 1px solid #ded1c9; border-radius: 6px; }
+.info-section h2 { margin: 0 0 12px; font: 400 26px/1.2 "Eternal Serif", serif; color: var(--ink); }
+.info-section h3 { margin: 0 0 4px; font: 400 19px/1.3 "Eternal Serif", serif; color: var(--ink); }
+.info-section p { margin: 0 0 10px; max-width: 760px; color: var(--muted); font: 15px/1.8 "Eternal Sans", sans-serif; }
+.info-section p:last-child { margin-bottom: 0; }
+.info-section a, .info-links a { color: var(--clay); text-underline-offset: 4px; }
+.info-links { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0; font: 15px "Eternal Sans", sans-serif; }
+
+.contact-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 22px; align-items: start; }
+.contact-channels { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.contact-channels li { display: flex; align-items: flex-start; gap: 14px; }
+.contact-channels svg { flex: none; margin-top: 3px; color: var(--clay); }
+.contact-channels span { display: block; color: var(--ink); font: 600 13px/1.5 "Eternal Sans", sans-serif; }
+.contact-channels a, .contact-channels p { font: 15px/1.6 "Eternal Sans", sans-serif; }
+.contact-form { display: grid; gap: 18px; }
+.contact-form label { display: block; margin-bottom: 8px; color: var(--ink); font: 14px/1.5 "Eternal Sans", sans-serif; }
+.contact-form input, .contact-form textarea { font: 15px/1.5 "Eternal Sans", sans-serif; }
+.contact-form button { justify-self: start; }
+.contact-hint, .contact-status { margin: 0; color: var(--muted); font: 13px/1.7 "Eternal Sans", sans-serif; }
+.contact-status { padding: 12px 14px; background: #f7efeb; border-radius: 4px; }
+.contact-status a { color: var(--clay); text-underline-offset: 4px; }
+.contact-error { margin: 8px 0 0; color: #8b3529; font: 13px/1.6 "Eternal Sans", sans-serif; }
+
+.shipping-rates, .shipping-uncovered { margin: 0 0 14px; padding: 0; list-style: none; display: grid; gap: 12px; }
+.shipping-rates li { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 14px 0; border-bottom: 1px solid #eadfd8; }
+.shipping-rates li p { margin: 0; font-size: 14px; }
+.shipping-price { color: var(--ink) !important; font: 400 24px/1 "Eternal Serif", serif !important; white-space: nowrap; }
+.shipping-uncovered { list-style: disc; padding-left: 22px; display: block; color: var(--muted); font: 15px/1.8 "Eternal Sans", sans-serif; }
+
+@media (max-width: 760px) {
+  .info-content { width: calc(100% - 40px); padding-top: 26px; }
+  .info-section { padding: 20px 16px; }
+  .contact-layout { grid-template-columns: minmax(0, 1fr); }
+  .shipping-rates li { flex-wrap: wrap; }
+}
