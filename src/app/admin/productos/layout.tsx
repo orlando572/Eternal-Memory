@@ -9,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function AdminProductsLayout({ children }: { children: React.ReactNode }) {
-  return <AdminShell><AdminAccessGate>{children}</AdminAccessGate></AdminShell>;
+  return <AdminShell active="products"><AdminAccessGate>{children}</AdminAccessGate></AdminShell>;
 }

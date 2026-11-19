@@ -1,6 +1,7 @@
 import type { AccountRole } from "@/features/auth/types/access";
 
 const navigationOrigin = "https://eternal-memory.local";
+const adminSections = ["/admin/productos", "/admin/pedidos"];
 
 export function getAdminReturnPath(value: unknown): string | undefined {
   if (typeof value !== "string" || !value.startsWith("/")) return undefined;
@@ -9,7 +10,7 @@ export function getAdminReturnPath(value: unknown): string | undefined {
     const destination = new URL(value, navigationOrigin);
     if (
       destination.origin === navigationOrigin &&
-      (destination.pathname === "/admin/productos" || destination.pathname.startsWith("/admin/productos/"))
+      adminSections.some((section) => destination.pathname === section || destination.pathname.startsWith(`${section}/`))
     ) {
       return `${destination.pathname}${destination.search}${destination.hash}`;
     }
